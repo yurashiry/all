@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WRB — YURIY SHIRYAEV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0e5ec 0%, #f0f4fa 100%);
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .card-container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .card {
+            background: #0b1420;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 30px 50px -15px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-design {
+            width: 100%;
+            display: block;
+            border-bottom: 3px solid #ffd966;
+        }
+
+        .card-info {
+            padding: 1.8rem;
+            background: linear-gradient(125deg, #0b1420 0%, #101b2b 100%);
+            color: #f5f7fe;
+        }
+
+        .card-logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .id-section {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1rem;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1.2rem;
+            border-left: 3px solid #ffd966;
+        }
+
+        .id-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        .card-id {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 1.5px;
+            color: #ffecb3;
+        }
+
+        .real-details {
+            background: rgba(255,255,255,0.08);
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+
+        .real-number {
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: #00000050;
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+        .exp-cvv {
+            display: flex;
+            gap: 1rem;
+            margin: 8px 0;
+            font-size: 0.85rem;
+        }
+
+        .holder {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            border-top: 1px dashed #ffffff40;
+            padding-top: 8px;
+        }
+
+        .btn-reveal {
+            background: #ffd96622;
+            border: 1px solid #ffd966aa;
+            color: #ffecb3;
+            font-size: 0.7rem;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            cursor: pointer;
+            margin-top: 12px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-reveal:hover {
+            background: #ffd966aa;
+            color: #0b1420;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #1e2f3a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: #2c3e44;
+        }
+
+        .sonne {
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+<div class="card-container">
+    <div class="card">
+        <img class="card-design" src="https://yurashiry.github.com/all/yuriy.jpg" alt="card design YURIY" onerror="this.style.display='none'">
+        <div class="card-info">
+            <div class="card-logo">◈ HAORÏK / WRB ◈</div>
+
+            <div class="id-section">
+                <div class="id-label">ID КАРТЫ</div>
+                <div class="card-id">9132 1345 16</div>
+            </div>
+
+            <div class="real-details" id="realDetails">
+                <div class="real-number" style="filter: blur(5px);">•••• •••• •••• ••••</div>
+                <div class="exp-cvv" style="filter: blur(4px);">••/•• •••</div>
+                <div class="holder" style="filter: blur(3px);">•••••• ••••••••</div>
+                <button class="btn-reveal" id="revealBtn">Показать данные карты</button>
+            </div>
+        </div>
+    </div>
+    <a href="index.html" class="back-link">← На главную</a>
+    <div class="footer">
+        <div class="sonne">sonne™</div>
+        <div>WRB является банком, выпускающим карты и проводящим операции в России и Алтайске.</div>
+    </div>
+</div>
+
+<script>
+    const realData = {
+        pan: "2204 3211 4355 5753",
+        expiry: "03/36",
+        cvv: "069",
+        holder: "YURIY SHIRYAEV"
+    };
+
+    const revealBtn = document.getElementById('revealBtn');
+    const detailsDiv = document.getElementById('realDetails');
+
+    revealBtn.addEventListener('click', () => {
+        if (detailsDiv.getAttribute('data-revealed') === 'true') return;
+        detailsDiv.innerHTML = `
+            <div class="real-number">${realData.pan}</div>
+            <div class="exp-cvv">${realData.expiry}  ${realData.cvv}</div>
+            <div class="holder">${realData.holder}</div>
+            <button class="btn-reveal" disabled style="opacity:0.5; cursor:default;">Данные открыты</button>
+        `;
+        detailsDiv.setAttribute('data-revealed', 'true');
+    });
+</script>
+</body>
+</html>
