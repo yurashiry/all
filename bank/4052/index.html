@@ -12,7 +12,7 @@
         }
 
         body {
-            background: linear-gradient(145deg, #e0e5ec 0%, #f0f4fa 100%);
+            background: linear-gradient(145deg, #0a0f16 0%, #141c26 100%);
             font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
             min-height: 100vh;
             display: flex;
@@ -27,39 +27,44 @@
         }
 
         .card {
-            background: #0b1420;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a3e 100%);
             border-radius: 2rem;
             overflow: hidden;
-            box-shadow: 0 30px 50px -15px rgba(0,0,0,0.5);
+            box-shadow: 0 30px 50px -15px rgba(0,0,0,0.7);
             transition: transform 0.2s;
+            border: 1px solid rgba(255,215,0,0.3);
         }
 
         .card:hover {
             transform: translateY(-5px);
         }
 
-        .card-design {
-            width: 100%;
-            display: block;
-            border-bottom: 3px solid #ffd966;
+        .shimmer-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(120deg, #ffd966, #ffb347, #ff6b6b, #ffd966);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: shimmer 3s ease infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .card-info {
             padding: 1.8rem;
-            background: linear-gradient(125deg, #0b1420 0%, #101b2b 100%);
             color: #f5f7fe;
         }
 
-        .card-logo {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 1.5rem;
-            opacity: 0.9;
-        }
-
         .id-section {
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             border-radius: 1rem;
             padding: 0.6rem 1rem;
             margin-bottom: 1.2rem;
@@ -132,20 +137,11 @@
             color: #0b1420;
         }
 
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 1.5rem;
-            color: #1e2f3a;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
         .footer {
             text-align: center;
             margin-top: 2rem;
             font-size: 0.7rem;
-            color: #2c3e44;
+            color: #a0aab5;
         }
 
         .sonne {
@@ -156,9 +152,8 @@
 <body>
 <div class="card-container">
     <div class="card">
-        <img class="card-design" src="https://yurashiry.github.com/all/diana.jpg" alt="card design DIANA" onerror="this.style.display='none'">
         <div class="card-info">
-            <div class="card-logo">◈ HAORÏK / WRB ◈</div>
+            <div class="shimmer-text">◈ HAORÏK / WRB ◈</div>
 
             <div class="id-section">
                 <div class="id-label">ID КАРТЫ</div>
@@ -173,7 +168,6 @@
             </div>
         </div>
     </div>
-    <a href="index.html" class="back-link">← На главную</a>
     <div class="footer">
         <div class="sonne">sonne™</div>
         <div>WRB является банком, выпускающим карты и проводящим операции в России и Алтайске.</div>
