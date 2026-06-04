@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WR eVision Vote — голосуй за лучшую страну</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #cfe3ff 0%, #a0c4ff 100%);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            position: relative;
+        }
+
+        /* Декоративный blur-фон как на eurovision.com */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.4) 0%, rgba(100,150,255,0.15) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* полупрозрачный стеклянный хедер */
+        .hero {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 2rem 2rem 1.8rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .event-badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.25);
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #0f2b5e, #2563eb, #38bdf8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .sub {
+            font-size: 1.1rem;
+            color: #1e3a8a;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* полупрозрачная панель статистики */
+        .stats-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 0.7rem 1.8rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .total-votes {
+            font-weight: 600;
+            background: rgba(30, 64, 175, 0.65);
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .total-votes span {
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-left: 8px;
+            color: #fbbf24;
+        }
+
+        .reset-btn, .refresh-btn {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            color: #1e3a8a;
+        }
+
+        .reset-btn:hover, .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: #3b82f6;
+            transform: scale(0.98);
+        }
+
+        .reset-btn {
+            color: #991b1b;
+            background: rgba(254, 226, 226, 0.5);
+        }
+
+        /* сетка карточек — полупрозрачные, голубые оттенки */
+        .countries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .country-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .country-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.55);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .card-header {
+            padding: 1.2rem 1.2rem 0.5rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .flag {
+            font-size: 2.5rem;
+            filter: drop-shadow(2px 2px 6px rgba(0,0,0,0.1));
+        }
+
+        .country-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f2b5e;
+            letter-spacing: -0.2px;
+        }
+
+        .vote-section {
+            padding: 1rem 1.2rem 1.3rem;
+        }
+
+        .vote-count {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .votes-number {
+            font-weight: 800;
+            font-size: 2rem;
+            color: #0c2b5e;
+            line-height: 1;
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 12px;
+            margin: 14px 0 12px;
+        }
+
+        .vote-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.65rem 0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #1e40af;
+        }
+
+        .vote-btn.up {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .vote-btn.up:hover {
+            background: rgba(59, 130, 246, 0.4);
+            transform: scale(0.97);
+        }
+
+        .vote-btn.down {
+            background: rgba(226, 232, 240, 0.5);
+        }
+
+        .vote-btn.down:hover:not(:disabled) {
+            background: rgba(203, 213, 225, 0.7);
+            transform: scale(0.97);
+        }
+
+        .vote-btn:active {
+            transform: scale(0.95);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .percentage-bar {
+            margin-top: 0.8rem;
+            background: rgba(203, 213, 225, 0.6);
+            border-radius: 40px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .percentage-fill {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            width: 0%;
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.3s ease;
+        }
+
+        .percent-text {
+            font-size: 0.7rem;
+            text-align: right;
+            margin-top: 6px;
+            color: #1e3a8a;
+            font-weight: 500;
+        }
+
+        .leader-tag {
+            background: rgba(251, 191, 36, 0.9);
+            backdrop-filter: blur(4px);
+            color: #78350f;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 50px;
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+            border: 1px solid rgba(255,215,0,0.5);
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #1e3a8a;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 0.7rem;
+            color: #1e3a8a;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            padding: 0.8rem;
+            border-radius: 40px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 2.3rem;
+            }
+            .stats-panel {
+                flex-direction: column;
+                border-radius: 32px;
+                padding: 1rem;
+            }
+            .hero {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <div class="event-badge">🎵 LIVE 2026 · WR eVision</div>
+        <h1>WR eVision Vote</h1>
+        <div class="sub">Прозрачное голосование. Твой голос создаёт музыку.</div>
+    </div>
+
+    <div class="stats-panel">
+        <div class="total-votes">🗳️ ВСЕГО ГОЛОСОВ <span id="totalVotesSpan">0</span></div>
+        <div style="display: flex; gap: 0.6rem;">
+            <button class="refresh-btn" id="refreshBtn">🔄 Обновить</button>
+            <button class="reset-btn" id="resetAllBtn">⟳ Сбросить всё</button>
+        </div>
+    </div>
+
+    <div id="countriesGrid" class="countries-grid">
+        <div class="loading" style="text-align:center; padding:2rem; color:#1e3a8a;">Загрузка данных...</div>
+    </div>
+    <div class="status" id="statusMsg">✨ Голоса синхронизируются через Яндекс Облако</div>
+    <footer>✨ WR eVision 2026 — Честное голосование. Поддержи своих фаворитов!</footer>
+</div>
+
+<script>
+    // ========== ВСТАВЬТЕ ВАШУ ССЫЛКУ НА ЯНДЕКС ОБЛАКО ==========
+    const API_URL = 'https://functions.yandexcloud.net/ВАШ_ИД_ФУНКЦИИ'; // ЗАМЕНИТЕ!
+    
+    // Страны-участницы (Великобритания вместо "СК")
+    const COUNTRIES = [
+        "Франция", "Великобритания", "Румыния", "Молдова",
+        "Германия", "Россия", "Украина", "Болгария",
+        "Беларусь", "Сербия"
+    ];
+    
+    const FLAGS = {
+        "Франция": "🇫🇷", "Великобритания": "🇬🇧", "Румыния": "🇷🇴",
+        "Молдова": "🇲🇩", "Германия": "🇩🇪", "Россия": "🇷🇺",
+        "Украина": "🇺🇦", "Болгария": "🇧🇬", "Беларусь": "🇧🇾", "Сербия": "🇷🇸"
+    };
+
+    let currentVotes = {};
+
+    async function fetchVotes() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            currentVotes = data;
+            showStatus('✅ Данные обновлены');
+            render();
+        } catch (error) {
+            showStatus('❌ Ошибка загрузки. Проверьте API', true);
+            console.error('Fetch error:', error);
+        }
+    }
+
+    async function sendVote(country, delta) {
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'vote',
+                    country: country,
+                    delta: delta
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                currentVotes = data.votes;
+                render();
+                showStatus(`✅ Голос за ${country} принят!`);
+            } else {
+                showStatus('❌ Ошибка при голосовании', true);
+            }
+        } catch (error) {
+            showStatus('❌ Ошибка соединения', true);
+        }
+    }
+
+    async function resetAllVotes() {
+        if (!confirm('Сбросить все голоса? Это действие необратимо.')) return;
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reset' })
+            });
+            const data = await response.json();
+            if (data.success) {
+                currentVotes = data.votes;
+                render();
+                showStatus('🔄 Все голоса сброшены');
+            }
+        } catch (error) {
+            showStatus('❌ Ошибка сброса', true);
+        }
+    }
+
+    function getTotalVotes() {
+        return Object.values(currentVotes).reduce((sum, v) => sum + v, 0);
+    }
+
+    function getLeader() {
+        let max = -1;
+        let leader = null;
+        for (const [country, votes] of Object.entries(currentVotes)) {
+            if (votes > max) {
+                max = votes;
+                leader = country;
+            }
+        }
+        return max > 0 ? leader : null;
+    }
+
+    function showStatus(msg, isError = false) {
+        const statusDiv = document.getElementById('statusMsg');
+        statusDiv.textContent = msg;
+        statusDiv.style.opacity = '1';
+        setTimeout(() => {
+            if (document.getElementById('statusMsg').textContent === msg) {
+                statusDiv.textContent = '✨ Голоса синхронизируются через Яндекс Облако';
+            }
+        }, 2000);
+    }
+
+    function render() {
+        const grid = document.getElementById('countriesGrid');
+        const totalSpan = document.getElementById('totalVotesSpan');
+        const total = getTotalVotes();
+        totalSpan.innerText = total;
+        
+        const leader = getLeader();
+        
+        if (!currentVotes || Object.keys(currentVotes).length === 0) {
+            grid.innerHTML = '<div style="text-align:center; padding:2rem; color:#1e3a8a;">Загрузка...</div>';
+            return;
+        }
+        
+        grid.innerHTML = '';
+        
+        for (const country of COUNTRIES) {
+            const votes = currentVotes[country] || 0;
+            const percent = total === 0 ? 0 : (votes / total) * 100;
+            const isLeader = leader === country && votes > 0;
+            
+            const card = document.createElement('div');
+            card.className = 'country-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="flag">${FLAGS[country] || '🏳️'}</div>
+                    <div class="country-name">${country} ${isLeader ? '<span class="leader-tag">🏆 ЛИДЕР</span>' : ''}</div>
+                </div>
+                <div class="vote-section">
+                    <div class="vote-count">
+                        <span>ГОЛОСОВ</span>
+                        <span class="votes-number">${votes}</span>
+                    </div>
+                    <div class="vote-buttons">
+                        <button class="vote-btn up" data-country="${country}">➕ +1</button>
+                        <button class="vote-btn down" data-country="${country}" ${votes === 0 ? 'disabled' : ''}>➖ –1</button>
+                    </div>
+                    <div class="percentage-bar">
+                        <div class="percentage-fill" style="width: ${percent}%;"></div>
+                    </div>
+                    <div class="percent-text">${percent.toFixed(1)}%</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        }
+        
+        // Обработчики
+        document.querySelectorAll('.vote-btn.up').forEach(btn => {
+            btn.addEventListener('click', () => sendVote(btn.dataset.country, 1));
+        });
+        document.querySelectorAll('.vote-btn.down').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (currentVotes[btn.dataset.country] > 0) {
+                    sendVote(btn.dataset.country, -1);
+                }
+            });
+        });
+    }
+    
+    // Инициализация
+    fetchVotes();
+    document.getElementById('refreshBtn')?.addEventListener('click', fetchVotes);
+    document.getElementById('resetAllBtn')?.addEventListener('click', resetAllVotes);
+    
+    // Автообновление каждые 3 секунды
+    setInterval(fetchVotes, 3000);
+</script>
+</body>
+  </html>
