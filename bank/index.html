@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WRB — Главная</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0e5ec 0%, #f0f4fa 100%);
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(12px);
+            border-radius: 3rem;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.4);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1a2a3a, #0a1118);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .badge-closed {
+            display: inline-block;
+            background: #b91c1c;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin: 1rem 0 1.5rem;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .message {
+            background: #1e2933;
+            color: #ffecb3;
+            padding: 1.2rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            border-left: 5px solid #ffb347;
+        }
+
+        .card-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.2rem;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .card-link {
+            background: #0f1722;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            font-weight: 600;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #2d3e4b;
+        }
+
+        .card-link:hover {
+            background: #2c3e44;
+            transform: scale(1.02);
+            border-color: #ffd966;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.15);
+            font-size: 0.8rem;
+            color: #1e2f3a;
+        }
+
+        .sonne {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 550px) {
+            .container { padding: 1.8rem; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>WRB</h1>
+    <div class="badge-closed">ЗАКАЗ КАРТ ЗАКРЫТ</div>
+
+    <div class="message">
+        🔒 Эмиссия персональных карт HAORÏK / WRB завершена.<br>
+        Новые заявки не принимаются. Выпущенные карты обслуживаются в штатном режиме.
+    </div>
+
+    <div class="card-links">
+        <a href="card-yuriy.html" class="card-link">◈ YURIY SHIRYAEV</a>
+        <a href="card-diana.html" class="card-link">◈ DIANA SHIRYAEVA</a>
+        <a href="card-rinat.html" class="card-link">◈ RINAT MUCHUTDINOV</a>
+    </div>
+
+    <div class="footer">
+        <div class="sonne">sonne™</div>
+        <div>WRB является банком, выпускающим карты и проводящим операции в России и Алтайске.</div>
+    </div>
+</div>
+</body>
+</html>
