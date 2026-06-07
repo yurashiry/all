@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>WR Search — от компании sonne™</title>
     
-    <!-- Форсируем загрузку свежей версии Google Identity Services -->
+    <!-- Google Identity Services с обходом кэша -->
     <script>
         (function() {
             const script = document.createElement('script');
@@ -24,52 +24,63 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* CSS переменные для тем */
         body.light {
-            --bg-primary: #f0f2f5;
+            --bg-primary: #f5f7fb;
+            --bg-secondary: #ffffff;
             --text-primary: #1a1a2e;
-            --text-secondary: #5f6368;
-            --accent: #4285f4;
-            --accent-hover: #3367d6;
-            --border: #dadce0;
+            --text-secondary: #5a6a7e;
+            --accent: #4361ee;
+            --accent-hover: #3730a3;
+            --accent-glow: rgba(67, 97, 238, 0.15);
+            --border: #e2e8f0;
             --card-bg: #ffffff;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.1);
             --input-bg: #ffffff;
         }
 
         body.dark {
-            --bg-primary: #121212;
-            --text-primary: #e8eaed;
-            --text-secondary: #9aa0a6;
-            --accent: #8ab4f8;
-            --accent-hover: #aecbfa;
-            --border: #3c4043;
-            --card-bg: #1e1e2e;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            --input-bg: #2d2d3d;
+            --bg-primary: #0f0f13;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #f1f1f1;
+            --text-secondary: #94a3b8;
+            --accent: #818cf8;
+            --accent-hover: #6366f1;
+            --accent-glow: rgba(129, 140, 248, 0.15);
+            --border: #2d2d3a;
+            --card-bg: #1a1a2e;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+            --input-bg: #252536;
         }
 
         body.colorful {
-            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --bg-primary: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 50%, #1a0b2e 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.08);
             --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.85);
-            --accent: #ffd93d;
-            --accent-hover: #ffe57f;
-            --border: rgba(255, 255, 255, 0.25);
-            --card-bg: rgba(255, 255, 255, 0.12);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            --input-bg: rgba(255, 255, 255, 0.2);
+            --text-secondary: #c4b5fd;
+            --accent: #f472b6;
+            --accent-hover: #ec4899;
+            --accent-glow: rgba(244, 114, 182, 0.2);
+            --border: rgba(255, 255, 255, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.3);
+            --input-bg: rgba(255, 255, 255, 0.1);
         }
 
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
             min-height: 100vh;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Анимации */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(25px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -84,21 +95,31 @@
             100% { background-position: 0% 50%; }
         }
 
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+            50% { box-shadow: 0 0 0 8px var(--accent-glow); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .container {
-            max-width: 700px;
+            max-width: 680px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 16px 20px;
             min-height: 100vh;
         }
 
+        /* Логотип */
         .logo-section {
             text-align: center;
             padding: 50px 0 25px;
-            animation: fadeInUp 0.6s ease;
+            animation: fadeInUp 0.5s ease;
         }
 
         .logo {
-            font-size: 64px;
+            font-size: 58px;
             font-weight: 800;
             background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc04, #34a853);
             background-size: 300% 300%;
@@ -106,26 +127,31 @@
             background-clip: text;
             color: transparent;
             animation: gradientShift 6s ease infinite;
+            letter-spacing: -1.5px;
         }
 
         .tagline {
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.7;
-            margin-top: 8px;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
         }
 
+        /* Дата и время */
         .datetime {
             text-align: center;
-            font-size: 14px;
-            opacity: 0.65;
-            margin-bottom: 25px;
+            font-size: 13px;
+            opacity: 0.6;
+            margin-bottom: 28px;
             letter-spacing: 0.3px;
+            font-weight: 450;
         }
 
+        /* Поиск */
         .search-container {
             margin: 0 auto 20px;
-            max-width: 580px;
-            animation: fadeInUp 0.6s ease 0.1s both;
+            max-width: 560px;
+            animation: fadeInUp 0.5s ease 0.08s both;
         }
 
         .search-wrapper {
@@ -133,15 +159,16 @@
             align-items: center;
             background: var(--input-bg);
             border: 2px solid var(--border);
-            border-radius: 60px;
+            border-radius: 56px;
             padding: 4px 4px 4px 20px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: var(--shadow);
         }
 
         .search-wrapper:focus-within {
             transform: translateY(-2px);
             border-color: var(--accent);
+            box-shadow: 0 8px 25px var(--accent-glow);
         }
 
         #searchInput {
@@ -152,6 +179,7 @@
             background: transparent;
             color: var(--text-primary);
             outline: none;
+            font-weight: 450;
         }
 
         #searchInput::placeholder {
@@ -166,7 +194,7 @@
             border: none;
             cursor: pointer;
             font-size: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -180,9 +208,14 @@
             background: var(--accent-hover);
         }
 
+        #searchBtn:active {
+            transform: scale(0.97);
+        }
+
+        /* Яндекс ссылка */
         .yandex-link {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 28px;
         }
 
         .yandex-link a {
@@ -195,17 +228,34 @@
             padding: 6px 14px;
             border-radius: 40px;
             background: var(--card-bg);
+            transition: all 0.2s;
+        }
+
+        .yandex-link a:hover {
+            color: var(--accent);
+            transform: translateX(3px);
+        }
+
+        /* Результаты */
+        #results {
+            margin-top: 20px;
         }
 
         .result-card {
             background: var(--card-bg);
             padding: 18px 22px;
             margin-bottom: 14px;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.4s ease;
+            transition: all 0.25s ease;
+            animation: fadeInUp 0.35s ease;
             border: 1px solid var(--border);
+            backdrop-filter: blur(4px);
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
         }
 
         .result-title {
@@ -218,34 +268,48 @@
             gap: 8px;
         }
 
+        .result-title a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
         .custom-badge {
             background: linear-gradient(135deg, #34a853, #1e8e3e);
             color: white;
             padding: 3px 10px;
             border-radius: 20px;
             font-size: 10px;
+            font-weight: 500;
         }
 
         .result-snippet {
             font-size: 14px;
             line-height: 1.45;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             opacity: 0.85;
         }
 
+        .result-meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* Верхняя панель */
         .user-bar {
             position: fixed;
-            top: 16px;
-            right: 16px;
+            top: 14px;
+            right: 14px;
             display: flex;
             gap: 10px;
             align-items: center;
             background: var(--card-bg);
-            padding: 6px 14px;
+            padding: 5px 14px 5px 12px;
             border-radius: 40px;
             box-shadow: var(--shadow);
             z-index: 100;
             border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
         }
 
         .user-info-display {
@@ -269,10 +333,17 @@
             overflow: hidden;
         }
 
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Панель тем */
         .theme-bar {
             position: fixed;
             bottom: 20px;
-            right: 16px;
+            right: 14px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -288,24 +359,31 @@
             box-shadow: var(--shadow);
             font-size: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             border: 1px solid var(--border);
+            backdrop-filter: blur(4px);
         }
 
+        .theme-btn:hover {
+            transform: scale(1.08);
+        }
+
+        /* Панель профиля */
         .profile-panel {
             position: fixed;
             top: 0;
             right: -100%;
-            width: 85%;
+            width: 88%;
             max-width: 380px;
             height: 100%;
             background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(28px);
+            transition: right 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             z-index: 1001;
             padding: 24px;
             overflow-y: auto;
             border-left: 1px solid var(--border);
+            box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15);
         }
 
         .profile-panel.open {
@@ -318,12 +396,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(5px);
             display: none;
             z-index: 1000;
+            animation: fadeIn 0.25s ease;
         }
 
+        /* Админ панель */
         .admin-section {
             margin-top: 24px;
             padding-top: 20px;
@@ -334,11 +414,17 @@
             width: 100%;
             padding: 12px 14px;
             margin: 8px 0;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid var(--border);
             background: var(--input-bg);
             color: var(--text-primary);
             font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
         }
 
         button {
@@ -349,7 +435,8 @@
             border-radius: 40px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .close-panel-btn {
@@ -368,9 +455,9 @@
         }
 
         code {
-            background: var(--bg-primary);
+            background: var(--bg-secondary);
             padding: 4px 8px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 11px;
             word-break: break-all;
         }
@@ -386,21 +473,21 @@
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
             margin: 0 auto 14px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
+        /* Мобильные настройки */
         @media (max-width: 600px) {
-            .logo { font-size: 44px; }
+            .logo { font-size: 46px; }
             .logo-section { padding: 40px 0 20px; }
             .search-wrapper { padding: 3px 3px 3px 16px; }
             #searchInput { padding: 12px 6px; font-size: 15px; }
             #searchBtn { width: 44px; height: 44px; font-size: 18px; }
             .result-card { padding: 14px 18px; }
+            .user-bar { top: 10px; right: 10px; padding: 4px 12px 4px 10px; }
+            .theme-bar { bottom: 16px; right: 10px; }
+            .theme-btn { width: 40px; height: 40px; font-size: 18px; }
         }
     </style>
 </head>
@@ -409,21 +496,21 @@
     
     <div class="profile-panel" id="profilePanel">
         <button class="close-panel-btn" onclick="closeProfile()">✕</button>
-        <h2 style="margin-bottom: 20px;">👤 Профиль</h2>
+        <h2 style="margin-bottom: 20px; font-size: 22px;">👤 Профиль</h2>
         <div id="profileContent"></div>
     </div>
 
     <div class="user-bar">
-        <div id="userStatus" class="user-info-display" onclick="openProfile()">
+        <div id="userStatus" class="user-info-display">
             <div class="user-avatar" id="userAvatar">👤</div>
             <span id="userNameDisplay">Гость</span>
         </div>
     </div>
 
     <div class="theme-bar">
-        <button class="theme-btn" onclick="setTheme('light')">☀️</button>
-        <button class="theme-btn" onclick="setTheme('dark')">🌙</button>
-        <button class="theme-btn" onclick="setTheme('colorful')">🌈</button>
+        <button class="theme-btn" onclick="setTheme('light')" aria-label="Светлая тема">☀️</button>
+        <button class="theme-btn" onclick="setTheme('dark')" aria-label="Тёмная тема">🌙</button>
+        <button class="theme-btn" onclick="setTheme('colorful')" aria-label="Цветная тема">🌈</button>
     </div>
 
     <div class="container">
@@ -436,7 +523,7 @@
         
         <div class="search-container">
             <div class="search-wrapper">
-                <input type="text" id="searchInput" placeholder="Введите запрос..." autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Найти..." autocomplete="off" spellcheck="false">
                 <button id="searchBtn">🔍</button>
             </div>
         </div>
@@ -464,7 +551,6 @@
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
-            const timeString = `${hours}:${minutes}`;
             
             const days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
             const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -474,9 +560,7 @@
             const month = months[now.getMonth()];
             const year = now.getFullYear();
             
-            const dateString = `${day} ${month} ${year}, ${dayName}`;
-            
-            document.getElementById('datetimeDisplay').innerHTML = `${dateString} | ${timeString}`;
+            document.getElementById('datetimeDisplay').innerHTML = `${day} ${month} ${year}, ${dayName} | ${hours}:${minutes}`;
         }
         
         setInterval(updateDateTime, 1000);
@@ -507,20 +591,22 @@
             toast.textContent = message;
             toast.style.cssText = `
                 position: fixed;
-                bottom: 100px;
+                bottom: 90px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: ${isError ? '#ea4335' : '#34a853'};
+                background: ${isError ? '#ea4335' : '#1e8e3e'};
                 color: white;
                 padding: 10px 20px;
                 border-radius: 40px;
                 z-index: 2000;
-                animation: fadeInUp 0.3s ease;
+                animation: fadeInUp 0.25s ease;
                 font-size: 14px;
+                font-weight: 500;
                 white-space: nowrap;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             `;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+            setTimeout(() => toast.remove(), 2400);
         }
 
         // ========== GOOGLE LOGIN ==========
@@ -529,14 +615,15 @@
             if (!googleBtn) return;
             
             if (typeof google === 'undefined' || !google.accounts) {
-                setTimeout(initGoogleLogin, 500);
+                setTimeout(initGoogleLogin, 300);
                 return;
             }
             
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
                 callback: handleGoogleCredential,
-                auto_select: false
+                auto_select: false,
+                cancel_on_tap_outside: true
             });
             
             google.accounts.id.renderButton(
@@ -545,26 +632,32 @@
                     theme: 'outline', 
                     size: 'medium',
                     text: 'signin_with',
-                    shape: 'pill'
+                    shape: 'pill',
+                    logo_alignment: 'left'
                 }
             );
         }
 
         function parseJwt(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            return JSON.parse(atob(base64));
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                return JSON.parse(atob(base64));
+            } catch(e) {
+                return null;
+            }
         }
 
         async function handleGoogleCredential(response) {
             try {
                 const payload = parseJwt(response.credential);
+                if (!payload) throw new Error('Invalid token');
                 
                 const user = {
                     id: payload.sub,
-                    name: payload.name,
-                    email: payload.email,
-                    picture: payload.picture,
+                    name: payload.name || 'User',
+                    email: payload.email || '',
+                    picture: payload.picture || '',
                     role: 'user',
                     verified: false,
                     bio: ''
@@ -576,6 +669,7 @@
                     body: JSON.stringify(user)
                 });
                 
+                if (!syncRes.ok) throw new Error('Sync failed');
                 const savedUser = await syncRes.json();
                 currentUser = savedUser;
                 
@@ -585,15 +679,16 @@
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ role: 'admin' })
-                    });
+                    }).catch(e => console.warn);
                 }
                 
                 localStorage.setItem('wr_current_user', JSON.stringify(currentUser));
                 updateUserUI();
                 closeProfile();
-                showToast('✅ Добро пожаловать, ' + currentUser.name);
+                showToast(`✨ Добро пожаловать, ${currentUser.name.split(' ')[0] || 'друг'}!`);
             } catch(e) {
-                showToast('❌ Ошибка входа', true);
+                console.error('Login error:', e);
+                showToast('❌ Ошибка входа, попробуйте позже', true);
             }
         }
 
@@ -607,14 +702,14 @@
             yandexLink.href = `https://yandex.ru/search/?text=${encodeURIComponent(query)}`;
             yandexLink.target = '_blank';
             
-            resultsDiv.innerHTML = `<div class="loading"><div class="loading-spinner"></div><div>Поиск...</div></div>`;
+            resultsDiv.innerHTML = `<div class="loading"><div class="loading-spinner"></div><div>Поиск... 🔍</div></div>`;
             
             try {
                 const userId = currentUser ? currentUser.id : 'anonymous';
                 const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}&user=${userId}`);
                 const data = await response.json();
                 
-                if (data.results && data.results.length > 0) {
+                if (data.results?.length > 0) {
                     resultsDiv.innerHTML = data.results.map(r => `
                         <div class="result-card">
                             <div class="result-title">
@@ -622,14 +717,14 @@
                                 ${r.isCustom ? '<span class="custom-badge">WR Search</span>' : ''}
                             </div>
                             <div class="result-snippet">${r.snippet}</div>
-                            ${r.link !== '#' ? `<div class="result-meta"><a href="${r.link}" target="_blank" style="color: var(--accent); font-size: 12px;">${r.link}</a></div>` : ''}
+                            ${r.link !== '#' ? `<div class="result-meta"><a href="${r.link}" target="_blank" style="color: var(--accent);">🔗 ${new URL(r.link).hostname}</a></div>` : ''}
                         </div>
                     `).join('');
                 } else {
                     resultsDiv.innerHTML = `
                         <div class="result-card">
                             <div class="result-title">🔍 Ничего не найдено</div>
-                            <div class="result-snippet">По запросу «${query}» нет информации в базе WR Search.</div>
+                            <div class="result-snippet">По запросу «${escapeHtml(query)}» нет информации в базе WR Search.</div>
                         </div>
                     `;
                 }
@@ -641,13 +736,23 @@
                     localStorage.setItem(`wr_history_${currentUser.id}`, JSON.stringify(history));
                 }
             } catch (error) {
+                console.error('Search error:', error);
                 resultsDiv.innerHTML = `
                     <div class="result-card">
-                        <div class="result-title">❌ Ошибка поиска</div>
-                        <div class="result-snippet">Не удалось подключиться к серверу. Попробуйте позже.</div>
+                        <div class="result-title">⚠️ Ошибка сети</div>
+                        <div class="result-snippet">Не удалось подключиться к серверу. Проверьте интернет и попробуйте снова.</div>
                     </div>
                 `;
             }
+        }
+        
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
 
         // ========== ПРОФИЛЬ ==========
@@ -658,11 +763,11 @@
             if (currentUser) {
                 const initial = currentUser.name?.charAt(0).toUpperCase() || 'U';
                 if (currentUser.picture) {
-                    avatarDiv.innerHTML = `<img src="${currentUser.picture}" style="width:100%;height:100%;object-fit:cover;">`;
+                    avatarDiv.innerHTML = `<img src="${currentUser.picture}" alt="avatar">`;
                 } else {
                     avatarDiv.innerHTML = initial;
                 }
-                nameSpan.innerText = currentUser.name;
+                nameSpan.innerText = currentUser.name.split(' ')[0] || currentUser.name;
             } else {
                 avatarDiv.innerHTML = '👤';
                 nameSpan.innerText = 'Гость';
@@ -674,11 +779,11 @@
             
             if (!currentUser) {
                 document.getElementById('profileContent').innerHTML = `
-                    <div style="text-align: center; padding: 30px 0;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">👤</div>
-                        <h3>Вы не авторизованы</h3>
-                        <p style="margin: 16px 0; opacity: 0.7;">Войдите через Google, чтобы получить доступ к профилю</p>
-                        <div id="guestGoogleBtn" style="margin: 20px 0; display: flex; justify-content: center;"></div>
+                    <div style="text-align: center; padding: 20px 0 30px;">
+                        <div style="font-size: 56px; margin-bottom: 16px;">👋</div>
+                        <h3 style="margin-bottom: 8px;">Вы не авторизованы</h3>
+                        <p style="margin-bottom: 20px; opacity: 0.7; font-size: 14px;">Войдите через Google, чтобы сохранять историю и управлять профилем</p>
+                        <div id="guestGoogleBtn" style="margin: 10px 0; display: flex; justify-content: center;"></div>
                     </div>
                 `;
                 panel.classList.add('open');
@@ -687,15 +792,10 @@
                 if (typeof google !== 'undefined' && google.accounts) {
                     google.accounts.id.renderButton(
                         document.getElementById('guestGoogleBtn'),
-                        { 
-                            theme: 'outline', 
-                            size: 'medium',
-                            text: 'signin_with',
-                            shape: 'pill'
-                        }
+                        { theme: 'outline', size: 'medium', text: 'signin_with', shape: 'pill' }
                     );
                 } else {
-                    document.getElementById('guestGoogleBtn').innerHTML = '<button onclick="initGoogleLogin()">🔑 Войти через Google</button>';
+                    document.getElementById('guestGoogleBtn').innerHTML = '<button onclick="initGoogleLogin()" style="background: var(--accent);">🔑 Войти через Google</button>';
                 }
                 return;
             }
@@ -707,57 +807,60 @@
                 else user = currentUser;
             } catch(e) { user = currentUser; }
             
+            const history = JSON.parse(localStorage.getItem(`wr_history_${currentUser.id}`) || '[]');
+            const historyHtml = history.slice(0, 8).map(h => `
+                <div style="padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                    <span>🔍 ${escapeHtml(h.query.length > 40 ? h.query.slice(0,40)+'…' : h.query)}</span>
+                    <span style="font-size: 10px; opacity: 0.6;">${new Date(h.time).toLocaleDateString()}</span>
+                </div>
+            `).join('') || '<em style="opacity:0.6;">Нет истории поиска</em>';
+            
             document.getElementById('profileContent').innerHTML = `
-                <div style="margin: 20px 0">
+                <div>
                     <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
                         <div class="user-avatar" style="width: 64px; height: 64px; font-size: 28px;">
                             ${user.picture ? `<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;">` : (user.name?.charAt(0) || 'U')}
                         </div>
                         <div>
                             <h3 style="margin: 0;">${user.name}</h3>
-                            <div style="margin-top: 5px;">${user.verified ? '<span class="verified-badge">✅ Верифицирован</span>' : '⭐ Не верифицирован'}</div>
+                            <div style="margin-top: 4px;">${user.verified ? '<span class="verified-badge">✅ Верифицирован</span>' : '⭐ Не верифицирован'}</div>
                             ${user.role === 'admin' ? '<div><span class="verified-badge">👑 Администратор</span></div>' : ''}
                         </div>
                     </div>
                     
-                    <div><strong>🆔 Уникальный ID:</strong><br>
-                        <code style="font-size: 11px;">${user.id}</code>
-                        <button onclick="copyUserId()" style="margin-top: 8px; padding: 6px 12px;">📋 Копировать</button>
+                    <div><strong>🆔 ID:</strong><br>
+                        <code>${user.id}</code>
+                        <button onclick="copyUserId()" style="margin-top: 8px; padding: 5px 14px; font-size: 12px;">📋 Копировать</button>
                     </div>
                     
                     <hr>
                     
-                    <div><strong>📧 Email:</strong> ${user.email || 'Не указан'}</div>
+                    <div><strong>📧 Email:</strong> ${user.email || '—'}</div>
                     
-                    <div style="margin: 15px 0">
-                        <label>📝 Описание профиля:</label>
-                        <textarea id="bioInput" rows="3">${user.bio || ''}</textarea>
+                    <div style="margin: 16px 0">
+                        <label>📝 Описание:</label>
+                        <textarea id="bioInput" rows="2" placeholder="Расскажите о себе...">${user.bio || ''}</textarea>
                         <button onclick="updateBio()">💾 Сохранить</button>
                     </div>
                     
                     <hr>
                     
-                    <div><strong>📜 История поиска:</strong></div>
-                    <div id="searchHistory" style="font-size: 13px; max-height: 200px; overflow-y: auto; margin-top: 8px;"></div>
+                    <div><strong>📜 Недавние запросы:</strong></div>
+                    <div style="max-height: 200px; overflow-y: auto; margin-top: 8px;">${historyHtml}</div>
                 </div>
                 ${user.role === 'admin' ? `
                     <div class="admin-section">
-                        <h3>🔧 Админ-панель</h3>
-                        <input type="text" id="newQueryKey" placeholder="Ключевое слово">
+                        <h3 style="margin-bottom: 12px;">🔧 Админ-панель</h3>
+                        <input type="text" id="newQueryKey" placeholder="Ключевое слово (например: sonne)">
                         <input type="text" id="newQueryTitle" placeholder="Заголовок ответа">
                         <textarea id="newQueryAnswer" rows="2" placeholder="Текст ответа..."></textarea>
                         <button onclick="addCustomAnswer()">➕ Добавить ответ</button>
-                        <button onclick="loadAllUsers()" style="background: #34a853; margin-left: 8px;">👥 Пользователи</button>
-                        <div id="adminCustomList" style="margin-top: 12px;"></div>
+                        <button onclick="loadAllUsers()" style="background: #2b6e3c; margin-left: 8px;">👥 Пользователи</button>
+                        <div id="adminCustomList" style="margin-top: 14px;"></div>
                     </div>
                 ` : ''}
-                <button onclick="logout()" style="background:#ea4335; margin-top: 20px; width: 100%;">🚪 Выйти</button>
+                <button onclick="logout()" style="background:#c5221f; margin-top: 20px; width: 100%;">🚪 Выйти</button>
             `;
-            
-            const history = JSON.parse(localStorage.getItem(`wr_history_${currentUser.id}`) || '[]');
-            document.getElementById('searchHistory').innerHTML = history.slice(0, 10).map(h => `
-                <div style="padding: 6px 0; border-bottom: 1px solid var(--border);">🔍 ${h.query} <span style="font-size: 10px;">${new Date(h.time).toLocaleDateString()}</span></div>
-            `).join('') || '<em>Нет истории</em>';
             
             if (user.role === 'admin') {
                 loadAllUsers();
@@ -775,7 +878,7 @@
         function copyUserId() {
             if (currentUser) {
                 navigator.clipboard.writeText(currentUser.id);
-                showToast('✅ ID скопирован!');
+                showToast('📋 ID скопирован!');
             }
         }
         
@@ -787,37 +890,37 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ bio })
                 });
-                showToast('✅ Описание сохранено!');
+                showToast('✅ Описание сохранено');
             } catch(e) {
-                showToast('❌ Ошибка', true);
+                showToast('❌ Ошибка сохранения', true);
             }
         }
         
         // ========== АДМИН ФУНКЦИИ ==========
         async function addCustomAnswer() {
-            const key = document.getElementById('newQueryKey').value.toLowerCase().trim();
+            const key = document.getElementById('newQueryKey').value.trim().toLowerCase();
             const title = document.getElementById('newQueryTitle').value.trim();
             const answer = document.getElementById('newQueryAnswer').value.trim();
             
             if (!key || !answer) {
-                showToast('Заполните поля!', true);
+                showToast('Заполните ключевое слово и ответ', true);
                 return;
             }
             
             try {
-                const response = await fetch(`${API_URL}/admin/custom`, {
+                const res = await fetch(`${API_URL}/admin/custom`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         query: key,
-                        title: title || `📌 Информация по запросу "${key}"`,
+                        title: title || `📌 ${key}`,
                         answer: answer,
                         userId: currentUser.id
                     })
                 });
                 
-                if (response.ok) {
-                    showToast(`✅ Добавлен ответ для "${key}"`);
+                if (res.ok) {
+                    showToast(`✅ Ответ для «${key}» добавлен`);
                     document.getElementById('newQueryKey').value = '';
                     document.getElementById('newQueryTitle').value = '';
                     document.getElementById('newQueryAnswer').value = '';
@@ -825,41 +928,42 @@
                 } else {
                     showToast('❌ Нет прав администратора', true);
                 }
-            } catch (error) {
-                showToast('❌ Ошибка подключения', true);
+            } catch(e) {
+                showToast('❌ Ошибка соединения', true);
             }
         }
         
         async function loadAllUsers() {
             const container = document.getElementById('adminCustomList');
             if (!container) return;
-            
-            container.innerHTML = '<div>Загрузка пользователей...</div>';
+            container.innerHTML = '<div style="opacity:0.7;">Загрузка 👥...</div>';
             
             try {
-                const response = await fetch(`${API_URL}/admin/users?userId=${currentUser.id}`);
-                const data = await response.json();
+                const res = await fetch(`${API_URL}/admin/users?userId=${currentUser.id}`);
+                const data = await res.json();
                 
                 if (data.users) {
                     container.innerHTML = `
-                        <strong>👥 Всего пользователей: ${data.users.length}</strong>
-                        <div style="max-height: 300px; overflow-y: auto; margin-top: 8px;">
+                        <div style="margin: 8px 0 4px;"><strong>📋 Всего пользователей: ${data.users.length}</strong></div>
+                        <div style="max-height: 280px; overflow-y: auto;">
                             ${data.users.map(u => `
-                                <div style="padding: 10px; border-bottom: 1px solid var(--border);">
-                                    <div><strong>${u.name || 'Без имени'}</strong> (${u.email || 'нет email'})</div>
-                                    <div style="font-size: 10px;">ID: ${u.id.substring(0, 30)}...</div>
+                                <div style="padding: 8px; border-bottom: 1px solid var(--border); margin: 6px 0;">
+                                    <div><strong>${u.name || 'Без имени'}</strong> <span style="font-size:11px;">${u.email?.substring(0,25) || ''}</span></div>
+                                    <div style="font-size: 10px;">ID: ${u.id.substring(0, 28)}…</div>
                                     <div>${u.verified ? '✅ Верифицирован' : '⭐ Не верифицирован'}</div>
-                                    <div style="display: flex; gap: 8px; margin-top: 8px;">
-                                        <button onclick="verifyUser('${u.id}', true)" style="background:#34a853;">✅ Верифицировать</button>
-                                        <button onclick="verifyUser('${u.id}', false)" style="background:#ea4335;">❌ Снять</button>
+                                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                                        <button onclick="verifyUser('${u.id}', true)" style="background:#2b6e3c; padding: 4px 12px;">✅ Верифицировать</button>
+                                        <button onclick="verifyUser('${u.id}', false)" style="background:#a51b1b; padding: 4px 12px;">❌ Снять</button>
                                     </div>
                                 </div>
                             `).join('')}
                         </div>
                     `;
+                } else {
+                    container.innerHTML = '<div>⚠️ Не удалось загрузить</div>';
                 }
             } catch(e) {
-                container.innerHTML = '<div>Ошибка загрузки пользователей</div>';
+                container.innerHTML = '<div>❌ Ошибка загрузки</div>';
             }
         }
         
@@ -868,13 +972,9 @@
                 await fetch(`${API_URL}/admin/verify`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        targetUserId: userId,
-                        verified: verified,
-                        adminId: currentUser.id
-                    })
+                    body: JSON.stringify({ targetUserId: userId, verified, adminId: currentUser.id })
                 });
-                showToast('✅ Статус обновлён!');
+                showToast(`✅ Пользователь ${verified ? 'верифицирован' : 'деверифицирован'}`);
                 loadAllUsers();
             } catch(e) {
                 showToast('❌ Ошибка', true);
@@ -900,30 +1000,40 @@
             }
         }
         
+        // Принудительная фиксация клика по гостевой панели
+        function bindGuestClick() {
+            const guestDiv = document.getElementById('userStatus');
+            if (guestDiv && !guestDiv.hasListener) {
+                guestDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openProfile();
+                });
+                guestDiv.hasListener = true;
+            }
+        }
+        
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         document.addEventListener('DOMContentLoaded', () => {
-            // Принудительная перезагрузка для сброса кэша
-            if (localStorage.getItem('wr_version') !== 'v3') {
-                localStorage.setItem('wr_version', 'v3');
-                window.location.reload(true);
-                return;
-            }
-            
             loadTheme();
             loadUsersFromStorage();
             checkAuth();
             initGoogleLogin();
+            bindGuestClick();
             
-            document.getElementById('searchBtn').addEventListener('click', search);
-            document.getElementById('searchInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') search();
-            });
-            document.getElementById('overlay').addEventListener('click', closeProfile);
+            const searchBtn = document.getElementById('searchBtn');
+            const searchInput = document.getElementById('searchInput');
+            if (searchBtn) searchBtn.addEventListener('click', search);
+            if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') search(); });
             
-            document.getElementById('searchInput').addEventListener('input', () => {
-                const query = document.getElementById('searchInput').value;
-                if (query) {
-                    document.getElementById('yandexSearchLink').href = `https://yandex.ru/search/?text=${encodeURIComponent(query)}`;
+            const overlay = document.getElementById('overlay');
+            if (overlay) overlay.addEventListener('click', closeProfile);
+            
+            searchInput?.addEventListener('input', () => {
+                const query = searchInput.value;
+                const yandexLink = document.getElementById('yandexSearchLink');
+                if (query && yandexLink) {
+                    yandexLink.href = `https://yandex.ru/search/?text=${encodeURIComponent(query)}`;
                 }
             });
         });
