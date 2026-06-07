@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WR Search — от компании sonne™</title>
+    
+    <!-- Форсируем загрузку свежей версии Google Identity Services -->
+    <script>
+        (function() {
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client?v=' + Date.now();
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        })();
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body.light {
+            --bg-primary: #f0f2f5;
+            --text-primary: #1a1a2e;
+            --text-secondary: #5f6368;
+            --accent: #4285f4;
+            --accent-hover: #3367d6;
+            --border: #dadce0;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --input-bg: #ffffff;
+        }
+
+        body.dark {
+            --bg-primary: #121212;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --accent: #8ab4f8;
+            --accent-hover: #aecbfa;
+            --border: #3c4043;
+            --card-bg: #1e1e2e;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --input-bg: #2d2d3d;
+        }
+
+        body.colorful {
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.85);
+            --accent: #ffd93d;
+            --accent-hover: #ffe57f;
+            --border: rgba(255, 255, 255, 0.25);
+            --card-bg: rgba(255, 255, 255, 0.12);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            --input-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .logo-section {
+            text-align: center;
+            padding: 50px 0 25px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .logo {
+            font-size: 64px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc04, #34a853);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        .tagline {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+
+        .datetime {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.65;
+            margin-bottom: 25px;
+            letter-spacing: 0.3px;
+        }
+
+        .search-container {
+            margin: 0 auto 20px;
+            max-width: 580px;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 2px solid var(--border);
+            border-radius: 60px;
+            padding: 4px 4px 4px 20px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .search-wrapper:focus-within {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        #searchInput {
+            flex: 1;
+            padding: 14px 8px;
+            font-size: 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        #searchInput::placeholder {
+            color: var(--text-secondary);
+        }
+
+        #searchBtn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+            margin: 4px;
+        }
+
+        #searchBtn:hover {
+            transform: scale(1.05);
+            background: var(--accent-hover);
+        }
+
+        .yandex-link {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .yandex-link a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 40px;
+            background: var(--card-bg);
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            padding: 18px 22px;
+            margin-bottom: 14px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.4s ease;
+            border: 1px solid var(--border);
+        }
+
+        .result-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .custom-badge {
+            background: linear-gradient(135deg, #34a853, #1e8e3e);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .result-snippet {
+            font-size: 14px;
+            line-height: 1.45;
+            margin-bottom: 10px;
+            opacity: 0.85;
+        }
+
+        .user-bar {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 6px 14px;
+            border-radius: 40px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            border: 1px solid var(--border);
+        }
+
+        .user-info-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4285f4, #ea4335);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .theme-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .theme-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .profile-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 380px;
+            height: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            padding: 24px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border);
+        }
+
+        .profile-panel.open {
+            right: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 1000;
+        }
+
+        .admin-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            margin: 8px 0;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .close-panel-btn {
+            float: right;
+            background: #ea4335;
+        }
+
+        hr {
+            border-color: var(--border);
+            margin: 18px 0;
+        }
+
+        .verified-badge {
+            color: #34a853;
+            font-weight: 600;
+        }
+
+        code {
+            background: var(--bg-primary);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            word-break: break-all;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 35px;
+        }
+
+        .loading-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 14px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .logo { font-size: 44px; }
+            .logo-section { padding: 40px 0 20px; }
+            .search-wrapper { padding: 3px 3px 3px 16px; }
+            #searchInput { padding: 12px 6px; font-size: 15px; }
+            #searchBtn { width: 44px; height: 44px; font-size: 18px; }
+            .result-card { padding: 14px 18px; }
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="profile-panel" id="profilePanel">
+        <button class="close-panel-btn" onclick="closeProfile()">✕</button>
+        <h2 style="margin-bottom: 20px;">👤 Профиль</h2>
+        <div id="profileContent"></div>
+    </div>
+
+    <div class="user-bar">
+        <div id="userStatus" class="user-info-display" onclick="openProfile()">
+            <div class="user-avatar" id="userAvatar">👤</div>
+            <span id="userNameDisplay">Гость</span>
+        </div>
+    </div>
+
+    <div class="theme-bar">
+        <button class="theme-btn" onclick="setTheme('light')">☀️</button>
+        <button class="theme-btn" onclick="setTheme('dark')">🌙</button>
+        <button class="theme-btn" onclick="setTheme('colorful')">🌈</button>
+    </div>
+
+    <div class="container">
+        <div class="logo-section">
+            <div class="logo">WR Search</div>
+            <div class="tagline">⚡ быстрый поиск от компании sonne™</div>
+        </div>
+        
+        <div class="datetime" id="datetimeDisplay"></div>
+        
+        <div class="search-container">
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="Введите запрос..." autocomplete="off">
+                <button id="searchBtn">🔍</button>
+            </div>
+        </div>
+        
+        <div class="yandex-link">
+            <a href="#" id="yandexSearchLink">🔎 Искать в Яндексе →</a>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <div id="googleBtn" style="display: none;"></div>
+
+    <script>
+        // ========== КОНФИГУРАЦИЯ ==========
+        const API_URL = 'https://functions.yandexcloud.net/d4ej7o6o8dp1ogo8pogq';
+        const GOOGLE_CLIENT_ID = '727787416139-3nlhl4di044oils2liot2sjo1mj5iumv.apps.googleusercontent.com';
+        const ADMIN_USER_ID = '108637281898787580618';
+
+        let currentUser = null;
+        let usersDB = {};
+
+        // ========== ДАТА И ВРЕМЯ ==========
+        function updateDateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const timeString = `${hours}:${minutes}`;
+            
+            const days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+            
+            const dayName = days[now.getDay()];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            
+            const dateString = `${day} ${month} ${year}, ${dayName}`;
+            
+            document.getElementById('datetimeDisplay').innerHTML = `${dateString} | ${timeString}`;
+        }
+        
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // ========== ХРАНИЛИЩЕ ==========
+        function loadUsersFromStorage() {
+            const saved = localStorage.getItem('wr_users_db');
+            if (saved) usersDB = JSON.parse(saved);
+        }
+
+        function saveUsersToStorage() {
+            localStorage.setItem('wr_users_db', JSON.stringify(usersDB));
+        }
+
+        function setTheme(theme) {
+            document.body.className = theme;
+            localStorage.setItem('wr_theme', theme);
+        }
+
+        function loadTheme() {
+            const saved = localStorage.getItem('wr_theme') || 'light';
+            setTheme(saved);
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${isError ? '#ea4335' : '#34a853'};
+                color: white;
+                padding: 10px 20px;
+                border-radius: 40px;
+                z-index: 2000;
+                animation: fadeInUp 0.3s ease;
+                font-size: 14px;
+                white-space: nowrap;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        // ========== GOOGLE LOGIN ==========
+        function initGoogleLogin() {
+            const googleBtn = document.getElementById('googleBtn');
+            if (!googleBtn) return;
+            
+            if (typeof google === 'undefined' || !google.accounts) {
+                setTimeout(initGoogleLogin, 500);
+                return;
+            }
+            
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleCredential,
+                auto_select: false
+            });
+            
+            google.accounts.id.renderButton(
+                googleBtn,
+                { 
+                    theme: 'outline', 
+                    size: 'medium',
+                    text: 'signin_with',
+                    shape: 'pill'
+                }
+            );
+        }
+
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(atob(base64));
+        }
+
+        async function handleGoogleCredential(response) {
+            try {
+                const payload = parseJwt(response.credential);
+                
+                const user = {
+                    id: payload.sub,
+                    name: payload.name,
+                    email: payload.email,
+                    picture: payload.picture,
+                    role: 'user',
+                    verified: false,
+                    bio: ''
+                };
+                
+                const syncRes = await fetch(`${API_URL}/user/sync`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(user)
+                });
+                
+                const savedUser = await syncRes.json();
+                currentUser = savedUser;
+                
+                if (currentUser.id === ADMIN_USER_ID) {
+                    currentUser.role = 'admin';
+                    await fetch(`${API_URL}/user/${currentUser.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ role: 'admin' })
+                    });
+                }
+                
+                localStorage.setItem('wr_current_user', JSON.stringify(currentUser));
+                updateUserUI();
+                closeProfile();
+                showToast('✅ Добро пожаловать, ' + currentUser.name);
+            } catch(e) {
+                showToast('❌ Ошибка входа', true);
+            }
+        }
+
+        // ========== ПОИСК ==========
+        async function search() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+            
+            const resultsDiv = document.getElementById('results');
+            const yandexLink = document.getElementById('yandexSearchLink');
+            yandexLink.href = `https://yandex.ru/search/?text=${encodeURIComponent(query)}`;
+            yandexLink.target = '_blank';
+            
+            resultsDiv.innerHTML = `<div class="loading"><div class="loading-spinner"></div><div>Поиск...</div></div>`;
+            
+            try {
+                const userId = currentUser ? currentUser.id : 'anonymous';
+                const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}&user=${userId}`);
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    resultsDiv.innerHTML = data.results.map(r => `
+                        <div class="result-card">
+                            <div class="result-title">
+                                ${r.title}
+                                ${r.isCustom ? '<span class="custom-badge">WR Search</span>' : ''}
+                            </div>
+                            <div class="result-snippet">${r.snippet}</div>
+                            ${r.link !== '#' ? `<div class="result-meta"><a href="${r.link}" target="_blank" style="color: var(--accent); font-size: 12px;">${r.link}</a></div>` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="result-card">
+                            <div class="result-title">🔍 Ничего не найдено</div>
+                            <div class="result-snippet">По запросу «${query}» нет информации в базе WR Search.</div>
+                        </div>
+                    `;
+                }
+                
+                if (currentUser) {
+                    const history = JSON.parse(localStorage.getItem(`wr_history_${currentUser.id}`) || '[]');
+                    history.unshift({ query, time: new Date().toISOString() });
+                    if (history.length > 20) history.pop();
+                    localStorage.setItem(`wr_history_${currentUser.id}`, JSON.stringify(history));
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="result-card">
+                        <div class="result-title">❌ Ошибка поиска</div>
+                        <div class="result-snippet">Не удалось подключиться к серверу. Попробуйте позже.</div>
+                    </div>
+                `;
+            }
+        }
+
+        // ========== ПРОФИЛЬ ==========
+        function updateUserUI() {
+            const avatarDiv = document.getElementById('userAvatar');
+            const nameSpan = document.getElementById('userNameDisplay');
+            
+            if (currentUser) {
+                const initial = currentUser.name?.charAt(0).toUpperCase() || 'U';
+                if (currentUser.picture) {
+                    avatarDiv.innerHTML = `<img src="${currentUser.picture}" style="width:100%;height:100%;object-fit:cover;">`;
+                } else {
+                    avatarDiv.innerHTML = initial;
+                }
+                nameSpan.innerText = currentUser.name;
+            } else {
+                avatarDiv.innerHTML = '👤';
+                nameSpan.innerText = 'Гость';
+            }
+        }
+
+        async function openProfile() {
+            const panel = document.getElementById('profilePanel');
+            
+            if (!currentUser) {
+                document.getElementById('profileContent').innerHTML = `
+                    <div style="text-align: center; padding: 30px 0;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">👤</div>
+                        <h3>Вы не авторизованы</h3>
+                        <p style="margin: 16px 0; opacity: 0.7;">Войдите через Google, чтобы получить доступ к профилю</p>
+                        <div id="guestGoogleBtn" style="margin: 20px 0; display: flex; justify-content: center;"></div>
+                    </div>
+                `;
+                panel.classList.add('open');
+                document.getElementById('overlay').style.display = 'block';
+                
+                if (typeof google !== 'undefined' && google.accounts) {
+                    google.accounts.id.renderButton(
+                        document.getElementById('guestGoogleBtn'),
+                        { 
+                            theme: 'outline', 
+                            size: 'medium',
+                            text: 'signin_with',
+                            shape: 'pill'
+                        }
+                    );
+                } else {
+                    document.getElementById('guestGoogleBtn').innerHTML = '<button onclick="initGoogleLogin()">🔑 Войти через Google</button>';
+                }
+                return;
+            }
+            
+            let user;
+            try {
+                const res = await fetch(`${API_URL}/user/${currentUser.id}`);
+                if (res.ok) user = await res.json();
+                else user = currentUser;
+            } catch(e) { user = currentUser; }
+            
+            document.getElementById('profileContent').innerHTML = `
+                <div style="margin: 20px 0">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <div class="user-avatar" style="width: 64px; height: 64px; font-size: 28px;">
+                            ${user.picture ? `<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;">` : (user.name?.charAt(0) || 'U')}
+                        </div>
+                        <div>
+                            <h3 style="margin: 0;">${user.name}</h3>
+                            <div style="margin-top: 5px;">${user.verified ? '<span class="verified-badge">✅ Верифицирован</span>' : '⭐ Не верифицирован'}</div>
+                            ${user.role === 'admin' ? '<div><span class="verified-badge">👑 Администратор</span></div>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div><strong>🆔 Уникальный ID:</strong><br>
+                        <code style="font-size: 11px;">${user.id}</code>
+                        <button onclick="copyUserId()" style="margin-top: 8px; padding: 6px 12px;">📋 Копировать</button>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div><strong>📧 Email:</strong> ${user.email || 'Не указан'}</div>
+                    
+                    <div style="margin: 15px 0">
+                        <label>📝 Описание профиля:</label>
+                        <textarea id="bioInput" rows="3">${user.bio || ''}</textarea>
+                        <button onclick="updateBio()">💾 Сохранить</button>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div><strong>📜 История поиска:</strong></div>
+                    <div id="searchHistory" style="font-size: 13px; max-height: 200px; overflow-y: auto; margin-top: 8px;"></div>
+                </div>
+                ${user.role === 'admin' ? `
+                    <div class="admin-section">
+                        <h3>🔧 Админ-панель</h3>
+                        <input type="text" id="newQueryKey" placeholder="Ключевое слово">
+                        <input type="text" id="newQueryTitle" placeholder="Заголовок ответа">
+                        <textarea id="newQueryAnswer" rows="2" placeholder="Текст ответа..."></textarea>
+                        <button onclick="addCustomAnswer()">➕ Добавить ответ</button>
+                        <button onclick="loadAllUsers()" style="background: #34a853; margin-left: 8px;">👥 Пользователи</button>
+                        <div id="adminCustomList" style="margin-top: 12px;"></div>
+                    </div>
+                ` : ''}
+                <button onclick="logout()" style="background:#ea4335; margin-top: 20px; width: 100%;">🚪 Выйти</button>
+            `;
+            
+            const history = JSON.parse(localStorage.getItem(`wr_history_${currentUser.id}`) || '[]');
+            document.getElementById('searchHistory').innerHTML = history.slice(0, 10).map(h => `
+                <div style="padding: 6px 0; border-bottom: 1px solid var(--border);">🔍 ${h.query} <span style="font-size: 10px;">${new Date(h.time).toLocaleDateString()}</span></div>
+            `).join('') || '<em>Нет истории</em>';
+            
+            if (user.role === 'admin') {
+                loadAllUsers();
+            }
+            
+            panel.classList.add('open');
+            document.getElementById('overlay').style.display = 'block';
+        }
+        
+        function closeProfile() {
+            document.getElementById('profilePanel').classList.remove('open');
+            document.getElementById('overlay').style.display = 'none';
+        }
+        
+        function copyUserId() {
+            if (currentUser) {
+                navigator.clipboard.writeText(currentUser.id);
+                showToast('✅ ID скопирован!');
+            }
+        }
+        
+        async function updateBio() {
+            const bio = document.getElementById('bioInput').value;
+            try {
+                await fetch(`${API_URL}/user/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bio })
+                });
+                showToast('✅ Описание сохранено!');
+            } catch(e) {
+                showToast('❌ Ошибка', true);
+            }
+        }
+        
+        // ========== АДМИН ФУНКЦИИ ==========
+        async function addCustomAnswer() {
+            const key = document.getElementById('newQueryKey').value.toLowerCase().trim();
+            const title = document.getElementById('newQueryTitle').value.trim();
+            const answer = document.getElementById('newQueryAnswer').value.trim();
+            
+            if (!key || !answer) {
+                showToast('Заполните поля!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/custom`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: key,
+                        title: title || `📌 Информация по запросу "${key}"`,
+                        answer: answer,
+                        userId: currentUser.id
+                    })
+                });
+                
+                if (response.ok) {
+                    showToast(`✅ Добавлен ответ для "${key}"`);
+                    document.getElementById('newQueryKey').value = '';
+                    document.getElementById('newQueryTitle').value = '';
+                    document.getElementById('newQueryAnswer').value = '';
+                    loadAllUsers();
+                } else {
+                    showToast('❌ Нет прав администратора', true);
+                }
+            } catch (error) {
+                showToast('❌ Ошибка подключения', true);
+            }
+        }
+        
+        async function loadAllUsers() {
+            const container = document.getElementById('adminCustomList');
+            if (!container) return;
+            
+            container.innerHTML = '<div>Загрузка пользователей...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/users?userId=${currentUser.id}`);
+                const data = await response.json();
+                
+                if (data.users) {
+                    container.innerHTML = `
+                        <strong>👥 Всего пользователей: ${data.users.length}</strong>
+                        <div style="max-height: 300px; overflow-y: auto; margin-top: 8px;">
+                            ${data.users.map(u => `
+                                <div style="padding: 10px; border-bottom: 1px solid var(--border);">
+                                    <div><strong>${u.name || 'Без имени'}</strong> (${u.email || 'нет email'})</div>
+                                    <div style="font-size: 10px;">ID: ${u.id.substring(0, 30)}...</div>
+                                    <div>${u.verified ? '✅ Верифицирован' : '⭐ Не верифицирован'}</div>
+                                    <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                        <button onclick="verifyUser('${u.id}', true)" style="background:#34a853;">✅ Верифицировать</button>
+                                        <button onclick="verifyUser('${u.id}', false)" style="background:#ea4335;">❌ Снять</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            } catch(e) {
+                container.innerHTML = '<div>Ошибка загрузки пользователей</div>';
+            }
+        }
+        
+        async function verifyUser(userId, verified) {
+            try {
+                await fetch(`${API_URL}/admin/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        targetUserId: userId,
+                        verified: verified,
+                        adminId: currentUser.id
+                    })
+                });
+                showToast('✅ Статус обновлён!');
+                loadAllUsers();
+            } catch(e) {
+                showToast('❌ Ошибка', true);
+            }
+        }
+        
+        function logout() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.disableAutoSelect();
+            }
+            localStorage.removeItem('wr_current_user');
+            currentUser = null;
+            updateUserUI();
+            closeProfile();
+            showToast('👋 Вы вышли');
+        }
+        
+        function checkAuth() {
+            const saved = localStorage.getItem('wr_current_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                updateUserUI();
+            }
+        }
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            // Принудительная перезагрузка для сброса кэша
+            if (localStorage.getItem('wr_version') !== 'v3') {
+                localStorage.setItem('wr_version', 'v3');
+                window.location.reload(true);
+                return;
+            }
+            
+            loadTheme();
+            loadUsersFromStorage();
+            checkAuth();
+            initGoogleLogin();
+            
+            document.getElementById('searchBtn').addEventListener('click', search);
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') search();
+            });
+            document.getElementById('overlay').addEventListener('click', closeProfile);
+            
+            document.getElementById('searchInput').addEventListener('input', () => {
+                const query = document.getElementById('searchInput').value;
+                if (query) {
+                    document.getElementById('yandexSearchLink').href = `https://yandex.ru/search/?text=${encodeURIComponent(query)}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
