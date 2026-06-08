@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WR OS v2 — iOS 26 Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background: #000;
+            color: white;
+        }
+
+        /* Основной контейнер ОС */
+        .os-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Экран рабочего стола */
+        .home-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Экран блокировки */
+        .lock-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 60px 20px 100px;
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .lock-screen.hidden {
+            transform: translateY(100%);
+            pointer-events: none;
+        }
+
+        .time-display {
+            text-align: center;
+            font-size: 84px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-top: 60px;
+        }
+
+        .date-display {
+            text-align: center;
+            font-size: 20px;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+
+        .face-id-prompt {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255,255,255,0.2);
+            padding: 16px;
+            border-radius: 34px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .face-id-prompt:active {
+            transform: scale(0.97);
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Dock */
+        .dock {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(40px);
+            border-radius: 36px;
+            padding: 8px 16px;
+            display: flex;
+            gap: 16px;
+            justify-content: space-around;
+            z-index: 100;
+        }
+
+        .dock-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        /* Сетка приложений */
+        .apps-grid {
+            position: absolute;
+            top: 100px;
+            left: 16px;
+            right: 16px;
+            bottom: 90px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 85px;
+            gap: 16px;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: none;
+        }
+
+        /* Режим редактирования (тряска) */
+        .editing .app-icon {
+            animation: shake 0.08s infinite linear;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(1deg); }
+            75% { transform: rotate(-1deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .app-icon-bg {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            transition: 0.1s;
+        }
+
+        .app-name {
+            font-size: 10px;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Шторка уведомлений */
+        .notification-center {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30,30,40,0.85);
+            backdrop-filter: blur(40px);
+            border-radius: 0 0 24px 24px;
+            z-index: 150;
+            transform: translateY(-100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            max-height: 70%;
+            overflow-y: auto;
+            padding: 60px 16px 20px;
+        }
+
+        .notification-center.open {
+            transform: translateY(0);
+        }
+
+        .notif-item {
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 12px;
+            padding: 14px;
+            border-radius: 16px;
+        }
+
+        /* Пункт управления */
+        .control-center {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 85%;
+            max-width: 380px;
+            background: rgba(20,20,30,0.92);
+            backdrop-filter: blur(50px);
+            height: 100%;
+            z-index: 160;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            padding: 80px 20px 20px;
+            border-radius: 20px 0 0 20px;
+        }
+
+        .control-center.open {
+            transform: translateX(0);
+        }
+
+        .cc-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .cc-button {
+            background: rgba(255,255,255,0.15);
+            padding: 16px;
+            border-radius: 18px;
+            text-align: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Модальные окна приложений */
+        .app-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0c0c0e;
+            z-index: 300;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            pointer-events: none;
+            border-radius: 32px;
+            overflow-y: auto;
+        }
+
+        .app-modal.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: all;
+            border-radius: 0;
+        }
+
+        .modal-header {
+            padding: 16px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Настройки */
+        .settings-list {
+            padding: 20px;
+        }
+        .setting-item {
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 12px;
+            padding: 16px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Магазин приложений */
+        .app-store-item {
+            background: #1c1c1e;
+            margin: 12px;
+            padding: 16px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .download-btn {
+            background: #007aff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Настройка при первом входе */
+        .setup-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            gap: 30px;
+        }
+
+        button {
+            background: #007aff;
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<div class="os-container" id="osContainer">
+    <!-- Экран блокировки -->
+    <div class="lock-screen" id="lockScreen">
+        <div></div>
+        <div>
+            <div class="time-display" id="lockTime">--:--</div>
+            <div class="date-display" id="lockDate"></div>
+        </div>
+        <div class="face-id-prompt" id="faceIdBtn">
+            🧑‍💻 Сканирование лица (нажмите)
+        </div>
+    </div>
+
+    <!-- Рабочий стол -->
+    <div class="home-screen" id="homeScreen" style="background-image: url('https://www.apple.com/v/ios/ios-18-2/a/images/overview/hero/hero_iphone_16_pro__e5m7q5e77n2q_large.jpg'); background-size: cover;">
+        <div class="apps-grid" id="appsGrid"></div>
+        <div class="dock" id="dock">
+            <div class="dock-icon" data-app="safari">🌐</div>
+            <div class="dock-icon" data-app="messages">💬</div>
+            <div class="dock-icon" data-app="settings">⚙️</div>
+        </div>
+    </div>
+
+    <!-- Шторка уведомлений -->
+    <div class="notification-center" id="notifCenter">
+        <h3 style="margin-bottom: 16px;">Уведомления</h3>
+        <div class="notif-item">📱 Добро пожаловать в WR OS v2</div>
+        <div class="notif-item">⚡️ Система обновлена до iOS 26</div>
+    </div>
+
+    <!-- Пункт управления -->
+    <div class="control-center" id="controlCenter">
+        <div class="cc-grid">
+            <div class="cc-button">✈️ Авиарежим</div>
+            <div class="cc-button">📶 Wi-Fi</div>
+            <div class="cc-button">🎵 Музыка</div>
+            <div class="cc-button">🔊 Звук</div>
+            <div class="cc-button">🌙 Не беспокоить</div>
+            <div class="cc-button">📸 Камера</div>
+        </div>
+        <div style="margin-top: 30px;">🔆 Яркость: <input type="range" id="brightnessSlider" style="width: 100%;"></div>
+    </div>
+</div>
+
+<script>
+    // ---------- БАЗА ПРИЛОЖЕНИЙ ----------
+    let apps = [
+        { id: "settings", name: "Настройки", icon: "⚙️", installed: true },
+        { id: "appstore", name: "Магазин", icon: "🛒", installed: true },
+        { id: "camera", name: "Камера", icon: "📷", installed: true },
+        { id: "notes", name: "Заметки", icon: "📝", installed: true },
+        { id: "calculator", name: "Калькулятор", icon: "🧮", installed: true },
+        { id: "weather", name: "Погода", icon: "☁️", installed: true },
+        { id: "maps", name: "Карты", icon: "🗺️", installed: true }
+    ];
+
+    let installedApps = apps.filter(a => a.installed);
+    let editingMode = false;
+
+    // DOM элементы
+    const lockScreen = document.getElementById('lockScreen');
+    const homeScreen = document.getElementById('homeScreen');
+    const appsGrid = document.getElementById('appsGrid');
+    const notifCenter = document.getElementById('notifCenter');
+    const controlCenter = document.getElementById('controlCenter');
+    let isUnlocked = false;
+
+    // Время
+    function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+        document.getElementById('lockTime').innerText = timeStr;
+        document.getElementById('lockDate').innerText = dateStr;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Разблокировка
+    document.getElementById('faceIdBtn').addEventListener('click', () => {
+        lockScreen.classList.add('hidden');
+        isUnlocked = true;
+        renderHomeScreen();
+    });
+
+    // Рендер рабочего стола
+    function renderHomeScreen() {
+        appsGrid.innerHTML = '';
+        installedApps.forEach((app, idx) => {
+            const div = document.createElement('div');
+            div.className = 'app-icon';
+            div.setAttribute('data-id', app.id);
+            div.innerHTML = `<div class="app-icon-bg">${app.icon}</div><div class="app-name">${app.name}</div>`;
+            div.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if(!editingMode) openApp(app.id);
+            });
+            // Долгое нажатие для редактирования
+            let pressTimer;
+            div.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => { editingMode = true; document.body.classList.add('editing'); }, 500); });
+            div.addEventListener('touchend', () => { clearTimeout(pressTimer); });
+            div.addEventListener('mousedown', (e) => { pressTimer = setTimeout(() => { editingMode = true; document.body.classList.add('editing'); }, 500); });
+            div.addEventListener('mouseup', () => { clearTimeout(pressTimer); });
+            appsGrid.appendChild(div);
+        });
+    }
+
+    // Открытие приложений
+    function openApp(appId) {
+        if(editingMode) return;
+        let modal = document.getElementById(`modal-${appId}`);
+        if(modal) {
+            modal.classList.add('open');
+            return;
+        }
+        // Создаем модальное окно приложения
+        modal = document.createElement('div');
+        modal.className = 'app-modal';
+        modal.id = `modal-${appId}`;
+        modal.innerHTML = `<div class="modal-header"><span>${appId.toUpperCase()}</span><div class="close-btn">✕</div></div><div id="content-${appId}" style="padding:20px;"></div>`;
+        document.body.appendChild(modal);
+        modal.querySelector('.close-btn').onclick = () => modal.classList.remove('open');
+        
+        const contentDiv = document.getElementById(`content-${appId}`);
+        // Контент приложений
+        if(appId === 'settings') {
+            contentDiv.innerHTML = `
+                <div class="settings-list">
+                    <div class="setting-item"><span>🌙 Тёмная тема</span><span>Вкл</span></div>
+                    <div class="setting-item"><span>🖼 Обои</span><button id="changeWall">Изменить</button></div>
+                    <div class="setting-item"><span>🔊 Звуки</span><span>Активны</span></div>
+                    <div class="setting-item"><span>🔄 Сброс</span><button id="resetBtn">Сбросить настройки</button></div>
+                    <div class="setting-item"><span>📱 Face ID</span><span>Настроено</span></div>
+                    <div class="setting-item"><span>⏺ Always-On Display</span><span>Вкл</span></div>
+                </div>
+            `;
+            document.getElementById('changeWall')?.addEventListener('click', () => {
+                homeScreen.style.backgroundImage = "url('https://images.pexels.com/photos/531880/pexels-photo-531880.jpeg')";
+            });
+            document.getElementById('resetBtn')?.addEventListener('click', () => { localStorage.clear(); location.reload(); });
+        }
+        else if(appId === 'appstore') {
+            contentDiv.innerHTML = `<h2>Магазин приложений WR</h2>
+                <div class="app-store-item">📸 Instagram Lite <span class="download-btn">Загрузить</span></div>
+                <div class="app-store-item">🎵 Spotify <span class="download-btn">Загрузить</span></div>
+                <div class="app-store-item">✍️ Notion <span class="download-btn">Загрузить</span></div>`;
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    btn.innerText = '✅ Установлено';
+                    setTimeout(() => {
+                        const newApp = { id: 'newapp'+Date.now(), name: 'Новое приложение', icon: '📦', installed: true };
+                        installedApps.push(newApp);
+                        renderHomeScreen();
+                    }, 1500);
+                });
+            });
+        }
+        else if(appId === 'camera') {
+            contentDiv.innerHTML = `<video id="video" autoplay style="width:100%; border-radius:20px;"></video><button id="snap">📸 Снять фото</button><canvas id="canvas" style="display:none;"></canvas>`;
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => { document.getElementById('video').srcObject = stream; });
+        }
+        else if(appId === 'notes') {
+            let savedNote = localStorage.getItem('note') || '';
+            contentDiv.innerHTML = `<textarea id="noteText" style="width:100%; height:200px; background:#1c1c1e; color:white; padding:12px;">${savedNote}</textarea><button id="saveNote">Сохранить</button>`;
+            document.getElementById('saveNote')?.addEventListener('click', () => { localStorage.setItem('note', document.getElementById('noteText').value); });
+        }
+        else if(appId === 'calculator') {
+            contentDiv.innerHTML = `<div style="background:#000; padding:20px; border-radius:30px;"><div id="calcScreen" style="font-size:48px; text-align:right;">0</div><div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:20px;">${'789/456*123-0C=+'.split('').map(c => `<div style="background:#2c2c2e; padding:16px; text-align:center; border-radius:40px; cursor:pointer;">${c}</div>`).join('')}</div></div>`;
+            let screen = document.getElementById('calcScreen');
+            document.querySelectorAll('#content-calculator div div').forEach(btn => {
+                btn.onclick = () => { if(btn.innerText === 'C') screen.innerText = '0'; else if(btn.innerText === '=') screen.innerText = eval(screen.innerText); else if(screen.innerText === '0') screen.innerText = btn.innerText; else screen.innerText += btn.innerText; };
+            });
+        }
+        else if(appId === 'weather') {
+            contentDiv.innerHTML = `<div style="text-align:center;"><h1>🌤️ Москва</h1><p>+22°C, солнечно</p><p>Влажность: 55%</p><p>Ветер: 3 м/с</p></div>`;
+        }
+        else if(appId === 'maps') {
+            contentDiv.innerHTML = `<iframe width="100%" height="400" style="border-radius:24px;" src="https://www.openstreetmap.org/export/embed.html?bbox=37.617%2C55.755&layer=mapnik"></iframe>`;
+        }
+        else {
+            contentDiv.innerHTML = `<div style="text-align:center;">Приложение ${appId} готово к работе.</div>`;
+        }
+        modal.classList.add('open');
+    }
+
+    // Жесты: свайп сверху для шторки, с правого края для CC
+    let touchStartX = 0, touchStartY = 0;
+    document.body.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
+    document.body.addEventListener('touchend', (e) => {
+        let diffY = e.changedTouches[0].clientY - touchStartY;
+        let diffX = e.changedTouches[0].clientX - touchStartX;
+        if(touchStartY < 50 && diffY > 60 && isUnlocked) {
+            notifCenter.classList.toggle('open');
+        }
+        if(touchStartX > window.innerWidth - 40 && diffX < -30 && isUnlocked) {
+            controlCenter.classList.toggle('open');
+        }
+    });
+
+    // Закрытие CC/Notif по клику вне
+    document.addEventListener('click', (e) => {
+        if(!notifCenter.contains(e.target) && e.target !== notifCenter) notifCenter.classList.remove('open');
+        if(!controlCenter.contains(e.target) && e.target !== controlCenter) controlCenter.classList.remove('open');
+    });
+
+    // Яркость
+    document.getElementById('brightnessSlider')?.addEventListener('input', (e) => {
+        document.body.style.backgroundColor = `rgba(0,0,0,${1-e.target.value/100})`;
+        homeScreen.style.filter = `brightness(${50+parseInt(e.target.value)/2}%)`;
+    });
+
+    // Первоначальная настройка
+    if(!localStorage.getItem('wr_os_setup_done')) {
+        const setupDiv = document.createElement('div');
+        setupDiv.className = 'setup-overlay';
+        setupDiv.innerHTML = `<h1 style="font-size:32px;">👋 Добро пожаловать в WR OS v2</h1><p>Настройка как в iOS 26</p><div style="text-align:left; width:100%; max-width:300px;"><label>🌍 Язык: Русский</label><br/><label>📍 Регион: Россия</label><br/><label>🔐 Face ID: Включить</label><br/></div><button id="finishSetup">Завершить настройку</button>`;
+        document.body.appendChild(setupDiv);
+        document.getElementById('finishSetup').onclick = () => {
+            localStorage.setItem('wr_os_setup_done', 'true');
+            setupDiv.remove();
+        };
+    }
+
+    // Док приложения
+    document.querySelectorAll('.dock-icon').forEach(el => {
+        el.addEventListener('click', () => { openApp(el.getAttribute('data-app')); });
+    });
+
+    // Выход из режима редактирования при клике на фон
+    document.addEventListener('click', (e) => {
+        if(editingMode && !e.target.closest('.app-icon')) {
+            editingMode = false;
+            document.body.classList.remove('editing');
+        }
+    });
+
+    renderHomeScreen();
+    // Имитация уведомления через 5 сек
+    setTimeout(() => {
+        if(isUnlocked) {
+            const notifDiv = document.createElement('div');
+            notifDiv.className = 'notif-item';
+            notifDiv.innerText = '🔔 WR OS: Доступно обновление iOS 26.1';
+            document.querySelector('#notifCenter div:first-child').after(notifDiv);
+            if(!notifCenter.classList.contains('open')) {
+                notifCenter.classList.add('open');
+                setTimeout(() => notifCenter.classList.remove('open'), 3000);
+            }
+        }
+    }, 5000);
+</script>
+</body>
+</html>
