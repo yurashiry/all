@@ -441,7 +441,7 @@
     { name: 'Документы', type: 'folder', icon: '📁' },
     { name: 'Изображения', type: 'folder', icon: '🖼️' },
     { name: 'Музыка', type: 'folder', icon: '🎵' },
-    { name: 'Заметки.txt', type: 'file', icon: '📄', content: 'Пример текста' }
+    { name: 'Отправить отчет.yrs', type: 'file', icon: '📄', content: 'Данные отправлены!' }
   ];
   
   function saveFiles() {
@@ -643,7 +643,7 @@
   function openBrowser() {
     createWindow('browser', 'Браузер', `
       <div class="browser-bar">
-        <input type="text" class="browser-url" id="browserUrl" value="https://google.com" placeholder="Введите URL...">
+        <input type="text" class="browser-url" id="browserUrl" value="https://haorik.ru" placeholder="Введите URL...">
         <button class="browser-go" id="browserGo">Перейти</button>
       </div>
       <iframe id="browserFrame" class="browser-frame" src="https://google.com"></iframe>
@@ -690,7 +690,7 @@
   }
   
   function openAbout() {
-    createWindow('about','О системе','<div style="text-align:center"><h2>Windows Web OS Pro</h2><p>Версия 6.0<br>✅ 8 цветных градиентов обоев<br>✅ Загрузка своих обоев<br>✅ Проводник с файлами<br>✅ Браузер<br>✅ Множество настроек</p></div>',450,320);
+    createWindow('about','О системе','<div style="text-align:center"><h2>Windows Web OS Pro</h2><p>Версия 6.0<br>✅ 8 цветных градиентов обоев<br>✅ Загрузка своих обоев<br>✅ Проводник с файлами<br>✅ Браузер<br>✅ Множество настроек<br>Основное разрешение файлов: .yrs</p></div>',450,320);
   }
 
   function openStore() {
@@ -867,8 +867,8 @@
     if (Object.keys(openWindows).length === 0) {
       createWindow('welcome', 'Добро пожаловать', `
         <div style="text-align:center">
-          <h2>🎉 Windows Web OS Pro</h2>
-          <p>✓ 8 цветных градиентов обоев<br>✓ Загрузка своих цветов<br>✓ Проводник с файлами<br>✓ Браузер<br>✓ Множество настроек</p>
+          <h2>🎉WR OS Pro</h2>
+          <p>✓ 8 цветных градиентов обоев<br>✓ Загрузка своих цветов<br>✓ Проводник с файлами<br>✓ Браузер<br>✓ Множество настроек<br>Скоро тотальное обновление</p>
           <button id="closeWelcomeBtn" style="background:#2b5f9e; color:white; border:none; border-radius:40px; padding:8px 24px; margin-top:12px;">Начать</button>
         </div>
       `, 480, 360);
