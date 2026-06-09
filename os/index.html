@@ -1,609 +1,883 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WR OS v2 — iOS 26 Experience</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Windows Web OS PRO — Максимум настроек</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-        body {
-            font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            background: #000;
-            color: white;
-        }
+    body {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><polygon points=\"2,2 20,10 12,12 10,20\" fill=\"white\" stroke=\"black\" stroke-width=\"1.5\"/><circle cx=\"18\" cy=\"18\" r=\"3\" fill=\"white\" stroke=\"black\"/></svg>') 4 4, auto;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
 
-        /* Основной контейнер ОС */
-        .os-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
+    .desktop {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-size: cover;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
 
-        /* Экран рабочего стола */
-        .home-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: opacity 0.3s ease;
-        }
+    .desktop-icons {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 20;
+      overflow: visible;
+    }
 
-        /* Экран блокировки */
-        .lock-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 60px 20px 100px;
-            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            backdrop-filter: blur(20px);
-        }
+    .desktop-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 85px;
+      cursor: pointer;
+      padding: 8px 4px;
+      border-radius: 10px;
+      transition: 0.1s;
+      color: white;
+      text-shadow: 0 1px 2px black;
+      backdrop-filter: blur(4px);
+    }
+    .desktop-icon:hover {
+      background: rgba(255,255,240,0.25);
+      transform: scale(1.02);
+    }
+    .desktop-icon .icon-img { font-size: 42px; margin-bottom: 6px; }
+    .desktop-icon span { font-size: 12px; font-weight: 500; }
 
-        .lock-screen.hidden {
-            transform: translateY(100%);
-            pointer-events: none;
-        }
+    .window {
+      position: absolute;
+      background: #f5f5f5;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+      resize: both;
+      min-width: 300px;
+      min-height: 250px;
+    }
+    .window.active { z-index: 300; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
 
-        .time-display {
-            text-align: center;
-            font-size: 84px;
-            font-weight: 700;
-            letter-spacing: -2px;
-            margin-top: 60px;
-        }
+    @keyframes appPop {
+      0% { opacity: 0; transform: scale(0.9); filter: blur(4px);}
+      100% { opacity: 1; transform: scale(1); filter: blur(0);}
+    }
+    @keyframes closeAnim {
+      0% { opacity: 1; transform: scale(1);}
+      100% { opacity: 0; transform: scale(0.8);}
+    }
+    @keyframes minAnim {
+      0% { opacity: 1; transform: scale(1);}
+      100% { opacity: 0; transform: scale(0.2) translateY(80px);}
+    }
+    .window { animation: appPop 0.2s ease; }
+    .window-closing { animation: closeAnim 0.15s forwards !important; pointer-events: none; }
+    .window-minimizing { animation: minAnim 0.18s forwards !important; pointer-events: none; }
 
-        .date-display {
-            text-align: center;
-            font-size: 20px;
-            opacity: 0.8;
-            margin-top: 8px;
-        }
+    .window-header {
+      background: linear-gradient(105deg, #1c6fb0, #2a7fcf);
+      padding: 10px 14px;
+      cursor: grab;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      font-weight: 600;
+    }
+    .window-header:active { cursor: grabbing; }
+    .window-controls button {
+      background: rgba(0,0,0,0.25);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .close-btn:hover { background: #e81123 !important; }
+    .window-content {
+      flex: 1;
+      padding: 18px;
+      background: white;
+      overflow: auto;
+    }
 
-        .face-id-prompt {
-            text-align: center;
-            margin-bottom: 40px;
-            background: rgba(255,255,255,0.2);
-            padding: 16px;
-            border-radius: 34px;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            transition: 0.2s;
-        }
+    .taskbar {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      height: 52px;
+      background: rgba(28, 28, 35, 0.85);
+      backdrop-filter: blur(28px);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      z-index: 1000;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .start-button, .taskbar-action {
+      background: #2b5f9e;
+      padding: 6px 14px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: 0.1s;
+    }
+    .taskbar-action span:last-child { display: none; }
+    .taskbar-action { font-size: 20px; padding: 6px 12px; }
+    .start-button:hover, .taskbar-action:hover { background: #1f4980; transform: scale(0.96); }
+    .taskbar-icons { display: flex; gap: 8px; flex: 1; overflow-x: auto; }
+    .taskbar-app {
+      background: rgba(255,255,245,0.15);
+      padding: 5px 16px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .taskbar-app:hover { background: rgba(255,255,255,0.3); }
 
-        .face-id-prompt:active {
-            transform: scale(0.97);
-            background: rgba(255,255,255,0.3);
-        }
+    .start-menu {
+      position: absolute;
+      bottom: 70px;
+      left: 18px;
+      width: 340px;
+      background: rgba(20,20,28,0.96);
+      backdrop-filter: blur(36px);
+      border-radius: 28px;
+      padding: 18px;
+      color: white;
+      z-index: 1100;
+      transition: 0.2s;
+    }
+    .start-menu.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; }
+    .start-app-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .start-app-item:hover { background: #2f6eb3; }
 
-        /* Dock */
-        .dock {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            right: 12px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(40px);
-            border-radius: 36px;
-            padding: 8px 16px;
-            display: flex;
-            gap: 16px;
-            justify-content: space-around;
-            z-index: 100;
-        }
-
-        .dock-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-
-        /* Сетка приложений */
-        .apps-grid {
-            position: absolute;
-            top: 100px;
-            left: 16px;
-            right: 16px;
-            bottom: 90px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: 85px;
-            gap: 16px;
-            overflow-y: auto;
-            padding-bottom: 20px;
-        }
-
-        .app-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            animation: none;
-        }
-
-        /* Режим редактирования (тряска) */
-        .editing .app-icon {
-            animation: shake 0.08s infinite linear;
-        }
-
-        @keyframes shake {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(1deg); }
-            75% { transform: rotate(-1deg); }
-            100% { transform: rotate(0deg); }
-        }
-
-        .app-icon-bg {
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(20px);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            transition: 0.1s;
-        }
-
-        .app-name {
-            font-size: 10px;
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        }
-
-        /* Шторка уведомлений */
-        .notification-center {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(30,30,40,0.85);
-            backdrop-filter: blur(40px);
-            border-radius: 0 0 24px 24px;
-            z-index: 150;
-            transform: translateY(-100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            max-height: 70%;
-            overflow-y: auto;
-            padding: 60px 16px 20px;
-        }
-
-        .notification-center.open {
-            transform: translateY(0);
-        }
-
-        .notif-item {
-            background: rgba(255,255,255,0.1);
-            margin-bottom: 12px;
-            padding: 14px;
-            border-radius: 16px;
-        }
-
-        /* Пункт управления */
-        .control-center {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 85%;
-            max-width: 380px;
-            background: rgba(20,20,30,0.92);
-            backdrop-filter: blur(50px);
-            height: 100%;
-            z-index: 160;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            padding: 80px 20px 20px;
-            border-radius: 20px 0 0 20px;
-        }
-
-        .control-center.open {
-            transform: translateX(0);
-        }
-
-        .cc-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .cc-button {
-            background: rgba(255,255,255,0.15);
-            padding: 16px;
-            border-radius: 18px;
-            text-align: center;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        /* Модальные окна приложений */
-        .app-modal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0c0c0e;
-            z-index: 300;
-            transform: scale(0.95);
-            opacity: 0;
-            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            pointer-events: none;
-            border-radius: 32px;
-            overflow-y: auto;
-        }
-
-        .app-modal.open {
-            transform: scale(1);
-            opacity: 1;
-            pointer-events: all;
-            border-radius: 0;
-        }
-
-        .modal-header {
-            padding: 16px;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(20px);
-            display: flex;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-        }
-
-        .close-btn {
-            font-size: 28px;
-            cursor: pointer;
-            background: rgba(255,255,255,0.2);
-            width: 40px;
-            height: 40px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Настройки */
-        .settings-list {
-            padding: 20px;
-        }
-        .setting-item {
-            background: rgba(255,255,255,0.1);
-            margin-bottom: 12px;
-            padding: 16px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Магазин приложений */
-        .app-store-item {
-            background: #1c1c1e;
-            margin: 12px;
-            padding: 16px;
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .download-btn {
-            background: #007aff;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        /* Настройка при первом входе */
-        .setup-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            gap: 30px;
-        }
-
-        button {
-            background: #007aff;
-            border: none;
-            color: white;
-            padding: 14px 28px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-    </style>
+    .settings-section {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 15px;
+    }
+    .settings-section h4 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .wallpaper-preview {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .wallpaper-option {
+      width: 70px;
+      height: 55px;
+      border-radius: 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .wallpaper-option:hover { transform: scale(1.05); border-color: white; }
+    
+    .color-input {
+      width: 60px;
+      height: 40px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    
+    .slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+    
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: #aaa;
+      border-radius: 40px;
+      cursor: pointer;
+      position: relative;
+      transition: 0.1s;
+    }
+    .toggle-switch.active { background: #2b9eff; }
+    .toggle-switch::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 20px;
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      transition: 0.1s;
+    }
+    .toggle-switch.active::after { left: 21px; }
+    
+    .store-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .store-card {
+      background: #f0f4fa;
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .store-card:hover { background: #e2e8f2; transform: translateY(-3px); }
+    .store-icon { font-size: 48px; margin-bottom: 8px; }
+    
+    .file-list {
+      list-style: none;
+    }
+    .file-list li {
+      padding: 8px;
+      margin: 4px 0;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-list li:hover { background: #e9ecef; }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background: white;
+      border-radius: 28px;
+      width: 360px;
+      padding: 28px;
+      text-align: center;
+      animation: appPop 0.2s;
+    }
+    .modal-icon { font-size: 64px; margin-bottom: 12px; }
+    .modal button {
+      background: #2b5f9e;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 10px 24px;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+    .install-progress { font-size: 14px; margin-top: 12px; color: #2b5f9e; }
+    
+    .browser-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      align-items: center;
+    }
+    .browser-url {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 30px;
+      font-size: 14px;
+    }
+    .browser-go {
+      background: #2b5f9e;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+    .browser-frame {
+      width: 100%;
+      height: calc(100% - 60px);
+      border: none;
+      border-radius: 12px;
+    }
+  </style>
 </head>
 <body>
-<div class="os-container" id="osContainer">
-    <!-- Экран блокировки -->
-    <div class="lock-screen" id="lockScreen">
-        <div></div>
-        <div>
-            <div class="time-display" id="lockTime">--:--</div>
-            <div class="date-display" id="lockDate"></div>
-        </div>
-        <div class="face-id-prompt" id="faceIdBtn">
-            🧑‍💻 Сканирование лица (нажмите)
-        </div>
-    </div>
+<div class="desktop" id="desktop">
+  <div class="desktop-icons" id="desktopIcons">
+    <div class="desktop-icon" data-app="explorer"><div class="icon-img">📁</div><span>Проводник</span></div>
+    <div class="desktop-icon" data-app="browser"><div class="icon-img">🌐</div><span>Браузер</span></div>
+    <div class="desktop-icon" data-app="notepad"><div class="icon-img">📓</div><span>Блокнот</span></div>
+    <div class="desktop-icon" data-app="store"><div class="icon-img">🛒</div><span>Магазин</span></div>
+    <div class="desktop-icon" data-app="settings"><div class="icon-img">⚙️</div><span>Параметры</span></div>
+  </div>
+</div>
 
-    <!-- Рабочий стол -->
-    <div class="home-screen" id="homeScreen" style="background-image: url('https://www.apple.com/v/ios/ios-18-2/a/images/overview/hero/hero_iphone_16_pro__e5m7q5e77n2q_large.jpg'); background-size: cover;">
-        <div class="apps-grid" id="appsGrid"></div>
-        <div class="dock" id="dock">
-            <div class="dock-icon" data-app="safari">🌐</div>
-            <div class="dock-icon" data-app="messages">💬</div>
-            <div class="dock-icon" data-app="settings">⚙️</div>
-        </div>
-    </div>
+<div class="taskbar">
+  <div class="start-button" id="startButton">◆ Пуск</div>
+  <div class="taskbar-action" id="showDesktopBtn">📌</div>
+  <div class="taskbar-action" id="fullscreenBtn">⛶</div>
+  <div class="taskbar-icons" id="taskbarIcons"></div>
+  <div id="clock" style="color:white; background:rgba(0,0,0,0.4); padding:5px 14px; border-radius:40px;"></div>
+</div>
 
-    <!-- Шторка уведомлений -->
-    <div class="notification-center" id="notifCenter">
-        <h3 style="margin-bottom: 16px;">Уведомления</h3>
-        <div class="notif-item">📱 Добро пожаловать в WR OS v2</div>
-        <div class="notif-item">⚡️ Система обновлена до iOS 26</div>
-    </div>
-
-    <!-- Пункт управления -->
-    <div class="control-center" id="controlCenter">
-        <div class="cc-grid">
-            <div class="cc-button">✈️ Авиарежим</div>
-            <div class="cc-button">📶 Wi-Fi</div>
-            <div class="cc-button">🎵 Музыка</div>
-            <div class="cc-button">🔊 Звук</div>
-            <div class="cc-button">🌙 Не беспокоить</div>
-            <div class="cc-button">📸 Камера</div>
-        </div>
-        <div style="margin-top: 30px;">🔆 Яркость: <input type="range" id="brightnessSlider" style="width: 100%;"></div>
-    </div>
+<div id="startMenu" class="start-menu hidden">
+  <div class="start-header">🌟 Центр приложений</div>
+  <div class="start-app-list">
+    <div class="start-app-item" data-app="explorer">📁 Проводник</div>
+    <div class="start-app-item" data-app="browser">🌐 Браузер</div>
+    <div class="start-app-item" data-app="notepad">✍️ Блокнот</div>
+    <div class="start-app-item" data-app="store">🛒 Магазин</div>
+    <div class="start-app-item" data-app="settings">⚙️ Параметры</div>
+    <div class="start-app-item" data-app="about">ℹ️ О системе</div>
+  </div>
 </div>
 
 <script>
-    // ---------- БАЗА ПРИЛОЖЕНИЙ ----------
-    let apps = [
-        { id: "settings", name: "Настройки", icon: "⚙️", installed: true },
-        { id: "appstore", name: "Магазин", icon: "🛒", installed: true },
-        { id: "camera", name: "Камера", icon: "📷", installed: true },
-        { id: "notes", name: "Заметки", icon: "📝", installed: true },
-        { id: "calculator", name: "Калькулятор", icon: "🧮", installed: true },
-        { id: "weather", name: "Погода", icon: "☁️", installed: true },
-        { id: "maps", name: "Карты", icon: "🗺️", installed: true }
-    ];
+  // ======================== ОБОИ (ЦВЕТНЫЕ ГРАДИЕНТЫ + ЗАГРУЗКА СВОИХ) ========================
+  const wallpapers = {
+    gradient1: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    gradient2: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    gradient3: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    gradient4: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    gradient5: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    gradient6: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    gradient7: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+    gradient8: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+  };
 
-    let installedApps = apps.filter(a => a.installed);
-    let editingMode = false;
-
-    // DOM элементы
-    const lockScreen = document.getElementById('lockScreen');
-    const homeScreen = document.getElementById('homeScreen');
-    const appsGrid = document.getElementById('appsGrid');
-    const notifCenter = document.getElementById('notifCenter');
-    const controlCenter = document.getElementById('controlCenter');
-    let isUnlocked = false;
-
-    // Время
-    function updateTime() {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        const dateStr = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
-        document.getElementById('lockTime').innerText = timeStr;
-        document.getElementById('lockDate').innerText = dateStr;
+  function setWallpaper(type, customColor = null) {
+    const desktopEl = document.getElementById('desktop');
+    if (type === 'custom' && customColor) {
+      desktopEl.style.background = customColor;
+      desktopEl.style.backgroundSize = 'auto';
+      localStorage.setItem('wallpaperType', 'custom');
+      localStorage.setItem('customWallpaper', customColor);
+    } else if (wallpapers[type]) {
+      desktopEl.style.background = wallpapers[type];
+      desktopEl.style.backgroundSize = 'auto';
+      localStorage.setItem('wallpaperType', type);
+      localStorage.setItem('customWallpaper', '');
     }
-    setInterval(updateTime, 1000);
-    updateTime();
+  }
 
-    // Разблокировка
-    document.getElementById('faceIdBtn').addEventListener('click', () => {
-        lockScreen.classList.add('hidden');
-        isUnlocked = true;
-        renderHomeScreen();
-    });
+  // Загрузка сохранённых обоев
+  const savedType = localStorage.getItem('wallpaperType');
+  const savedCustom = localStorage.getItem('customWallpaper');
+  if (savedType === 'custom' && savedCustom) {
+    setWallpaper('custom', savedCustom);
+  } else if (savedType && wallpapers[savedType]) {
+    setWallpaper(savedType);
+  } else {
+    setWallpaper('gradient1');
+  }
 
-    // Рендер рабочего стола
-    function renderHomeScreen() {
-        appsGrid.innerHTML = '';
-        installedApps.forEach((app, idx) => {
-            const div = document.createElement('div');
-            div.className = 'app-icon';
-            div.setAttribute('data-id', app.id);
-            div.innerHTML = `<div class="app-icon-bg">${app.icon}</div><div class="app-name">${app.name}</div>`;
-            div.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if(!editingMode) openApp(app.id);
-            });
-            // Долгое нажатие для редактирования
-            let pressTimer;
-            div.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => { editingMode = true; document.body.classList.add('editing'); }, 500); });
-            div.addEventListener('touchend', () => { clearTimeout(pressTimer); });
-            div.addEventListener('mousedown', (e) => { pressTimer = setTimeout(() => { editingMode = true; document.body.classList.add('editing'); }, 500); });
-            div.addEventListener('mouseup', () => { clearTimeout(pressTimer); });
-            appsGrid.appendChild(div);
-        });
+  // ========== НАСТРОЙКИ ==========
+  let settings = {
+    animations: true,
+    taskbarBlur: true,
+    windowOpacity: 98,
+    cursorStyle: 'default'
+  };
+  
+  function applySettings() {
+    if (!settings.animations) {
+      document.querySelectorAll('.window').forEach(w => w.style.animation = 'none');
     }
-
-    // Открытие приложений
-    function openApp(appId) {
-        if(editingMode) return;
-        let modal = document.getElementById(`modal-${appId}`);
-        if(modal) {
-            modal.classList.add('open');
-            return;
-        }
-        // Создаем модальное окно приложения
-        modal = document.createElement('div');
-        modal.className = 'app-modal';
-        modal.id = `modal-${appId}`;
-        modal.innerHTML = `<div class="modal-header"><span>${appId.toUpperCase()}</span><div class="close-btn">✕</div></div><div id="content-${appId}" style="padding:20px;"></div>`;
-        document.body.appendChild(modal);
-        modal.querySelector('.close-btn').onclick = () => modal.classList.remove('open');
-        
-        const contentDiv = document.getElementById(`content-${appId}`);
-        // Контент приложений
-        if(appId === 'settings') {
-            contentDiv.innerHTML = `
-                <div class="settings-list">
-                    <div class="setting-item"><span>🌙 Тёмная тема</span><span>Вкл</span></div>
-                    <div class="setting-item"><span>🖼 Обои</span><button id="changeWall">Изменить</button></div>
-                    <div class="setting-item"><span>🔊 Звуки</span><span>Активны</span></div>
-                    <div class="setting-item"><span>🔄 Сброс</span><button id="resetBtn">Сбросить настройки</button></div>
-                    <div class="setting-item"><span>📱 Face ID</span><span>Настроено</span></div>
-                    <div class="setting-item"><span>⏺ Always-On Display</span><span>Вкл</span></div>
-                </div>
-            `;
-            document.getElementById('changeWall')?.addEventListener('click', () => {
-                homeScreen.style.backgroundImage = "url('https://images.pexels.com/photos/531880/pexels-photo-531880.jpeg')";
-            });
-            document.getElementById('resetBtn')?.addEventListener('click', () => { localStorage.clear(); location.reload(); });
-        }
-        else if(appId === 'appstore') {
-            contentDiv.innerHTML = `<h2>Магазин приложений WR</h2>
-                <div class="app-store-item">📸 Instagram Lite <span class="download-btn">Загрузить</span></div>
-                <div class="app-store-item">🎵 Spotify <span class="download-btn">Загрузить</span></div>
-                <div class="app-store-item">✍️ Notion <span class="download-btn">Загрузить</span></div>`;
-            document.querySelectorAll('.download-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    btn.innerText = '✅ Установлено';
-                    setTimeout(() => {
-                        const newApp = { id: 'newapp'+Date.now(), name: 'Новое приложение', icon: '📦', installed: true };
-                        installedApps.push(newApp);
-                        renderHomeScreen();
-                    }, 1500);
-                });
-            });
-        }
-        else if(appId === 'camera') {
-            contentDiv.innerHTML = `<video id="video" autoplay style="width:100%; border-radius:20px;"></video><button id="snap">📸 Снять фото</button><canvas id="canvas" style="display:none;"></canvas>`;
-            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => { document.getElementById('video').srcObject = stream; });
-        }
-        else if(appId === 'notes') {
-            let savedNote = localStorage.getItem('note') || '';
-            contentDiv.innerHTML = `<textarea id="noteText" style="width:100%; height:200px; background:#1c1c1e; color:white; padding:12px;">${savedNote}</textarea><button id="saveNote">Сохранить</button>`;
-            document.getElementById('saveNote')?.addEventListener('click', () => { localStorage.setItem('note', document.getElementById('noteText').value); });
-        }
-        else if(appId === 'calculator') {
-            contentDiv.innerHTML = `<div style="background:#000; padding:20px; border-radius:30px;"><div id="calcScreen" style="font-size:48px; text-align:right;">0</div><div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:20px;">${'789/456*123-0C=+'.split('').map(c => `<div style="background:#2c2c2e; padding:16px; text-align:center; border-radius:40px; cursor:pointer;">${c}</div>`).join('')}</div></div>`;
-            let screen = document.getElementById('calcScreen');
-            document.querySelectorAll('#content-calculator div div').forEach(btn => {
-                btn.onclick = () => { if(btn.innerText === 'C') screen.innerText = '0'; else if(btn.innerText === '=') screen.innerText = eval(screen.innerText); else if(screen.innerText === '0') screen.innerText = btn.innerText; else screen.innerText += btn.innerText; };
-            });
-        }
-        else if(appId === 'weather') {
-            contentDiv.innerHTML = `<div style="text-align:center;"><h1>🌤️ Москва</h1><p>+22°C, солнечно</p><p>Влажность: 55%</p><p>Ветер: 3 м/с</p></div>`;
-        }
-        else if(appId === 'maps') {
-            contentDiv.innerHTML = `<iframe width="100%" height="400" style="border-radius:24px;" src="https://www.openstreetmap.org/export/embed.html?bbox=37.617%2C55.755&layer=mapnik"></iframe>`;
-        }
-        else {
-            contentDiv.innerHTML = `<div style="text-align:center;">Приложение ${appId} готово к работе.</div>`;
-        }
-        modal.classList.add('open');
+    const taskbar = document.querySelector('.taskbar');
+    if (taskbar) {
+      taskbar.style.backdropFilter = settings.taskbarBlur ? 'blur(28px)' : 'none';
     }
+  }
 
-    // Жесты: свайп сверху для шторки, с правого края для CC
-    let touchStartX = 0, touchStartY = 0;
-    document.body.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
-    document.body.addEventListener('touchend', (e) => {
-        let diffY = e.changedTouches[0].clientY - touchStartY;
-        let diffX = e.changedTouches[0].clientX - touchStartX;
-        if(touchStartY < 50 && diffY > 60 && isUnlocked) {
-            notifCenter.classList.toggle('open');
-        }
-        if(touchStartX > window.innerWidth - 40 && diffX < -30 && isUnlocked) {
-            controlCenter.classList.toggle('open');
-        }
-    });
+  // ========== БЛОКНОТ ==========
+  let notepadContent = localStorage.getItem('notepadContent') || '';
 
-    // Закрытие CC/Notif по клику вне
-    document.addEventListener('click', (e) => {
-        if(!notifCenter.contains(e.target) && e.target !== notifCenter) notifCenter.classList.remove('open');
-        if(!controlCenter.contains(e.target) && e.target !== controlCenter) controlCenter.classList.remove('open');
-    });
+  // ========== ПРОВОДНИК (ФАЙЛЫ) ==========
+  let files = JSON.parse(localStorage.getItem('userFiles')) || [
+    { name: 'Документы', type: 'folder', icon: '📁' },
+    { name: 'Изображения', type: 'folder', icon: '🖼️' },
+    { name: 'Музыка', type: 'folder', icon: '🎵' },
+    { name: 'Заметки.txt', type: 'file', icon: '📄', content: 'Пример текста' }
+  ];
+  
+  function saveFiles() {
+    localStorage.setItem('userFiles', JSON.stringify(files));
+  }
 
-    // Яркость
-    document.getElementById('brightnessSlider')?.addEventListener('input', (e) => {
-        document.body.style.backgroundColor = `rgba(0,0,0,${1-e.target.value/100})`;
-        homeScreen.style.filter = `brightness(${50+parseInt(e.target.value)/2}%)`;
-    });
+  // ========== УПРАВЛЕНИЕ ОКНАМИ ==========
+  let openWindows = {};
+  let activeWindowId = null;
+  let winCounter = 0;
+  let installedApps = [];
 
-    // Первоначальная настройка
-    if(!localStorage.getItem('wr_os_setup_done')) {
-        const setupDiv = document.createElement('div');
-        setupDiv.className = 'setup-overlay';
-        setupDiv.innerHTML = `<h1 style="font-size:32px;">👋 Добро пожаловать в WR OS v2</h1><p>Настройка как в iOS 26</p><div style="text-align:left; width:100%; max-width:300px;"><label>🌍 Язык: Русский</label><br/><label>📍 Регион: Россия</label><br/><label>🔐 Face ID: Включить</label><br/></div><button id="finishSetup">Завершить настройку</button>`;
-        document.body.appendChild(setupDiv);
-        document.getElementById('finishSetup').onclick = () => {
-            localStorage.setItem('wr_os_setup_done', 'true');
-            setupDiv.remove();
-        };
-    }
-
-    // Док приложения
-    document.querySelectorAll('.dock-icon').forEach(el => {
-        el.addEventListener('click', () => { openApp(el.getAttribute('data-app')); });
-    });
-
-    // Выход из режима редактирования при клике на фон
-    document.addEventListener('click', (e) => {
-        if(editingMode && !e.target.closest('.app-icon')) {
-            editingMode = false;
-            document.body.classList.remove('editing');
-        }
-    });
-
-    renderHomeScreen();
-    // Имитация уведомления через 5 сек
+  function animateClose(winId) {
+    const w = openWindows[winId];
+    if (!w) return;
+    w.element.classList.add('window-closing');
     setTimeout(() => {
-        if(isUnlocked) {
-            const notifDiv = document.createElement('div');
-            notifDiv.className = 'notif-item';
-            notifDiv.innerText = '🔔 WR OS: Доступно обновление iOS 26.1';
-            document.querySelector('#notifCenter div:first-child').after(notifDiv);
-            if(!notifCenter.classList.contains('open')) {
-                notifCenter.classList.add('open');
-                setTimeout(() => notifCenter.classList.remove('open'), 3000);
-            }
+      if (openWindows[winId]) {
+        w.element.remove();
+        delete openWindows[winId];
+        document.getElementById(`task_${winId}`)?.remove();
+        if (activeWindowId === winId) {
+          activeWindowId = null;
+          const keys = Object.keys(openWindows);
+          if (keys.length) bringToFront(keys[keys.length-1]);
         }
-    }, 5000);
+      }
+    }, 160);
+  }
+
+  function animateMinimize(winId) {
+    const w = openWindows[winId];
+    if (!w) return;
+    w.element.classList.add('window-minimizing');
+    setTimeout(() => {
+      if (openWindows[winId]) {
+        w.element.style.display = 'none';
+        w.minimized = true;
+        const btn = document.getElementById(`task_${winId}`);
+        if (btn) btn.style.opacity = '0.6';
+        w.element.classList.remove('window-minimizing');
+      }
+    }, 180);
+  }
+
+  function restoreWindow(winId) {
+    const w = openWindows[winId];
+    if (w && w.minimized) {
+      w.element.style.display = 'flex';
+      w.minimized = false;
+      const btn = document.getElementById(`task_${winId}`);
+      if (btn) btn.style.opacity = '1';
+      bringToFront(winId);
+    } else if (w) bringToFront(winId);
+  }
+
+  function bringToFront(winId) {
+    if (activeWindowId && openWindows[activeWindowId]) openWindows[activeWindowId].element.classList.remove('active');
+    activeWindowId = winId;
+    const w = openWindows[winId];
+    if (w) {
+      w.element.classList.add('active');
+      let maxZ = 200;
+      for (let id in openWindows) {
+        let z = parseInt(openWindows[id].element.style.zIndex) || 100;
+        if (z > maxZ) maxZ = z;
+      }
+      w.element.style.zIndex = maxZ + 1;
+      if (w.minimized) {
+        w.element.style.display = 'flex';
+        w.minimized = false;
+        const btn = document.getElementById(`task_${winId}`);
+        if (btn) btn.style.opacity = '1';
+      }
+    }
+  }
+
+  function minimizeAll() {
+    for (let id in openWindows) {
+      const w = openWindows[id];
+      if (w && !w.minimized && w.element.style.display !== 'none') animateMinimize(id);
+    }
+  }
+
+  function createWindow(appId, title, html, w = 520, h = 380, onLoad = null) {
+    const id = 'win_' + Date.now() + '_' + (++winCounter);
+    const div = document.createElement('div');
+    div.className = 'window';
+    div.id = id;
+    div.style.width = w + 'px';
+    div.style.height = h + 'px';
+    if (!settings.animations) div.style.animation = 'none';
+    div.style.opacity = settings.windowOpacity / 100;
+    const left = 60 + (Object.keys(openWindows).length * 35) % (window.innerWidth - 400);
+    const top = 70 + (Object.keys(openWindows).length * 25) % (window.innerHeight - 300);
+    div.style.left = Math.min(left, window.innerWidth - w - 20) + 'px';
+    div.style.top = Math.min(top, window.innerHeight - h - 80) + 'px';
+
+    const header = document.createElement('div');
+    header.className = 'window-header';
+    header.innerHTML = `<div>${getIcon(appId)} ${title}</div><div class="window-controls"><button class="minimize-btn">─</button><button class="close-btn">✕</button></div>`;
+    const content = document.createElement('div');
+    content.className = 'window-content';
+    content.innerHTML = html;
+    div.appendChild(header);
+    div.appendChild(content);
+    document.getElementById('desktop').appendChild(div);
+
+    header.querySelector('.close-btn').onclick = (e) => { e.stopPropagation(); animateClose(id); };
+    header.querySelector('.minimize-btn').onclick = (e) => { e.stopPropagation(); animateMinimize(id); };
+
+    let drag = false, dx, dy;
+    header.onmousedown = (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      drag = true;
+      dx = e.clientX - div.offsetLeft;
+      dy = e.clientY - div.offsetTop;
+      bringToFront(id);
+      e.preventDefault();
+    };
+    window.onmousemove = (e) => {
+      if (!drag) return;
+      let nx = e.clientX - dx, ny = e.clientY - dy;
+      nx = Math.min(Math.max(0, nx), window.innerWidth - div.offsetWidth - 10);
+      ny = Math.min(Math.max(0, ny), window.innerHeight - 70 - div.offsetHeight);
+      div.style.left = nx + 'px';
+      div.style.top = ny + 'px';
+    };
+    window.onmouseup = () => { drag = false; };
+
+    openWindows[id] = { element: div, appId, title, minimized: false };
+    const taskBtn = document.createElement('div');
+    taskBtn.id = `task_${id}`;
+    taskBtn.className = 'taskbar-app';
+    taskBtn.innerHTML = `${getIcon(appId)} ${title}`;
+    taskBtn.onclick = () => restoreWindow(id);
+    document.getElementById('taskbarIcons').appendChild(taskBtn);
+    bringToFront(id);
+    
+    if (onLoad) setTimeout(onLoad, 100);
+    return id;
+  }
+
+  function getIcon(app) {
+    const icons = { explorer:'📁', browser:'🌐', notepad:'📄', store:'🛒', settings:'⚙️', about:'ℹ️', sonne:'🎵', wrb:'🏦', evote:'🗳️' };
+    return icons[app] || '📌';
+  }
+
+  function addInstalledApp(appId, appName, appIcon, appUrl) {
+    if (installedApps.includes(appId)) return;
+    installedApps.push(appId);
+    
+    const desktopIcons = document.getElementById('desktopIcons');
+    const newIcon = document.createElement('div');
+    newIcon.className = 'desktop-icon';
+    newIcon.dataset.app = appId;
+    newIcon.innerHTML = `<div class="icon-img">${appIcon}</div><span>${appName}</span>`;
+    newIcon.onclick = (e) => {
+      e.stopPropagation();
+      createWindow(appId, appName, `<iframe src="${appUrl}" style="width:100%; height:100%; border:none; border-radius:12px;"></iframe>`, 880, 620);
+    };
+    desktopIcons.appendChild(newIcon);
+  }
+
+  // ========== ПРИЛОЖЕНИЯ ==========
+  function openExplorer() {
+    let filesHtml = `<ul class="file-list" id="fileList">`;
+    files.forEach((file, index) => {
+      filesHtml += `<li data-index="${index}" data-type="${file.type}"><span style="font-size:24px; margin-right:10px;">${file.icon}</span>${file.name}</li>`;
+    });
+    filesHtml += `</ul><button id="newFileBtn" style="margin-top:15px; background:#2b5f9e; color:white; border:none; border-radius:20px; padding:8px 16px;">+ Новый файл</button>`;
+    
+    createWindow('explorer', 'Проводник', filesHtml, 500, 400, () => {
+      document.querySelectorAll('#fileList li').forEach(item => {
+        item.onclick = () => {
+          const index = parseInt(item.dataset.index);
+          const file = files[index];
+          if (file.type === 'file') {
+            alert(`Файл: ${file.name}\nСодержание: ${file.content || 'пусто'}`);
+          }
+        };
+      });
+      const newBtn = document.getElementById('newFileBtn');
+      if (newBtn) {
+        newBtn.onclick = () => {
+          const name = prompt('Название файла:');
+          if (name) {
+            files.push({ name: name + '.txt', type: 'file', icon: '📄', content: '' });
+            saveFiles();
+            openExplorer();
+            const win = Object.keys(openWindows).find(k => openWindows[k].appId === 'explorer');
+            if (win) animateClose(win);
+          }
+        };
+      }
+    });
+  }
+  
+  function openBrowser() {
+    createWindow('browser', 'Браузер', `
+      <div class="browser-bar">
+        <input type="text" class="browser-url" id="browserUrl" value="https://google.com" placeholder="Введите URL...">
+        <button class="browser-go" id="browserGo">Перейти</button>
+      </div>
+      <iframe id="browserFrame" class="browser-frame" src="https://google.com"></iframe>
+    `, 900, 650, () => {
+      const goBtn = document.getElementById('browserGo');
+      const urlInput = document.getElementById('browserUrl');
+      const frame = document.getElementById('browserFrame');
+      if (goBtn) {
+        goBtn.onclick = () => {
+          let url = urlInput.value;
+          if (!url.startsWith('http')) url = 'https://' + url;
+          frame.src = url;
+        };
+      }
+    });
+  }
+  
+  function openNotepad() {
+    createWindow('notepad','Блокнот',`
+      <textarea id="notepadTextarea" style="width:100%; height:280px; border-radius:12px; padding:12px; font-family:monospace; border:1px solid #ccc;">${notepadContent}</textarea>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button id="saveNotepadBtn" style="background:#2b5f9e; color:white; border:none; border-radius:30px; padding:6px 20px;">💾 Сохранить</button>
+        <button id="clearNotepadBtn" style="background:#999; color:white; border:none; border-radius:30px; padding:6px 20px;">🗑️ Очистить</button>
+      </div>
+    `, 550, 420, () => {
+      const saveBtn = document.getElementById('saveNotepadBtn');
+      const clearBtn = document.getElementById('clearNotepadBtn');
+      const textarea = document.getElementById('notepadTextarea');
+      if (saveBtn) {
+        saveBtn.onclick = () => {
+          if (textarea) {
+            notepadContent = textarea.value;
+            localStorage.setItem('notepadContent', notepadContent);
+            alert('✅ Сохранено!');
+          }
+        };
+      }
+      if (clearBtn) {
+        clearBtn.onclick = () => {
+          if (textarea) textarea.value = '';
+        };
+      }
+    });
+  }
+  
+  function openAbout() {
+    createWindow('about','О системе','<div style="text-align:center"><h2>Windows Web OS Pro</h2><p>Версия 6.0<br>✅ 8 цветных градиентов обоев<br>✅ Загрузка своих обоев<br>✅ Проводник с файлами<br>✅ Браузер<br>✅ Множество настроек</p></div>',450,320);
+  }
+
+  function openStore() {
+    const apps = [
+      { id: 'sonne', name: 'Sonne', icon: '🎵', url: 'https://haorik.ru', desc: 'Музыкальный плеер' },
+      { id: 'wrb', name: 'WRB', icon: '🏦', url: 'https://haorik.ru/bank', desc: 'Онлайн-банкинг' },
+      { id: 'evote', name: 'WR eVote', icon: '🗳️', url: 'https://haorik.ru/vote', desc: 'Электронное голосование' }
+    ];
+    
+    let cardsHtml = `<div class="store-grid">`;
+    apps.forEach(app => {
+      cardsHtml += `
+        <div class="store-card" data-id="${app.id}" data-name="${app.name}" data-icon="${app.icon}" data-url="${app.url}" data-desc="${app.desc}">
+          <div class="store-icon">${app.icon}</div>
+          <h4>${app.name}</h4>
+          <p style="font-size:12px;">${app.desc}</p>
+        </div>
+      `;
+    });
+    cardsHtml += `</div><div style="margin-top:14px; text-align:center; font-size:12px;">💡 Нажмите на карточку для установки</div>`;
+    createWindow('store', 'Магазин приложений', cardsHtml, 620, 480, () => {
+      document.querySelectorAll('.store-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.dataset.id;
+          const name = card.dataset.name;
+          const icon = card.dataset.icon;
+          const url = card.dataset.url;
+          const desc = card.dataset.desc;
+          
+          const modal = document.createElement('div');
+          modal.className = 'modal-overlay';
+          modal.innerHTML = `
+            <div class="modal">
+              <div class="modal-icon">${icon}</div>
+              <h3>${name}</h3>
+              <p>${desc}</p>
+              <button class="install-modal-btn">📥 Установить</button>
+              <div class="install-progress"></div>
+              <button class="cancel-modal-btn" style="background:#999;">Отмена</button>
+            </div>
+          `;
+          document.body.appendChild(modal);
+          
+          modal.querySelector('.cancel-modal-btn').onclick = () => modal.remove();
+          modal.querySelector('.install-modal-btn').onclick = () => {
+            const btn = modal.querySelector('.install-modal-btn');
+            const progressDiv = modal.querySelector('.install-progress');
+            btn.disabled = true;
+            let seconds = 5;
+            progressDiv.innerText = `⏳ Установка... ${seconds} сек`;
+            const interval = setInterval(() => {
+              seconds--;
+              if (seconds > 0) {
+                progressDiv.innerText = `⏳ Установка... ${seconds} сек`;
+              } else {
+                clearInterval(interval);
+                progressDiv.innerHTML = '✅ Установлено!';
+                btn.innerText = '✅ Готово';
+                setTimeout(() => {
+                  modal.remove();
+                  addInstalledApp(id, name, icon, url);
+                }, 800);
+              }
+            }, 1000);
+          };
+        });
+      });
+    });
+  }
+
+  function openSettings() {
+    createWindow('settings', 'Параметры системы', `
+      <div class="settings-section">
+        <h4>🎨 Обои рабочего стола</h4>
+        <div class="wallpaper-preview">
+          <div class="wallpaper-option" data-wall="gradient1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient2" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient4" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient5" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient6" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient7" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient8" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></div>
+        </div>
+        <div class="setting-row">
+          <span>🌈 Свой цвет/градиент:</span>
+          <input type="color" id="customColorPicker" class="color-input" value="#667eea">
+          <button id="applyCustomBtn" style="background:#2b5f9e; color:white; border:none; border-radius:20px; padding:5px 12px;">Применить</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h4>⚙️ Внешний вид</h4>
+        <div class="setting-row"><span>✨ Анимации окон</span><div id="animToggle" class="toggle-switch ${settings.animations ? 'active' : ''}"></div></div>
+        <div class="setting-row"><span>🌀 Размытие панели задач</span><div id="blurToggle" class="toggle-switch ${settings.taskbarBlur ? 'active' : ''}"></div></div>
+        <div class="setting-row"><span>📐 Прозрачность окон</span><input type="range" id="opacitySlider" min="50" max="100" value="${settings.windowOpacity}" class="slider"></div>
+      </div>
+      <div class="settings-section">
+        <h4>🛠️ Действия</h4>
+        <button id="minAllBtn" style="background:#2b5f9e; color:white; border:none; border-radius:30px; padding:6px 16px; margin:5px;">📌 Свернуть все окна</button>
+        <button id="fullScrBtn" style="background:#2b5f9e; color:white; border:none; border-radius:30px; padding:6px 16px; margin:5px;">⛶ Полный экран</button>
+        <button id="resetSettingsBtn" style="background:#999; color:white; border:none; border-radius:30px; padding:6px 16px; margin:5px;">🔄 Сбросить настройки</button>
+      </div>
+    `, 580, 600, () => {
+      document.querySelectorAll('.wallpaper-option').forEach(opt => {
+        opt.onclick = () => setWallpaper(opt.dataset.wall);
+      });
+      
+      document.getElementById('applyCustomBtn').onclick = () => {
+        const color = document.getElementById('customColorPicker').value;
+        setWallpaper('custom', color);
+      };
+      
+      const animToggle = document.getElementById('animToggle');
+      animToggle.onclick = () => {
+        settings.animations = !settings.animations;
+        animToggle.classList.toggle('active', settings.animations);
+        applySettings();
+      };
+      
+      const blurToggle = document.getElementById('blurToggle');
+      blurToggle.onclick = () => {
+        settings.taskbarBlur = !settings.taskbarBlur;
+        blurToggle.classList.toggle('active', settings.taskbarBlur);
+        applySettings();
+      };
+      
+      const opacitySlider = document.getElementById('opacitySlider');
+      opacitySlider.oninput = (e) => {
+        settings.windowOpacity = e.target.value;
+        document.querySelectorAll('.window').forEach(w => w.style.opacity = settings.windowOpacity / 100);
+      };
+      
+      document.getElementById('minAllBtn').onclick = () => minimizeAll();
+      document.getElementById('fullScrBtn').onclick = () => document.documentElement.requestFullscreen();
+      document.getElementById('resetSettingsBtn').onclick = () => {
+        settings = { animations: true, taskbarBlur: true, windowOpacity: 98 };
+        applySettings();
+        location.reload();
+      };
+    });
+  }
+
+  function launch(app) {
+    const acts = { explorer: openExplorer, browser: openBrowser, notepad: openNotepad, store: openStore, settings: openSettings, about: openAbout };
+    if (acts[app]) acts[app]();
+    closeStart();
+  }
+
+  // ========== UI ==========
+  function closeStart() { document.getElementById('startMenu').classList.add('hidden'); startOpen = false; }
+  let startOpen = false;
+  document.getElementById('startButton').onclick = (e) => {
+    e.stopPropagation();
+    startOpen = !startOpen;
+    document.getElementById('startMenu').classList.toggle('hidden', !startOpen);
+  };
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#startMenu') && !e.target.closest('#startButton') && startOpen) closeStart();
+  });
+  document.querySelectorAll('.start-app-item').forEach(el => el.onclick = () => launch(el.dataset.app));
+  document.querySelectorAll('.desktop-icon').forEach(el => el.onclick = () => launch(el.dataset.app));
+  document.getElementById('showDesktopBtn').onclick = () => minimizeAll();
+  document.getElementById('fullscreenBtn').onclick = () => document.documentElement.requestFullscreen();
+
+  function tick() {
+    const d = new Date();
+    document.getElementById('clock').innerHTML = d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'}) + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+  setInterval(tick, 1000);
+  tick();
+  applySettings();
+
+  setTimeout(() => {
+    if (Object.keys(openWindows).length === 0) {
+      createWindow('welcome', 'Добро пожаловать', `
+        <div style="text-align:center">
+          <h2>🎉 Windows Web OS Pro</h2>
+          <p>✓ 8 цветных градиентов обоев<br>✓ Загрузка своих цветов<br>✓ Проводник с файлами<br>✓ Браузер<br>✓ Множество настроек</p>
+          <button id="closeWelcomeBtn" style="background:#2b5f9e; color:white; border:none; border-radius:40px; padding:8px 24px; margin-top:12px;">Начать</button>
+        </div>
+      `, 480, 360);
+      setTimeout(() => {
+        const btn = document.getElementById('closeWelcomeBtn');
+        if (btn) btn.onclick = () => { const w = Object.keys(openWindows).find(k => openWindows[k].appId === 'welcome'); if (w) animateClose(w); };
+      }, 50);
+    }
+  }, 200);
 </script>
 </body>
 </html>
