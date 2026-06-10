@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WR cafe | Атмосферное кафе в центре</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #fefaf5;
+            color: #2c2b28;
+            line-height: 1.5;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header / Nav */
+        .header {
+            background: #ffffffea;
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #f0e2d0;
+            padding: 1rem 0;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #b97f3b, #e0a14e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo p {
+            font-size: 0.75rem;
+            color: #7f6b58;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 500;
+            color: #3a2c1f;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+
+        .nav-links a:hover {
+            color: #b87c3a;
+            border-bottom: 2px solid #e0a14e;
+            padding-bottom: 4px;
+        }
+
+        /* Hero секция */
+        .hero {
+            background: linear-gradient(107deg, #f9efdf 0%, #f4e5d3 100%);
+            padding: 4rem 0 5rem 0;
+            border-radius: 0 0 48px 48px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-grid {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3rem;
+            justify-content: space-between;
+        }
+
+        .hero-text {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .hero-text h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #2f241b;
+            margin-bottom: 1rem;
+        }
+
+        .hero-text .highlight {
+            color: #c9893a;
+            border-bottom: 2px solid #e9bc7d;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #4c3b2b;
+            margin: 1.5rem 0;
+            max-width: 500px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #c68b3c;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #a56f2f;
+            transform: translateY(-2px);
+        }
+
+        .hero-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 32px;
+            box-shadow: 0 25px 35px -12px rgba(0,0,0,0.2);
+            background: #e5d5c0;
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Секции */
+        .section {
+            padding: 4rem 0;
+            border-bottom: 1px solid #f0e2d4;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .section-title span {
+            background: linear-gradient(120deg, #e8cfb0, #f8e5d2);
+            padding: 0 1rem;
+        }
+
+        .about-grid {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .about-text {
+            flex: 1;
+        }
+
+        .about-text h3 {
+            font-size: 1.7rem;
+            margin-bottom: 1rem;
+            color: #a06e38;
+        }
+
+        .about-text p {
+            margin-bottom: 1rem;
+            color: #3f3327;
+        }
+
+        .about-image {
+            flex: 1;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: 0.3s;
+        }
+
+        /* Особенности / фишки */
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 32px;
+            padding: 1.8rem;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            transition: 0.25s;
+            border: 1px solid #f0e2d4;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: #e5c89e;
+        }
+
+        .feature-icon {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Галерея атмосферы */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: 0.3s;
+            background: #f6ede2;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            transition: 0.4s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.02);
+        }
+
+        .gallery-caption {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 500;
+            background: #fff9f2;
+            color: #5f4a33;
+        }
+
+        /* VIP зона */
+        .vip-section {
+            background: linear-gradient(115deg, #fff1e2, #faead9);
+            border-radius: 48px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .vip-info {
+            flex: 2;
+        }
+
+        .vip-info h3 {
+            font-size: 2rem;
+            color: #b67b36;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vip-info p {
+            margin-top: 0.8rem;
+            color: #4c3926;
+        }
+
+        .vip-badge {
+            background: #d9a75c;
+            padding: 0.3rem 1rem;
+            border-radius: 80px;
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2d241b;
+            margin-top: 1rem;
+        }
+
+        .vip-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .vip-image img {
+            max-width: 100%;
+            border-radius: 32px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Отзывы */
+        .reviews {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.8rem;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #efe2d2;
+        }
+
+        .review-text {
+            font-style: italic;
+            margin-bottom: 1rem;
+            color: #3f3326;
+        }
+
+        .review-author {
+            font-weight: 700;
+            color: #b5762e;
+        }
+
+        /* Контакты + карта */
+        .contact-block {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            background: #2b241d;
+            border-radius: 48px;
+            padding: 2rem;
+            color: #fef3e6;
+            margin-top: 2rem;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-info h4 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: #f1cf9b;
+        }
+
+        .contact-info p {
+            margin: 0.8rem 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-map {
+            flex: 1;
+            background: #4a3928;
+            border-radius: 32px;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .map-placeholder {
+            background: #6a533c;
+            border-radius: 28px;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        footer {
+            background: #1e1812;
+            color: #cbbfae;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+            border-radius: 32px 32px 0 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero-text h2 {
+                font-size: 2.2rem;
+            }
+            .nav-links {
+                gap: 1rem;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container">
+        <div class="nav">
+            <div class="logo">
+                <h1>WR cafe</h1>
+                <p>место силы и вкуса</p>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#about">О нас</a></li>
+                <li><a href="#atmosphere">Атмосфера</a></li>
+                <li><a href="#vip">VIP зона</a></li>
+                <li><a href="#contacts">Контакты</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<main>
+    <!-- Hero / Главный экран -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-text">
+                <h2>WR cafe — <span class="highlight">уют, который вдохновляет</span></h2>
+                <p>Авторская кухня, тёплая атмосфера и забота о каждом госте. Идеальное место для завтрака, обеда или вечернего свидания в центре города.</p>
+                <a href="#contacts" class="btn">Забронировать столик</a>
+            </div>
+            <div class="hero-image">
+                <!-- красивое фото интерьера (placeholder изображение) -->
+                <img src="https://placehold.co/600x450/f5e7d9/a67c46?text=WR+cafe+интерьер" alt="Интерьер WR cafe" style="background: #e9d9c6;">
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- О нас -->
+        <section id="about" class="section">
+            <div class="section-title">
+                <span>📖 История и философия</span>
+            </div>
+            <div class="about-grid">
+                <div class="about-text">
+                    <h3>Добро пожаловать в WR cafe</h3>
+                    <p>Мы открыли WR cafe в 2022 году с искренним желанием создать пространство, где каждый чувствует себя особенным. Название WR расшифровывается как "Warm Rest" — тёплый отдых. Наша команда — это творческие шеф-повара и бариста, которые вкладывают душу в каждую деталь.</p>
+                    <p>Интерьер сочетает лофтовые элементы с мягким уютом: живой плющ, кожаные диваны, приглушённый свет и аромат свежей выпечки. Мы используем только фермерские продукты и создаём сезонное меню, которое удивляет даже гурманов.</p>
+                    <p>WR cafe — это не просто кафе, это место для встреч, работы за чашечкой латте и настоящего гастрономического отдыха.</p>
+                </div>
+                <div class="about-image">
+                    <img src="https://placehold.co/550x400/f0e2d2/a4743c?text=Атмосфера+WR" alt="Атмосфера WR">
+                </div>
+            </div>
+        </section>
+
+        <!-- Особенности / почему мы -->
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">☕</div>
+                <h4>Авторский кофе</h4>
+                <p>Обжарка зерен от лучших фермеров Эфиопии и Коста-Рики. Альтернатива, каппинги и идеальный раф.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🍽️</div>
+                <h4>Сезонное меню</h4>
+                <p>Шеф-повар обновляет меню 4 раза в год, используя локальные продукты и гастрономические тренды.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎵</div>
+                <h4>Живая музыка</h4>
+                <p>По пятницам и субботам — джаз, акустика и соул. Атмосфера для души и расслабления.</p>
+            </div>
+        </div>
+
+        <!-- Атмосфера / галерея -->
+        <section id="atmosphere" class="section">
+            <div class="section-title">
+                <span>✨ Атмосфера WR cafe</span>
+            </div>
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="https://placehold.co/400x300/e7d5c0/b37b3a?text=Уютный+уголок" alt="Уютный уголок">
+                    <div class="gallery-caption">Мягкие диваны и уединение</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/400x300/e1cfb8/c28a46?text=Кофейная+стойка" alt="Кофейная стойка">
+                    <div class="gallery-caption">Кофейня с характером</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/400x300/eedfcb/b8833b?text=Веранда+WR" alt="Веранда">
+                    <div class="gallery-caption">Летняя веранда в зелени</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://placehold.co/400x300/f7ede0/a4713c?text=Десерты+WR" alt="Десерты">
+                    <div class="gallery-caption">Десерты ручной работы</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIP зона (без меню и корзины, только описание) -->
+        <section id="vip" class="vip-section">
+            <div class="vip-info">
+                <h3>👑 VIP комната «Эксклюзив»</h3>
+                <p>Для особых моментов у нас есть приватная VIP-комната на 10 гостей. Мягкий свет, панорамные окна, отдельное меню от шефа и персональный официант. Идеально для дней рождений, деловых встреч или романтического ужина в полной конфиденциальности.</p>
+                <p>✨ <strong>Что включает VIP-сервис:</strong> индивидуальный подход, комплимент от заведения, выбор музыкального сопровождения и возможность заказать блюда, не входящие в основное меню.</p>
+                <div class="vip-badge">⭐ VIP-зона — бронирование онлайн</div>
+            </div>
+            <div class="vip-image">
+                <img src="https://placehold.co/420x300/cfa97c/5c3a1f?text=VIP+зал+WR+cafe" alt="VIP комната">
+            </div>
+        </section>
+
+        <!-- Отзывы гостей -->
+        <div class="reviews">
+            <div class="review-card">
+                <div class="review-text">«Невероятно душевное место! Интерьер как из европейских журналов, а десерты — космос. Отдельное спасибо за вежливый персонал. WR cafe стал нашим любимым местом для завтраков.»</div>
+                <div class="review-author">— Анна К.</div>
+            </div>
+            <div class="review-card">
+                <div class="review-text">«Провели день рождения в VIP-комнате — это было шикарно! Атмосфера приватная, стол ломился от изысков. Организация на высоте, очень рекомендую!»</div>
+                <div class="review-author">— Дмитрий и Екатерина</div>
+            </div>
+            <div class="review-card">
+                <div class="review-text">«Кофе здесь волшебный! А ещё по вечерам живой пианист создаёт вайб уютной европейской кофейни. Обязательно вернусь.)»</div>
+                <div class="review-author">— Марина С.</div>
+            </div>
+        </div>
+
+        <!-- Контакты и расположение -->
+        <section id="contacts">
+            <div class="section-title">
+                <span>📍 Как нас найти</span>
+            </div>
+            <div class="contact-block">
+                <div class="contact-info">
+                    <h4>WR cafe</h4>
+                    <p>📍 г. Москва, ул. Тверская, 15, стр. 2 (вход с Садового кольца)</p>
+                    <p>📞 +7 (495) 123-45-67</p>
+                    <p>✉️ hello@wrcafe.ru</p>
+                    <p>⏰ Ежедневно: 09:00 — 23:00<br>VIP-комната: по предварительной записи</p>
+                    <p>🚗 Бесплатная парковка для гостей (по предъявлению чека)</p>
+                </div>
+                <div class="contact-map">
+                    <div class="map-placeholder">
+                        🗺️ Схема проезда: центр, у метро «Тверская»<br>
+                        <span style="font-size:0.8rem;">(интерактивная карта в разработке, но вы всегда найдёте нас по маячку WR)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer>
+    <div class="container">
+        <p>WR cafe — тепло и вкус в каждой детали. Следите за нами в Instagram и Telegram.</p>
+        <p style="margin-top: 1rem; font-size: 0.8rem;">© 2025 WR cafe. Все права защищены.</p>
+    </div>
+</footer>
+
+<!-- маленький скрипт для плавного навигационного меню, без функционала корзины -->
+<script>
+    // Обработка кликов для навигации (уже smooth scroll)
+    document.querySelectorAll('.nav-links a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    });
+    // Дополнительно кнопка бронирования скроллит к контактам
+    const btnBook = document.querySelector('.btn');
+    if (btnBook) {
+        btnBook.addEventListener('click', (e) => {
+            e.preventDefault();
+            const contacts = document.getElementById('contacts');
+            if (contacts) contacts.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+</script>
+</body>
+</html>
