@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>WR OS™ | Sonne™</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Boot Screen -->
+<!-- BOOT -->
 <div id="boot-screen">
     <div class="boot-logo">WR OS™</div>
     <div class="boot-company">Sonne™</div>
@@ -20,9 +19,8 @@
     </div>
 </div>
 
-<!-- Lock Screen -->
+<!-- LOCKSCREEN -->
 <div id="lockscreen">
-
     <div class="lock-content">
         <div id="clock">00:00</div>
         <div id="date">Загрузка...</div>
@@ -31,51 +29,43 @@
             Свайп вверх для разблокировки
         </div>
     </div>
-
 </div>
 
-<!-- Status Bar -->
+<!-- STATUSBAR -->
 <div id="statusbar">
+    <div>WR OS™</div>
 
-    <div class="left-status">
-        WR OS™
+    <div>
+        🔋100% 📶
     </div>
-
-    <div class="right-status">
-        <span id="battery">🔋100%</span>
-        <span>📶</span>
-    </div>
-
 </div>
 
-<!-- Home Screen -->
+<!-- HOME -->
 <div id="home-screen">
 
     <div class="widget-clock">
-
         <div id="home-time">00:00</div>
         <div id="home-date">---</div>
-
     </div>
 
     <div class="apps-grid">
 
-        <div class="app-icon">
+        <div class="app-icon" onclick="openApp('phone-app')">
             <div class="icon">📞</div>
             <span>Телефон</span>
         </div>
 
-        <div class="app-icon">
+        <div class="app-icon" onclick="openApp('messages-app')">
             <div class="icon">💬</div>
             <span>Сообщения</span>
         </div>
 
-        <div class="app-icon">
+        <div class="app-icon" onclick="openApp('browser-app')">
             <div class="icon">🌐</div>
             <span>Браузер</span>
         </div>
 
-        <div class="app-icon">
+        <div class="app-icon" onclick="openApp('settings-app')">
             <div class="icon">⚙️</div>
             <span>Настройки</span>
         </div>
@@ -84,7 +74,93 @@
 
 </div>
 
-<!-- Android Navigation -->
+<!-- PHONE APP -->
+<div class="app-window" id="phone-app">
+
+    <div class="app-header">
+        <button onclick="closeApp('phone-app')">←</button>
+        Телефон
+    </div>
+
+    <div class="app-content">
+
+        <h2>Набор номера</h2>
+
+        <input
+        class="phone-input"
+        placeholder="+7 999 123 45 67">
+
+    </div>
+
+</div>
+
+<!-- MESSAGES APP -->
+<div class="app-window" id="messages-app">
+
+    <div class="app-header">
+        <button onclick="closeApp('messages-app')">←</button>
+        Сообщения
+    </div>
+
+    <div class="app-content">
+
+        <div class="message">
+            Добро пожаловать в WR OS™
+        </div>
+
+    </div>
+
+</div>
+
+<!-- BROWSER APP -->
+<div class="app-window" id="browser-app">
+
+    <div class="app-header">
+        <button onclick="closeApp('browser-app')">←</button>
+        Браузер
+    </div>
+
+    <div class="app-content">
+
+        <input
+        class="browser-input"
+        placeholder="Введите адрес">
+
+        <p>
+            Браузер появится в следующих версиях.
+        </p>
+
+    </div>
+
+</div>
+
+<!-- SETTINGS APP -->
+<div class="app-window" id="settings-app">
+
+    <div class="app-header">
+        <button onclick="closeApp('settings-app')">←</button>
+        Настройки
+    </div>
+
+    <div class="app-content">
+
+        <div class="setting-item">
+            🌙 Темная тема
+        </div>
+
+        <div class="setting-item">
+            🔔 Уведомления
+        </div>
+
+        <div class="setting-item">
+            🎨 Обои
+        </div>
+
+    </div>
+
+</div>
+
+<!-- NAVBAR -->
 <div id="navbar">
     <div class="home-button"></div>
 </div>
