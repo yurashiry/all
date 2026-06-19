@@ -264,3 +264,93 @@ body{
 
     background:white;
 }
+/* =======================
+   APP WINDOWS
+======================= */
+
+.app-window{
+    position:fixed;
+    inset:0;
+
+    background:#ffffff;
+
+    color:#111;
+
+    z-index:1000;
+
+    opacity:0;
+
+    transform:scale(.9);
+
+    pointer-events:none;
+
+    transition:.3s;
+}
+
+.app-window.open{
+    opacity:1;
+
+    transform:scale(1);
+
+    pointer-events:auto;
+}
+
+.app-header{
+    height:60px;
+
+    display:flex;
+    align-items:center;
+
+    gap:15px;
+
+    padding:0 15px;
+
+    background:#f5f5f5;
+
+    font-weight:700;
+}
+
+.app-header button{
+    border:none;
+
+    background:none;
+
+    font-size:24px;
+
+    cursor:pointer;
+}
+
+.app-content{
+    padding:20px;
+}
+
+.phone-input,
+.browser-input{
+    width:100%;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    border:1px solid #ccc;
+
+    margin-top:10px;
+}
+
+.message{
+    background:#f1f1f1;
+
+    padding:15px;
+
+    border-radius:12px;
+}
+
+.setting-item{
+    padding:15px;
+
+    margin-bottom:10px;
+
+    background:#f5f5f5;
+
+    border-radius:12px;
+}
