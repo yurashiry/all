@@ -13,7 +13,7 @@ document.getElementById("home-time");
 const homeDate =
 document.getElementById("home-date");
 
-/* Boot */
+/* BOOT */
 
 window.onload = () => {
 
@@ -27,7 +27,7 @@ window.onload = () => {
 
 };
 
-/* Clock */
+/* CLOCK */
 
 function updateClock(){
 
@@ -62,7 +62,7 @@ function updateClock(){
 setInterval(updateClock,1000);
 updateClock();
 
-/* Swipe Unlock */
+/* SWIPE UNLOCK */
 
 let startY = 0;
 
@@ -102,3 +102,23 @@ lockscreen.addEventListener(
 
     }
 );
+
+/* APPS */
+
+function openApp(id){
+
+    document
+    .getElementById(id)
+    .classList
+    .add("open");
+
+}
+
+function closeApp(id){
+
+    document
+    .getElementById(id)
+    .classList
+    .remove("open");
+
+}
