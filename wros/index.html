@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>WR OS™ | Sonne™</title>
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Загрузка системы -->
+<div id="boot-screen">
+    <div class="boot-logo">WR OS™</div>
+    <div class="boot-company">Sonne™</div>
+
+    <div class="boot-loader">
+        <div class="boot-progress"></div>
+    </div>
+</div>
+
+<!-- Экран блокировки -->
+<div id="lockscreen">
+
+    <div class="lock-content">
+        <div id="clock">00:00</div>
+        <div id="date">Loading...</div>
+
+        <div class="unlock-text">
+            Свайп вверх для разблокировки
+        </div>
+    </div>
+
+</div>
+
+<!-- Строка состояния -->
+<div id="statusbar">
+
+    <div class="left-status">
+        WR OS™
+    </div>
+
+    <div class="right-status">
+        <span id="battery">🔋100%</span>
+        <span>📶</span>
+    </div>
+
+</div>
+
+<!-- Главный экран -->
+<div id="home-screen">
+
+    <div class="widget-clock">
+        <div id="home-time">00:00</div>
+        <div id="home-date">---</div>
+    </div>
+
+    <div class="apps-grid">
+
+        <div class="app-icon">
+            <div class="icon">📞</div>
+            <span>Телефон</span>
+        </div>
+
+        <div class="app-icon">
+            <div class="icon">💬</div>
+            <span>Сообщения</span>
+        </div>
+
+        <div class="app-icon">
+            <div class="icon">🌐</div>
+            <span>Браузер</span>
+        </div>
+
+        <div class="app-icon">
+            <div class="icon">⚙️</div>
+            <span>Настройки</span>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>
