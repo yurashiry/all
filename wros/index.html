@@ -6,11 +6,11 @@
 
 <title>WR OS™ | Sonne™</title>
 
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Загрузка системы -->
+<!-- Boot Screen -->
 <div id="boot-screen">
     <div class="boot-logo">WR OS™</div>
     <div class="boot-company">Sonne™</div>
@@ -20,12 +20,12 @@
     </div>
 </div>
 
-<!-- Экран блокировки -->
+<!-- Lock Screen -->
 <div id="lockscreen">
 
     <div class="lock-content">
         <div id="clock">00:00</div>
-        <div id="date">Loading...</div>
+        <div id="date">Загрузка...</div>
 
         <div class="unlock-text">
             Свайп вверх для разблокировки
@@ -34,7 +34,7 @@
 
 </div>
 
-<!-- Строка состояния -->
+<!-- Status Bar -->
 <div id="statusbar">
 
     <div class="left-status">
@@ -48,12 +48,14 @@
 
 </div>
 
-<!-- Главный экран -->
+<!-- Home Screen -->
 <div id="home-screen">
 
     <div class="widget-clock">
+
         <div id="home-time">00:00</div>
         <div id="home-date">---</div>
+
     </div>
 
     <div class="apps-grid">
@@ -82,7 +84,12 @@
 
 </div>
 
-<script src="js/script.js"></script>
+<!-- Android Navigation -->
+<div id="navbar">
+    <div class="home-button"></div>
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>
