@@ -1,356 +1,451 @@
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Segoe UI",sans-serif;
-    -webkit-tap-highlight-color:transparent;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Segoe UI",sans-serif;
+-webkit-tap-highlight-color:transparent;
 }
 
 :root{
-    --accent:#4f8cff;
-    --glass:rgba(255,255,255,.12);
-    --glass-border:rgba(255,255,255,.15);
+--bg:#0f172a;
+--glass:rgba(255,255,255,.12);
+--glass-border:rgba(255,255,255,.15);
+--card:rgba(255,255,255,.12);
+--text:#fff;
 }
 
 body{
-    overflow:hidden;
-    background:#000;
-    color:white;
-    height:100vh;
+height:100vh;
+overflow:hidden;
+background:#000;
+color:var(--text);
 }
 
-/* Boot Screen */
+/* ======================
+BOOT
+====================== */
 
 #boot-screen{
-    position:fixed;
-    inset:0;
-    background:linear-gradient(180deg,#090909,#111);
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:99999;
 }
 
 .boot-logo{
-    font-size:58px;
-    font-weight:800;
-    letter-spacing:2px;
+font-size:58px;
+font-weight:800;
 }
 
 .boot-company{
-    margin-top:10px;
-    opacity:.7;
-    font-size:18px;
+opacity:.7;
+margin-top:10px;
 }
 
 .boot-loader{
-    width:260px;
-    height:8px;
-    margin-top:40px;
-    background:#222;
-    border-radius:999px;
-    overflow:hidden;
+width:260px;
+height:8px;
+background:#222;
+border-radius:999px;
+overflow:hidden;
+margin-top:30px;
 }
 
 .boot-progress{
-    height:100%;
-    width:0%;
-    background:linear-gradient(
-        90deg,
-        #4f8cff,
-        #73b0ff
-    );
-    border-radius:999px;
-    animation:bootload 3s linear forwards;
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#4f8cff,#73b0ff);
+animation:bootload 3s linear forwards;
 }
 
 @keyframes bootload{
-    from{
-        width:0%;
-    }
-    to{
-        width:100%;
-    }
+from{width:0;}
+to{width:100%;}
 }
 
-/* Lock Screen */
+/* ======================
+LOCKSCREEN
+====================== */
 
 #lockscreen{
-    position:fixed;
-    inset:0;
+position:fixed;
+inset:0;
+z-index:5000;
 
-    background:
-    linear-gradient(
-        rgba(0,0,0,.2),
-        rgba(0,0,0,.45)
-    ),
-    url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1080");
+background:
+linear-gradient(
+rgba(0,0,0,.25),
+rgba(0,0,0,.5)
+),
+url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1080");
 
-    background-size:cover;
-    background-position:center;
+background-size:cover;
+background-position:center;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+display:flex;
+justify-content:center;
+align-items:center;
 
-    z-index:5000;
-
-    transition:.6s ease;
+transition:.55s ease;
 }
 
 #lockscreen.unlocking{
-    transform:translateY(-100%);
+transform:translateY(-100%);
 }
 
 .lock-content{
-    text-align:center;
+text-align:center;
 }
 
 #clock{
-    font-size:90px;
-    font-weight:200;
+font-size:92px;
+font-weight:200;
 }
 
 #date{
-    font-size:20px;
-    margin-top:10px;
+font-size:20px;
+margin-top:10px;
 }
 
 .unlock-text{
-    margin-top:60px;
-    opacity:.85;
-    animation:float 1.5s infinite;
+margin-top:55px;
+opacity:.9;
+animation:float 1.6s infinite;
 }
 
 @keyframes float{
-    50%{
-        transform:translateY(-8px);
-    }
+50%{
+transform:translateY(-8px);
+}
 }
 
-/* Status Bar */
+/* ======================
+STATUS BAR
+====================== */
 
 #statusbar{
-    position:fixed;
-    top:0;
-    left:0;
-    right:0;
+position:fixed;
+top:0;
+left:0;
+right:0;
+height:40px;
+padding:0 15px;
 
-    height:40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+z-index:100;
 
-    padding:0 14px;
-
-    z-index:100;
+backdrop-filter:blur(10px);
 }
 
-.left-status{
-    font-size:13px;
+.status-right{
+display:flex;
+gap:10px;
 }
 
-.right-status{
-    display:flex;
-    gap:10px;
-}
-
-/* Home Screen */
+/* ======================
+HOME SCREEN
+====================== */
 
 #home-screen{
-    position:fixed;
-    inset:0;
+position:fixed;
+inset:0;
 
-    background:
-    linear-gradient(
-        rgba(0,0,0,.2),
-        rgba(0,0,0,.35)
-    ),
-    url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1080");
+background:
+linear-gradient(
+rgba(0,0,0,.2),
+rgba(0,0,0,.35)
+),
+url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1080");
 
-    background-size:cover;
-    background-position:center;
+background-size:cover;
+background-position:center;
 
-    padding-top:60px;
+padding-top:60px;
 }
 
 .widget-clock{
-    width:90%;
-    margin:20px auto;
+width:90%;
+margin:20px auto;
 
-    padding:25px;
+padding:25px;
 
-    background:var(--glass);
+background:var(--glass);
+border:1px solid var(--glass-border);
 
-    border:1px solid var(--glass-border);
+border-radius:28px;
 
-    border-radius:25px;
-
-    backdrop-filter:blur(15px);
+backdrop-filter:blur(18px);
 }
 
 #home-time{
-    font-size:40px;
-    font-weight:700;
+font-size:42px;
+font-weight:700;
 }
 
 #home-date{
-    margin-top:8px;
+margin-top:8px;
+opacity:.9;
 }
 
 .apps-grid{
-    display:grid;
-
-    grid-template-columns:
-    repeat(4,1fr);
-
-    gap:25px;
-
-    padding:20px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:24px;
+padding:20px;
 }
 
 .app-icon{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
+display:flex;
+flex-direction:column;
+align-items:center;
+cursor:pointer;
+transition:.2s;
+}
+
+.app-icon:active{
+transform:scale(.9);
 }
 
 .icon{
-    width:68px;
-    height:68px;
+width:68px;
+height:68px;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+display:flex;
+justify-content:center;
+align-items:center;
 
-    font-size:34px;
+font-size:34px;
 
-    border-radius:22px;
+background:rgba(255,255,255,.14);
+border:1px solid rgba(255,255,255,.15);
 
-    background:rgba(255,255,255,.15);
+border-radius:22px;
 
-    backdrop-filter:blur(10px);
+backdrop-filter:blur(12px);
 }
 
 .app-icon span{
-    margin-top:8px;
-    font-size:12px;
+margin-top:8px;
+font-size:12px;
 }
 
-/* Navbar */
-
-#navbar{
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-
-    height:60px;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    z-index:150;
-}
-
-.home-button{
-    width:140px;
-    height:5px;
-
-    border-radius:999px;
-
-    background:white;
-}
-/* =======================
-   APP WINDOWS
-======================= */
+/* ======================
+APP WINDOWS
+====================== */
 
 .app-window{
-    position:fixed;
-    inset:0;
+position:fixed;
+inset:0;
 
-    background:#ffffff;
+background:#fff;
+color:#111;
 
-    color:#111;
+z-index:1000;
 
-    z-index:1000;
+opacity:0;
+pointer-events:none;
 
-    opacity:0;
+transform:
+scale(.85)
+translateY(40px);
 
-    transform:scale(.9);
-
-    pointer-events:none;
-
-    transition:.3s;
+transition:
+transform .35s cubic-bezier(.2,.8,.2,1),
+opacity .35s;
 }
 
 .app-window.open{
-    opacity:1;
+opacity:1;
+pointer-events:auto;
 
-    transform:scale(1);
-
-    pointer-events:auto;
+transform:
+scale(1)
+translateY(0);
 }
 
 .app-header{
-    height:60px;
+height:60px;
 
-    display:flex;
-    align-items:center;
+display:flex;
+align-items:center;
 
-    gap:15px;
+gap:15px;
 
-    padding:0 15px;
+padding:0 15px;
 
-    background:#f5f5f5;
+background:#f5f5f5;
 
-    font-weight:700;
+font-weight:700;
+
+border-bottom:1px solid #ddd;
 }
 
 .app-header button{
-    border:none;
-
-    background:none;
-
-    font-size:24px;
-
-    cursor:pointer;
+border:none;
+background:none;
+font-size:24px;
+cursor:pointer;
 }
 
 .app-content{
-    padding:20px;
+padding:20px;
+height:calc(100vh - 120px);
+overflow:auto;
 }
+
+/* ======================
+INPUTS
+====================== */
 
 .phone-input,
 .browser-input{
-    width:100%;
+width:100%;
 
-    padding:15px;
+padding:14px;
 
-    border-radius:12px;
+border-radius:14px;
 
-    border:1px solid #ccc;
+border:1px solid #ddd;
 
-    margin-top:10px;
+font-size:16px;
 }
+
+/* ======================
+MESSAGES
+====================== */
 
 .message{
-    background:#f1f1f1;
-
-    padding:15px;
-
-    border-radius:12px;
+padding:15px;
+background:#f1f1f1;
+border-radius:16px;
 }
 
+/* ======================
+SETTINGS
+====================== */
+
 .setting-item{
-    padding:15px;
+padding:16px;
+background:#f5f5f5;
+border-radius:14px;
+margin-bottom:10px;
+cursor:pointer;
+transition:.2s;
+}
 
-    margin-bottom:10px;
+.setting-item:active{
+transform:scale(.98);
+}
 
-    background:#f5f5f5;
+/* ======================
+STORE
+====================== */
 
-    border-radius:12px;
+.store-app{
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:15px;
+
+margin-bottom:12px;
+
+background:#f5f5f5;
+
+border-radius:16px;
+}
+
+.store-app button{
+border:none;
+
+padding:10px 15px;
+
+border-radius:12px;
+
+background:#4f8cff;
+color:white;
+
+cursor:pointer;
+}
+
+/* ======================
+GESTURE BAR
+====================== */
+
+.gesture-bar{
+position:absolute;
+
+bottom:10px;
+left:50%;
+
+transform:translateX(-50%);
+
+width:130px;
+height:5px;
+
+border-radius:999px;
+
+background:#999;
+}
+
+/* ======================
+NAVBAR
+====================== */
+
+#navbar{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+
+height:55px;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+z-index:120;
+}
+
+.home-button{
+width:140px;
+height:5px;
+
+border-radius:999px;
+
+background:white;
+}
+
+/* ======================
+DARK THEME
+====================== */
+
+.dark-theme .app-window{
+background:#111;
+color:white;
+}
+
+.dark-theme .app-header{
+background:#1b1b1b;
+border-bottom:1px solid #333;
+}
+
+.dark-theme .setting-item,
+.dark-theme .store-app,
+.dark-theme .message{
+background:#222;
+color:white;
+}
+
+.dark-theme input{
+background:#222;
+color:white;
+border:1px solid #444;
 }
