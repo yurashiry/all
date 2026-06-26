@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WR ID AT</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+<div class="background"></div>
+
+<div class="home-card">
+
+    <!-- Профиль -->
+
+    <div class="profile">
+
+        <img
+            src="img/default-avatar.png"
+            class="avatar"
+            id="avatar"
+        >
+
+        <h2>
+
+            <span id="profileName">
+                Пользователь
+            </span>
+
+            <span id="blueBadge" class="badge blue" style="display:none;">
+                ✔
+            </span>
+
+            <span id="plusBadge" class="badge green" style="display:none;">
+                ★
+            </span>
+
+        </h2>
+
+        <p id="profileUsername">
+            @username
+        </p>
+
+    </div>
+
+    <!-- QR -->
+
+    <div class="section">
+
+        <button id="qrButton">
+
+            Открыть QR-код
+
+        </button>
+
+    </div>
+
+    <!-- Карты -->
+
+    <div class="section">
+
+        <h3>
+            💳 Привязанные карты
+        </h3>
+
+        <div id="cards">
+
+            <p class="empty">
+
+                Нет привязанных карт
+
+            </p>
+
+        </div>
+
+        <button id="addCard">
+
+            + Добавить карту
+
+        </button>
+
+    </div>
+
+    <!-- Настройки -->
+
+    <div class="section">
+
+        <button
+            class="settingsButton"
+            onclick="location.href='settings.html'">
+
+            ⚙ Настройки профиля
+
+        </button>
+
+    </div>
+
+</div>
+
+<script src="js/home.js"></script>
+
+</body>
+</html>
