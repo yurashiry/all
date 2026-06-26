@@ -1,0 +1,253 @@
+/* ===========================
+   WR ID AT
+   Автор: WR
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,Arial,sans-serif;
+}
+
+body{
+    background:#0f172a;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    color:white;
+}
+
+/* Фон */
+
+.background{
+    position:fixed;
+    inset:0;
+    background:
+    radial-gradient(circle at top,#1d4ed8 0%,transparent 35%),
+    radial-gradient(circle at bottom,#2563eb 0%,transparent 35%),
+    #0f172a;
+}
+
+/* Карточка */
+
+.login-card{
+
+    position:relative;
+
+    width:430px;
+
+    padding:45px;
+
+    border-radius:28px;
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(25px);
+
+    border:1px solid rgba(255,255,255,.1);
+
+    box-shadow:
+    0 30px 60px rgba(0,0,0,.45);
+
+}
+
+/* Логотип */
+
+.logo{
+
+    text-align:center;
+
+    margin-bottom:35px;
+
+}
+
+.logo-circle{
+
+    width:82px;
+
+    height:82px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    background:#0A84FF;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:30px;
+
+    font-weight:700;
+
+    margin-bottom:20px;
+
+    box-shadow:0 0 35px rgba(10,132,255,.5);
+
+}
+
+.logo h1{
+
+    font-size:34px;
+
+    margin-bottom:8px;
+
+}
+
+.logo p{
+
+    color:#cbd5e1;
+
+    font-size:15px;
+
+}
+
+/* Поля */
+
+label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    margin-top:18px;
+
+    color:#dbeafe;
+
+    font-size:14px;
+
+}
+
+input{
+
+    width:100%;
+
+    padding:16px;
+
+    border-radius:14px;
+
+    border:none;
+
+    background:rgba(255,255,255,.07);
+
+    color:white;
+
+    font-size:15px;
+
+    transition:.25s;
+
+}
+
+input::placeholder{
+
+    color:#94a3b8;
+
+}
+
+input:focus{
+
+    outline:none;
+
+    background:rgba(255,255,255,.12);
+
+    box-shadow:0 0 0 2px #0A84FF;
+
+}
+
+/* Кнопка */
+
+button{
+
+    width:100%;
+
+    margin-top:28px;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#0A84FF;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+button:hover{
+
+    transform:translateY(-2px);
+
+    background:#3398ff;
+
+}
+
+/* Разделитель */
+
+.divider{
+
+    height:1px;
+
+    background:rgba(255,255,255,.1);
+
+    margin:28px 0;
+
+}
+
+/* Регистрация */
+
+.register-btn{
+
+    display:block;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:#0A84FF;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.register-btn:hover{
+
+    color:white;
+
+}
+
+/* Телефон */
+
+@media(max-width:500px){
+
+.login-card{
+
+    width:92%;
+
+    padding:28px;
+
+}
+
+.logo h1{
+
+    font-size:28px;
+
+}
+
+}
