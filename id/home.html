@@ -3,44 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>WR ID AT</title>
 
-    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/home.css">
 </head>
+
 <body>
 
 <div class="background"></div>
 
-<div class="home-card">
+<div class="container">
 
     <!-- Профиль -->
 
-    <div class="profile">
+    <div class="profile-card">
 
-        <img
-            src="img/default-avatar.png"
-            class="avatar"
-            id="avatar"
-        >
+        <div class="avatar" id="avatar">
+            Y
+        </div>
 
-        <h2>
+        <h1 id="displayName">
+            Yuri
+            <span id="blueBadge" class="badge blue" style="display:none;">✔</span>
+            <span id="plusBadge" class="badge green" style="display:none;">+</span>
+        </h1>
 
-            <span id="profileName">
-                Пользователь
-            </span>
-
-            <span id="blueBadge" class="badge blue" style="display:none;">
-                ✔
-            </span>
-
-            <span id="plusBadge" class="badge green" style="display:none;">
-                ★
-            </span>
-
-        </h2>
-
-        <p id="profileUsername">
+        <p id="username">
             @username
         </p>
 
@@ -48,31 +37,31 @@
 
     <!-- QR -->
 
-    <div class="section">
+    <div class="card">
 
-        <button id="qrButton">
-
-            Открыть QR-код
-
+        <button id="qrButton" class="main-btn">
+            📱 Открыть QR-код
         </button>
 
     </div>
 
     <!-- Карты -->
 
-    <div class="section">
+    <div class="card">
 
-        <h3>
+        <div class="card-title">
+
             💳 Привязанные карты
-        </h3>
 
-        <div id="cards">
+        </div>
 
-            <p class="empty">
+        <div id="cardsContainer">
 
-                Нет привязанных карт
+            <div class="empty">
 
-            </p>
+                Пока нет привязанных карт
+
+            </div>
 
         </div>
 
@@ -86,13 +75,23 @@
 
     <!-- Настройки -->
 
-    <div class="section">
+    <div class="card">
 
-        <button
-            class="settingsButton"
-            onclick="location.href='settings.html'">
+        <div class="card-title">
 
-            ⚙ Настройки профиля
+            ⚙️ Настройки
+
+        </div>
+
+        <button onclick="location.href='settings.html'">
+
+            Настройки профиля
+
+        </button>
+
+        <button id="logout">
+
+            Выйти
 
         </button>
 
@@ -100,6 +99,64 @@
 
 </div>
 
+<!-- QR окно -->
+
+<div id="qrModal" class="modal">
+
+    <div class="modal-content">
+
+        <span id="closeQR">&times;</span>
+
+        <h2>
+
+            QR WR ID
+
+        </h2>
+
+        <div id="qrcode"></div>
+
+    </div>
+
+</div>
+
+<!-- Добавление карты -->
+
+<div id="cardModal" class="modal">
+
+    <div class="modal-content">
+
+        <span id="closeCard">&times;</span>
+
+        <h2>
+
+            Новая карта
+
+        </h2>
+
+        <select id="cardType">
+
+            <option>Visa</option>
+            <option>Mastercard</option>
+            <option>Мир</option>
+
+        </select>
+
+        <input
+            id="cardNumber"
+            maxlength="19"
+            placeholder="Номер карты">
+
+        <button id="saveCard">
+
+            Сохранить
+
+        </button>
+
+    </div>
+
+</div>
+
+<script src="js/qrcode.min.js"></script>
 <script src="js/home.js"></script>
 
 </body>
