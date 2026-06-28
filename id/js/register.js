@@ -12,9 +12,6 @@ users[username]={
 name,username,password,
 blue: username==="yurskk",
 plus: username==="yurskk"
-}
-  blue: username==="sonne",
-plus: username==="sonne"
 };
 
 localStorage.setItem('users',JSON.stringify(users));
