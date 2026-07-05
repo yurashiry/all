@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Virtual Mastercard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-1: #020617;
+      --bg-2: #0f172a;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --text-soft: rgba(255, 255, 255, 0.72);
+      --text-main: rgba(255, 255, 255, 0.98);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at center, rgba(71, 85, 105, 0.28) 0%, rgba(15, 23, 42, 0.12) 28%, rgba(2, 6, 23, 0.94) 70%, #020617 100%),
+        linear-gradient(135deg, #0b1220, #111827);
+      color: #fff;
+    }
+
+    .layout {
+      width: 100%;
+      max-width: 1160px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .card-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      width: min(100%, 760px);
+      aspect-ratio: 1.586 / 1;
+      position: relative;
+      border-radius: 28px;
+      padding: clamp(20px, 3.4vw, 34px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        radial-gradient(circle at 38% 36%, rgba(45, 79, 255, 0.95) 0%, rgba(45, 79, 255, 0.38) 22%, rgba(45, 79, 255, 0.06) 44%, transparent 58%),
+        radial-gradient(circle at 76% 22%, rgba(168, 32, 91, 0.72) 0%, rgba(168, 32, 91, 0.20) 26%, transparent 50%),
+        linear-gradient(180deg, rgba(34, 48, 84, 0.35), rgba(0, 0, 0, 0.08)),
+        linear-gradient(145deg, #031a43 0%, #06102b 24%, #172a93 48%, #511757 76%, #17192f 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.22),
+        0 35px 70px rgba(0,0,0,0.55),
+        0 10px 25px rgba(0,0,0,0.22);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent 24%, transparent 70%, rgba(0,0,0,0.2));
+      pointer-events: none;
+    }
+
+    .top,
+    .middle,
+    .bottom {
+      position: relative;
+      z-index: 1;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .virtual {
+      font-size: clamp(20px, 2.4vw, 30px);
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .mc-logo {
+      display: flex;
+      align-items: center;
+      margin-top: -2px;
+      flex-shrink: 0;
+    }
+
+    .mc-logo span {
+      width: clamp(50px, 7vw, 88px);
+      height: clamp(50px, 7vw, 88px);
+      border-radius: 50%;
+      display: block;
+    }
+
+    .mc-red {
+      background: rgba(255, 58, 20, 0.96);
+    }
+
+    .mc-yellow {
+      background: rgba(255, 186, 36, 0.96);
+      margin-left: calc(clamp(50px, 7vw, 88px) * -0.34);
+      mix-blend-mode: screen;
+    }
+
+    .middle {
+      display: grid;
+      gap: clamp(18px, 3vw, 28px);
+    }
+
+    .number-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .card-number {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 1vw, 16px);
+      min-width: 0;
+      font-size: clamp(26px, 4.1vw, 52px);
+      line-height: 1.02;
+      font-weight: 700;
+      letter-spacing: 0;
+      color: var(--text-main);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .card-number-group {
+      display: block;
+      flex: 0 0 auto;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: end;
+    }
+
+    .label {
+      font-size: clamp(11px, 1.35vw, 16px);
+      line-height: 1.1;
+      color: rgba(255,255,255,0.78);
+      margin-bottom: 8px;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+    }
+
+    .value-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(20px, 2.8vw, 34px);
+      line-height: 1;
+      font-weight: 700;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .right {
+      justify-self: end;
+      text-align: left;
+      min-width: 110px;
+    }
+
+    .copy-btn {
+      border: 1px solid rgba(255,255,255,0.13);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.92);
+      height: 34px;
+      min-width: 34px;
+      padding: 0 10px;
+      border-radius: 11px;
+      font-size: 13px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: 0.18s ease;
+      flex-shrink: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.14);
+      transform: translateY(-1px);
+    }
+
+    .copy-btn:active {
+      transform: translateY(0);
+      opacity: 0.9;
+    }
+
+    .copy-btn.small {
+      height: 28px;
+      min-width: 28px;
+      padding: 0 8px;
+      font-size: 11px;
+      border-radius: 9px;
+    }
+
+    .copy-btn[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 7px;
+      border-radius: 7px;
+      background: rgba(9, 14, 27, 0.95);
+      color: #fff;
+      font-size: 10px;
+      line-height: 1;
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+      z-index: 20;
+    }
+
+    .panel {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 26px;
+      padding: 18px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .info-item {
+      padding: 11px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .info-item + .info-item {
+      margin-top: 9px;
+    }
+
+    .info-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--text-soft);
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      word-break: break-word;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .amount-box {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(45, 79, 255, 0.18), rgba(168, 32, 91, 0.12));
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .amount-box .info-label {
+      margin-bottom: 6px;
+    }
+
+    .amount-value {
+      font-size: 16px;
+      line-height: 1.05;
+      font-weight: 800;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .refresh-note {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(96, 165, 250, 0.12);
+      border: 1px solid rgba(96, 165, 250, 0.24);
+      color: rgba(255,255,255,0.88);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .address-box {
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: grid;
+      gap: 8px;
+    }
+
+    .address-line {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .address-line.meta {
+      color: var(--text-soft);
+      font-size: 13px;
+    }
+
+    .address-row {
+      display: grid;
+      grid-template-columns: 108px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .address-key {
+      color: var(--text-soft);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .address-value {
+      color: var(--text-main);
+      font-size: 14px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+        max-width: 760px;
+      }
+
+      .panel {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 14px;
+        align-items: flex-start;
+      }
+
+      .layout {
+        gap: 18px;
+      }
+
+      .card {
+        border-radius: 22px;
+        padding: 16px;
+      }
+
+      .virtual {
+        font-size: 18px;
+      }
+
+      .card-number {
+        gap: 8px;
+        font-size: clamp(19px, 6vw, 29px);
+      }
+
+      .label {
+        font-size: 10px;
+      }
+
+      .value-line {
+        font-size: clamp(16px, 5vw, 24px);
+      }
+
+      .copy-btn {
+        height: 30px;
+        min-width: 30px;
+        padding: 0 8px;
+        font-size: 11px;
+      }
+
+      .copy-btn.small {
+        height: 24px;
+        min-width: 24px;
+        padding: 0 6px;
+        font-size: 10px;
+      }
+
+      .panel {
+        border-radius: 20px;
+        padding: 18px;
+      }
+
+      .panel-title {
+        font-size: 18px;
+        margin-bottom: 16px;
+      }
+
+      .info-value {
+        font-size: 15px;
+      }
+
+      .amount-value {
+        font-size: 22px;
+      }
+
+      .address-row {
+        grid-template-columns: 96px minmax(0, 1fr) auto;
+      }
+
+      .address-key {
+        font-size: 11px;
+      }
+
+      .address-value {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="card-wrap">
+      <div class="card">
+        <div class="top">
+          <div class="virtual">VIRTUAL</div>
+          <div class="mc-logo" aria-hidden="true">
+            <span class="mc-red"></span>
+            <span class="mc-yellow"></span>
+          </div>
+        </div>
+
+        <div class="number-row">
+          <div class="card-number" id="cardNumber" aria-label="5293 6689 2949 5579"><span class="card-number-group">5293</span><span class="card-number-group">6689</span><span class="card-number-group">2949</span><span class="card-number-group">5579</span></div>
+          <button class="copy-btn" type="button" data-tip="Копировать" title="Копировать" data-copy="5293668929495579" aria-label="Скопировать номер карты">⧉</button>
+        </div>
+
+        <div class="details">
+          <div>
+            <div class="label">VALID THRU</div>
+            <div class="value-line">
+              <span id="cardExpiry">01/29</span>
+              <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="01/29" aria-label="Скопировать срок действия">⧉</button>
+            </div>
+          </div>
+          <div class="right">
+            <div class="label">CVC</div>
+            <div class="value-line">
+              <span id="cardCvc">789</span>
+              <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="789" aria-label="Скопировать CVC">⧉</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom"></div>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <div class="panel-title">Invoice details</div>
+
+      <div class="info-item">
+        <div class="info-label">Invoice ID</div>
+        <div class="info-value">295904982</div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-label">Currency</div>
+        <div class="info-value">USD</div>
+      </div>
+
+      <div class="amount-box">
+        <div class="info-label">Amount</div>
+        <div class="amount-value">2.00 USD</div>
+      </div>
+
+      <div class="refresh-note">Автообновление включено. Если карта будет перевыпущена, страница сама покажет новые реквизиты.</div>
+
+      <div class="address-box">
+        <div class="info-label">Address</div>
+        
+          <div class="address-row">
+            <div class="address-key">Name:</div>
+            <div class="address-value">Olivia Parker</div>
+            <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="Olivia Parker" aria-label="Copy Name">⧉</button>
+          </div>
+        
+          <div class="address-row">
+            <div class="address-key">Country:</div>
+            <div class="address-value">United States</div>
+            <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="United States" aria-label="Copy Country">⧉</button>
+          </div>
+        
+          <div class="address-row">
+            <div class="address-key">Address line 1:</div>
+            <div class="address-value">427 Music Row Blvd</div>
+            <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="427 Music Row Blvd" aria-label="Copy Address line 1">⧉</button>
+          </div>
+        
+          <div class="address-row">
+            <div class="address-key">ZIP Code:</div>
+            <div class="address-value">37203</div>
+            <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="37203" aria-label="Copy ZIP Code">⧉</button>
+          </div>
+        
+          <div class="address-row">
+            <div class="address-key">City:</div>
+            <div class="address-value">Nashville</div>
+            <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="Nashville" aria-label="Copy City">⧉</button>
+          </div>
+        
+          <div class="address-row">
+            <div class="address-key">State:</div>
+            <div class="address-value">TN</div>
+            <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="TN" aria-label="Copy State">⧉</button>
+          </div>
+        
+          <div class="address-row">
+            <div class="address-key">Phone:</div>
+            <div class="address-value">+1 (615) 884-3391</div>
+            <button class="copy-btn small" type="button" data-tip="Копировать" title="Копировать" data-copy="+1 (615) 884-3391" aria-label="Copy Phone">⧉</button>
+          </div>
+        
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const detailsViewedAckUrl = "/digiseller/card-viewed?invoiceId=295904982";
+    const deliveryRefreshStateUrl = "/delivery-state?invoiceId=295904982";
+    const deliveryRefreshStateHash = "45367be35903056ac7599e0cc380e2eec67368a001638002157211edb0d33d9d";
+    const deliveryRefreshIntervalMs = 12000;
+    let deliveryRefreshInFlight = false;
+
+    function copyText(value, button) {
+      if (!value) {
+        return;
+      }
+
+      navigator.clipboard.writeText(value)
+        .then(() => {
+          const old = button.innerText;
+          button.innerText = "✓";
+          setTimeout(() => {
+            button.innerText = old;
+          }, 900);
+        })
+        .catch(() => {});
+    }
+
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const value = button.getAttribute("data-copy") || "";
+        copyText(value, button);
+      });
+    });
+
+    function notifyDetailsViewed() {
+      if (!detailsViewedAckUrl || window.__detailsViewedPingSent) {
+        return;
+      }
+
+      window.__detailsViewedPingSent = true;
+
+      if (navigator.sendBeacon) {
+        try {
+          const beaconOk = navigator.sendBeacon(detailsViewedAckUrl, "1");
+          if (beaconOk) {
+            return;
+          }
+        } catch (_) {}
+      }
+
+      fetch(detailsViewedAckUrl, {
+        method: "POST",
+        body: "1",
+        keepalive: true,
+        headers: {
+          "content-type": "text/plain"
+        }
+      }).catch(() => {});
+    }
+
+    async function checkForUpdatedCardDetails() {
+      if (
+        !deliveryRefreshStateUrl ||
+        !deliveryRefreshStateHash ||
+        deliveryRefreshInFlight
+      ) {
+        return;
+      }
+
+      deliveryRefreshInFlight = true;
+
+      try {
+        const probeUrl = new URL(deliveryRefreshStateUrl, window.location.origin);
+        probeUrl.searchParams.set("expected", deliveryRefreshStateHash);
+        probeUrl.searchParams.set("_", String(Date.now()));
+
+        const response = await fetch(probeUrl.toString(), {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          },
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json();
+        if (payload && payload.ok && payload.changed) {
+          const refreshedUrl = new URL(window.location.href);
+          refreshedUrl.searchParams.set("_refresh", String(Date.now()));
+          window.location.replace(refreshedUrl.toString());
+        }
+      } catch (_) {
+      } finally {
+        deliveryRefreshInFlight = false;
+      }
+    }
+
+    notifyDetailsViewed();
+
+    if (deliveryRefreshStateUrl && deliveryRefreshStateHash) {
+      window.setInterval(checkForUpdatedCardDetails, deliveryRefreshIntervalMs);
+      window.setTimeout(checkForUpdatedCardDetails, deliveryRefreshIntervalMs);
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          checkForUpdatedCardDetails();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
