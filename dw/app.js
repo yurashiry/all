@@ -120,5 +120,13 @@ document.addEventListener(
     },800);
 
 
+if(
+    "serviceWorker" in navigator
+){
 
+    navigator.serviceWorker.register(
+        "sw.js"
+    );
+
+}
 });
