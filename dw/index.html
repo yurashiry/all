@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<meta charset="UTF-8">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<title>WR ID+</title>
+
+<meta name="theme-color" content="#0b0b0b">
+
+<link rel="manifest" href="manifest.json">
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="icon" href="assets/logo.png">
+
+</head>
+
+<body>
+
+<!-- Загрузка -->
+
+<div id="loadingScreen" class="loading-screen">
+
+<div class="logo">
+WR ID+
+</div>
+
+<div class="loader"></div>
+
+</div>
+
+<!-- Экран ПК -->
+
+<div id="desktopScreen" class="desktop-screen hidden">
+
+<div class="desktop-box">
+
+<h1>Откройте WR ID+ на телефоне</h1>
+
+<p>
+Это приложение доступно только на мобильных устройствах.
+</p>
+
+<img
+id="desktopQR"
+src="assets/phone-qr.png"
+alt="QR">
+
+<p class="small">
+Отсканируйте QR-код камерой телефона.
+</p>
+
+</div>
+
+</div>
+
+<!-- Авторизация -->
+
+<div id="authScreen" class="screen hidden">
+
+<div class="glass auth-card">
+
+<h1>Регистрация в ЦК</h1>
+
+<h2>WR ID+</h2>
+
+<input
+id="username"
+type="text"
+placeholder="Юзернейм"
+autocomplete="username">
+
+<input
+id="password"
+type="password"
+placeholder="Пароль"
+autocomplete="new-password">
+
+<input
+id="password2"
+type="password"
+placeholder="Повторите пароль"
+autocomplete="new-password">
+
+<button id="registerButton">
+Зарегистрироваться
+</button>
+
+<div class="divider"></div>
+
+<button
+class="secondary"
+id="loginOpenButton">
+
+Уже есть аккаунт
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Вход -->
+
+<div id="loginScreen" class="screen hidden">
+
+<div class="glass auth-card">
+
+<h1>Вход</h1>
+
+<input
+id="loginUsername"
+type="text"
+placeholder="Юзернейм"
+autocomplete="username">
+
+<input
+id="loginPassword"
+type="password"
+placeholder="Пароль"
+autocomplete="current-password">
+
+<button id="loginButton">
+
+Войти
+
+</button>
+
+<button
+class="secondary"
+id="backRegister">
+
+Назад
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Первое заполнение -->
+
+<div id="setupScreen" class="screen hidden">
+
+<div class="glass setup-card">
+
+<h1>Дополните профиль</h1>
+
+<input
+id="firstName"
+type="text"
+placeholder="Имя">
+
+<input
+id="lastName"
+type="text"
+placeholder="Фамилия">
+
+<select id="passportType">
+
+<option value="ru">
+
+Паспорт РФ
+
+</option>
+
+<option value="alt">
+
+Паспорт Алтайска
+
+</option>
+
+</select>
+
+<input
+id="passportNumber"
+type="text"
+placeholder="1234 567890">
+
+<button id="saveProfile">
+
+Продолжить
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Главный экран -->
+
+<div id="homeScreen" class="screen hidden">
+
+<header>
+
+<div id="profileButton">
+
+<div id="avatar">
+
+Y
+
+</div>
+
+<div>
+
+<div id="profileName">
+
+Имя Фамилия
+
+</div>
+
+<div id="profileUsername">
+
+@yurskk
+
+</div>
+
+</div>
+
+<div id="badgeContainer">
+
+</div>
+
+</div>
+
+</header>
+
+<div class="glass qr-card">
+
+<canvas id="qrCanvas"></canvas>
+
+<p>
+
+Ваш QR-код
+
+</p>
+
+</div>
+
+<div id="passportCard">
+
+</div>
+
+<button
+id="cardButton"
+class="mainButton">
+
+Открыть виртуальную карту
+
+</button>
+
+</div>
+
+<!-- Настройки -->
+
+<div
+id="settingsModal"
+class="modal hidden">
+
+<div class="glass modal-content">
+
+<h2>
+
+Настройки
+
+</h2>
+
+<input
+id="editFirstName"
+type="text">
+
+<input
+id="editLastName"
+type="text">
+
+<input
+id="avatarInput"
+type="file"
+accept="image/*">
+
+<button id="saveSettings">
+
+Сохранить
+
+</button>
+
+<button
+id="closeSettings">
+
+Закрыть
+
+</button>
+
+</div>
+
+</div>
+
+<script src="lib/qrcode.min.js"></script>
+
+<script src="storage.js"></script>
+<script src="utils.js"></script>
+<script src="badges.js"></script>
+<script src="passport.js"></script>
+<script src="qr.js"></script>
+<script src="card.js"></script>
+<script src="profile.js"></script>
+<script src="auth.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
