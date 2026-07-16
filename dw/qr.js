@@ -2,27 +2,12 @@
 =====================================
  WR ID+
  qr.js
-
- Генерация QR-кода профиля
 =====================================
 */
 
-
-/*
- Создать данные для QR
-*/
-
-
 function getQRData(user){
 
-
-    if(!user){
-
-        return "";
-
-    }
-
-
+    if(!user) return "";
 
     return JSON.stringify({
 
@@ -31,152 +16,103 @@ function getQRData(user){
         username:user.username,
 
         name:
-        user.profile.firstName
-        + " "
-        +
-        user.profile.lastName,
+            user.profile.firstName +
+            " " +
+            user.profile.lastName,
 
         passport:
-        getPassportName(
-            user.profile.passportType
-        ),
+            getPassportName(
+                user.profile.passportType
+            ),
 
         created:user.created
 
-
     });
-
-
 
 }
 
-
-
-/*
- Создание QR
-*/
-
-
 function generateUserQR(user){
 
-
     const canvas =
-    document.getElementById(
-        "qrCanvas"
-    );
+    document.getElementById("qrCanvas");
 
+    if(!canvas || !user) return;
 
-
-    if(!canvas || !user){
-
-        return;
-
-    }
-
-
-
-    if(typeof QRCode === "undefined"){
-
-        console.error(
-            "QR библиотека не найдена"
-        );
-
-        return;
-
-    }
-
-
+    canvas.innerHTML = "";
 
     const data =
     getQRData(user);
 
+    new QRCode(canvas,{
 
+        text:data,
 
-    QRCode.toCanvas(
+        width:220,
 
-        canvas,
+        height:220,
 
-        data,
+        colorDark:"#000000",
 
-        {
+        colorLight:"#ffffff",
 
-            width:190,
+        correctLevel:
+        QRCode.CorrectLevel.H
 
-            margin:2,
-
-            color:{
-
-                dark:"#000000",
-
-                light:"#ffffff"
-
-            }
-
-        },
-
-        function(error){
-
-            if(error){
-
-                console.error(error);
-
-            }
-
-        }
-
-    );
-
+    });
 
 }
-
-
-
 /*
- Обновление QR
+ Обновить QR
 */
 
-
 function refreshQR(){
-
 
     const user =
     getCurrentProfile();
 
+    if(!user){
 
-
-    if(user){
-
-        generateUserQR(user);
+        return;
 
     }
 
+    generateUserQR(user);
 
 }
-
-
 
 /*
  Данные после сканирования
 */
 
-
 function decodeQRDemo(data){
-
 
     try{
 
-
         return JSON.parse(data);
 
-
     }
-    catch{
 
+    catch{
 
         return null;
 
-
     }
 
+}
+
+/*
+ Очистить старый QR
+*/
+
+function clearQR(){
+
+    const qr =
+    document.getElementById("qrCanvas");
+
+    if(qr){
+
+        qr.innerHTML = "";
+
+    }
 
 }
