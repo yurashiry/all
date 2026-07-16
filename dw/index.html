@@ -1,102 +1,216 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 
 <meta charset="UTF-8">
+
 <meta
 name="viewport"
-content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+content="width=device-width,initial-scale=1,viewport-fit=cover">
 
 <title>WR ID+</title>
 
-<meta name="theme-color" content="#0b0b0b">
+<meta
+name="theme-color"
+content="#0B0B0B">
 
-<link rel="manifest" href="manifest.json">
+<meta
+name="apple-mobile-web-app-capable"
+content="yes">
 
-<link rel="stylesheet" href="style.css">
+<meta
+name="apple-mobile-web-app-status-bar-style"
+content="black-translucent">
 
-<link rel="icon" href="assets/logo.png">
+<meta
+name="apple-mobile-web-app-title"
+content="WR ID+">
+
+<link
+rel="manifest"
+href="manifest.json">
+
+<link
+rel="icon"
+href="assets/logo.png">
+
+<link
+rel="apple-touch-icon"
+href="assets/logo.png">
+
+<link
+rel="stylesheet"
+href="style.css">
 
 </head>
 
 <body>
 
-<!-- Загрузка -->
+<!-- ===========================
+     ЗАГРУЗКА
+=========================== -->
 
-<div id="loadingScreen" class="loading-screen">
+<div
+id="loadingScreen"
+class="loading-screen">
 
-<div class="logo">
-WR ID+
+<div class="loading-logo">
+
+<img
+src="assets/logo.png"
+alt="WR ID+">
+
 </div>
+
+<h1>
+
+WR ID+
+
+</h1>
+
+<p>
+
+Виртуальный ID
+
+</p>
 
 <div class="loader"></div>
 
 </div>
 
-<!-- Экран ПК -->
+<!-- ===========================
+     ПК
+=========================== -->
 
-<div id="desktopScreen" class="desktop-screen hidden">
+<div
+id="desktopScreen"
+class="desktop-screen hidden">
 
-<div class="desktop-box">
+<div class="desktop-card">
 
-<h1>Откройте WR ID+ на телефоне</h1>
+<img
+class="desktop-logo"
+src="assets/logo.png"
+alt="">
+
+<h1>
+
+WR ID+
+
+</h1>
 
 <p>
-Это приложение пока что доступно только на мобильных устройствах.
+
+Откройте приложение
+на телефоне
+
 </p>
 
 <img
-id="desktopQR"
+
+class="desktop-qr"
+
 src="https://haorik.ru/dw/qr-code.png"
+
 alt="QR">
 
-<p class="small">
-Отсканируйте QR-код камерой телефона.
+<div class="desktop-tip">
+
+Отсканируйте QR-код
+камерой телефона
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ===========================
+     РЕГИСТРАЦИЯ
+=========================== -->
+
+<div
+id="authScreen"
+class="screen hidden">
+
+<div class="glass auth-card">
+
+<div class="topIcon">
+
+<img
+src="assets/logo.png"
+alt="">
+
+</div>
+
+<h1>
+
+Регистрация
+
+</h1>
+
+<p>
+
+в Виртуальном ID
+
 </p>
 
-</div>
-
-</div>
-
-<!-- Авторизация -->
-
-<div id="authScreen" class="screen hidden">
-
-<div class="glass auth-card">
-
-<h1>Регистрация в Виртуальном ID</h1>
-
-<h2>WR ID+</h2>
-
 <input
+
 id="username"
+
 type="text"
+
 placeholder="Юзернейм"
+
 autocomplete="username">
 
 <input
+
 id="password"
+
 type="password"
+
 placeholder="Пароль"
+
 autocomplete="new-password">
 
 <input
+
 id="password2"
+
 type="password"
+
 placeholder="Повторите пароль"
+
 autocomplete="new-password">
-
-<button id="registerButton">
-Зарегистрироваться
-</button>
-
-<div class="divider"></div>
 
 <button
-class="secondary"
-id="loginOpenButton">
+id="registerButton"
+class="primaryButton">
 
-Уже есть аккаунт
+Создать аккаунт
+
+</button>
+
+<div class="divider">
+
+<span>
+
+или
+
+</span>
+
+</div>
+
+<button
+
+id="loginOpenButton"
+
+class="secondaryButton">
+
+У меня уже есть аккаунт
 
 </button>
 
@@ -104,35 +218,71 @@ id="loginOpenButton">
 
 </div>
 
-<!-- Вход -->
+<!-- ===========================
+     ВХОД
+=========================== -->
 
-<div id="loginScreen" class="screen hidden">
+<div
+id="loginScreen"
+class="screen hidden">
 
 <div class="glass auth-card">
 
-<h1>Вход</h1>
+<div class="topIcon">
+
+<img
+src="assets/logo.png"
+alt="">
+
+</div>
+
+<h1>
+
+Вход
+
+</h1>
+
+<p>
+
+Введите данные аккаунта
+
+</p>
 
 <input
+
 id="loginUsername"
+
 type="text"
+
 placeholder="Юзернейм"
+
 autocomplete="username">
 
 <input
+
 id="loginPassword"
+
 type="password"
+
 placeholder="Пароль"
+
 autocomplete="current-password">
 
-<button id="loginButton">
+<button
+
+id="loginButton"
+
+class="primaryButton">
 
 Войти
 
 </button>
 
 <button
-class="secondary"
-id="backRegister">
+
+id="backRegister"
+
+class="secondaryButton">
 
 Назад
 
@@ -141,14 +291,36 @@ id="backRegister">
 </div>
 
 </div>
+<!-- ===========================
+     ПЕРВОЕ ЗАПОЛНЕНИЕ
+=========================== -->
 
-<!-- Первое заполнение -->
-
-<div id="setupScreen" class="screen hidden">
+<div
+id="setupScreen"
+class="screen hidden">
 
 <div class="glass setup-card">
 
-<h1>Дополните профиль</h1>
+<div class="setupHeader">
+
+<img
+src="assets/logo.png"
+alt="">
+
+<h1>
+
+Добро пожаловать
+
+</h1>
+
+<p>
+
+Заполните профиль,
+чтобы продолжить
+
+</p>
+
+</div>
 
 <input
 id="firstName"
@@ -160,17 +332,18 @@ id="lastName"
 type="text"
 placeholder="Фамилия">
 
-<select id="passportType">
+<select
+id="passportType">
 
 <option value="ru">
 
-Паспорт РФ
+🇷🇺 Паспорт РФ
 
 </option>
 
 <option value="alt">
 
-Паспорт Алтайска
+💙 Паспорт Алтайска
 
 </option>
 
@@ -179,9 +352,11 @@ placeholder="Фамилия">
 <input
 id="passportNumber"
 type="text"
-placeholder="1234 567890">
+placeholder="4525 702109">
 
-<button id="saveProfile">
+<button
+id="saveProfile"
+class="primaryButton">
 
 Продолжить
 
@@ -191,33 +366,35 @@ placeholder="1234 567890">
 
 </div>
 
-<!-- Главный экран -->
+<!-- ===========================
+     ГЛАВНЫЙ ЭКРАН
+=========================== -->
 
-<div id="homeScreen" class="screen hidden">
+<div
+id="homeScreen"
+class="screen hidden">
 
-<header>
+<header class="homeHeader">
 
-<div id="profileButton">
+<div
+id="profileButton"
+class="profileTop">
 
-<div id="avatar">
+<div
+id="avatar"
+class="avatar">
 
 Y
 
 </div>
 
-<div>
+<div class="profileText">
+
+<div class="nameRow">
 
 <div id="profileName">
 
 Имя Фамилия
-
-</div>
-
-<div id="profileUsername">
-
-@yurskk
-
-</div>
 
 </div>
 
@@ -227,21 +404,47 @@ Y
 
 </div>
 
-</header>
+<div
+id="profileUsername">
 
-<div class="glass qr-card">
-
-<canvas id="qrCanvas"></canvas>
-
-<p>
-
-Ваш QR-код
-
-</p>
+@yurskk
 
 </div>
 
-<div id="passportCard">
+</div>
+
+</div>
+
+</header>
+
+<div class="homeContent">
+
+<div class="glass qrCard">
+
+<div class="cardTitle">
+
+Ваш QR-код
+
+</div>
+
+<canvas
+id="qrCanvas"
+width="220"
+height="220">
+
+</canvas>
+
+<div class="cardSubtitle">
+
+Покажите его для подтверждения личности
+
+</div>
+
+</div>
+
+<div
+id="passportCard"
+class="passportWrapper">
 
 </div>
 
@@ -253,43 +456,98 @@ class="mainButton">
 
 </button>
 
+<div class="footerText">
+
+WR ID+
+
 </div>
 
-<!-- Настройки -->
+</div>
+
+</div>
+<!-- ===========================
+     НАСТРОЙКИ ПРОФИЛЯ
+=========================== -->
 
 <div
 id="settingsModal"
 class="modal hidden">
 
-<div class="glass modal-content">
+<div class="modalSheet">
+
+<div class="sheetHandle"></div>
+
+<div class="settingsHeader">
+
+<div class="settingsAvatar">
+
+<img
+id="settingsAvatarPreview"
+src="assets/logo.png"
+alt="">
+
+</div>
 
 <h2>
 
-Настройки
+Настройки профиля
 
 </h2>
 
+<p>
+
+Измените данные аккаунта
+
+</p>
+
+</div>
+
+<div class="settingsBody">
+
+<label>
+
+Имя
+
+</label>
+
 <input
 id="editFirstName"
-type="text">
+type="text"
+placeholder="Имя">
+
+<label>
+
+Фамилия
+
+</label>
 
 <input
 id="editLastName"
-type="text">
+type="text"
+placeholder="Фамилия">
+
+<label>
+
+Фото профиля
+
+</label>
 
 <input
 id="avatarInput"
 type="file"
 accept="image/*">
 
-<button id="saveSettings">
+<button
+id="saveSettings"
+class="primaryButton">
 
-Сохранить
+Сохранить изменения
 
 </button>
 
 <button
-id="closeSettings">
+id="closeSettings"
+class="secondaryButton">
 
 Закрыть
 
@@ -299,16 +557,40 @@ id="closeSettings">
 
 </div>
 
-<script src="lib/qrcode.min.js"></script>
+</div>
+
+<!-- ===========================
+     WR ID+
+=========================== -->
+
+<div
+id="toast"
+class="toast hidden">
+
+Готово
+
+</div>
+
+<!-- ===========================
+     JavaScript
+=========================== -->
 
 <script src="storage.js"></script>
+
 <script src="utils.js"></script>
+
 <script src="badges.js"></script>
+
 <script src="passport.js"></script>
+
 <script src="qr.js"></script>
+
 <script src="card.js"></script>
+
 <script src="profile.js"></script>
+
 <script src="auth.js"></script>
+
 <script src="app.js"></script>
 
 </body>
