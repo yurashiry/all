@@ -33,25 +33,26 @@ function getQRData(user){
 
 function generateUserQR(user){
 
-    const canvas =
+    const container =
     document.getElementById("qrCanvas");
 
-    if(!canvas || !user) return;
+    if(!container || !user){
 
-    canvas.innerHTML = "";
+        return;
 
-    const data =
-    getQRData(user);
+    }
 
-    new QRCode(canvas,{
+    container.innerHTML = "";
 
-        text:data,
+    new QRCode(container,{
+
+        text:getQRData(user),
 
         width:220,
 
         height:220,
 
-        colorDark:"#000000",
+        colorDark:"#111111",
 
         colorLight:"#ffffff",
 
@@ -61,28 +62,32 @@ function generateUserQR(user){
     });
 
 }
-/*
- Обновить QR
-*/
 
 function refreshQR(){
 
     const user =
     getCurrentProfile();
 
-    if(!user){
+    if(user){
 
-        return;
+        generateUserQR(user);
 
     }
 
-    generateUserQR(user);
-
 }
 
-/*
- Данные после сканирования
-*/
+function clearQR(){
+
+    const container =
+    document.getElementById("qrCanvas");
+
+    if(container){
+
+        container.innerHTML="";
+
+    }
+
+}
 
 function decodeQRDemo(data){
 
@@ -101,18 +106,29 @@ function decodeQRDemo(data){
 }
 
 /*
- Очистить старый QR
+=====================================
+Автоматическая генерация
+=====================================
 */
 
-function clearQR(){
+document.addEventListener("DOMContentLoaded",()=>{
 
-    const qr =
-    document.getElementById("qrCanvas");
+    setTimeout(()=>{
 
-    if(qr){
+        refreshQR();
 
-        qr.innerHTML = "";
+    },300);
 
-    }
+});
 
-}
+/*
+=====================================
+Если профиль изменился
+=====================================
+*/
+
+window.addEventListener("storage",()=>{
+
+    refreshQR();
+
+});
