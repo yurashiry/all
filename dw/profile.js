@@ -26,7 +26,7 @@ function loadProfile(){
         return;
 
     }
-
+    generateUserQR(user);
 
 
     const profile =
