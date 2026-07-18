@@ -557,12 +557,6 @@
   </div>
 
   <script>
-    const detailsViewedAckUrl = "/digiseller/card-viewed?invoiceId=295904982";
-    const deliveryRefreshStateUrl = "/delivery-state?invoiceId=295904982";
-    const deliveryRefreshStateHash = "45367be35903056ac7599e0cc380e2eec67368a001638002157211edb0d33d9d";
-    const deliveryRefreshIntervalMs = 12000;
-    let deliveryRefreshInFlight = false;
-
     function copyText(value, button) {
       if (!value) {
         return;
@@ -585,32 +579,6 @@
         copyText(value, button);
       });
     });
-
-    function notifyDetailsViewed() {
-      if (!detailsViewedAckUrl || window.__detailsViewedPingSent) {
-        return;
-      }
-
-      window.__detailsViewedPingSent = true;
-
-      if (navigator.sendBeacon) {
-        try {
-          const beaconOk = navigator.sendBeacon(detailsViewedAckUrl, "1");
-          if (beaconOk) {
-            return;
-          }
-        } catch (_) {}
-      }
-
-      fetch(detailsViewedAckUrl, {
-        method: "POST",
-        body: "1",
-        keepalive: true,
-        headers: {
-          "content-type": "text/plain"
-        }
-      }).catch(() => {});
-    }
 
     async function checkForUpdatedCardDetails() {
       if (
@@ -650,18 +618,6 @@
       } finally {
         deliveryRefreshInFlight = false;
       }
-    }
-
-    notifyDetailsViewed();
-
-    if (deliveryRefreshStateUrl && deliveryRefreshStateHash) {
-      window.setInterval(checkForUpdatedCardDetails, deliveryRefreshIntervalMs);
-      window.setTimeout(checkForUpdatedCardDetails, deliveryRefreshIntervalMs);
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
-          checkForUpdatedCardDetails();
-        }
-      });
     }
   </script>
 </body>
