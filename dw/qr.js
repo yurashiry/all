@@ -14,11 +14,11 @@ function getQRData(user){
     let badge = "Нет";
 
     if(user.username === "yurskk"){
-        badge = "👑 Владелец";
+        badge = "Владелец";
     }else if(user.username === "mikke"){
-        badge = "✔ Подтвержден";
+        badge = "Подтвержден";
     }else if(user.wrPlus){
-        badge = "💚 WR+";
+        badge = "WR+";
     }
 
     return [
@@ -42,27 +42,44 @@ function generateUserQR(user){
 
     container.innerHTML = "";
 
-    try{
+    const qrText = getQRData(user);
 
-        const qrText = getQRData(user);
+    console.log(qrText);
+    console.log("QR length:", qrText.length);
 
-        console.log(qrText);
-        console.log("Длина QR:", qrText.length);
+    new QRCode(container,{
+        text: qrText,
+        width:220,
+        height:220,
+        colorDark:"#111111",
+        colorLight:"#ffffff",
+        correctLevel:QRCode.CorrectLevel.L
+    });
 
-        new QRCode(container,{
-            text: qrText,
-            width:220,
-            height:220,
-            correctLevel:QRCode.CorrectLevel.L
-        });
+}
 
-    }catch(e){
+function refreshQR(){
 
-        console.error("Ошибка QR:", e);
+    const user = getCurrentProfile();
 
-        container.innerHTML =
-        "<div style='padding:20px;color:red;text-align:center'>Ошибка создания QR</div>";
-
+    if(user){
+        generateUserQR(user);
     }
+
+}
+
+function clearQR(){
+
+    const container = document.getElementById("qrCanvas");
+
+    if(container){
+        container.innerHTML = "";
+    }
+
+}
+
+function decodeQRDemo(text){
+
+    return text;
 
 }
