@@ -43,15 +43,14 @@ function generateUserQR(user){
     container.innerHTML = "";
 
     try{
-    const qrText = getQRData(user);
 
-console.log(qrText);
-console.log("Длина QR:", qrText.length);
+        const qrText = getQRData(user);
 
-new QRCode(container,{
-    text: qrText,
+        console.log(qrText);
+        console.log("Длина QR:", qrText.length);
+
         new QRCode(container,{
-            text:getQRData(user),
+            text: qrText,
             width:220,
             height:220,
             correctLevel:QRCode.CorrectLevel.L
@@ -59,41 +58,11 @@ new QRCode(container,{
 
     }catch(e){
 
-        console.error("Ошибка QR:",e);
+        console.error("Ошибка QR:", e);
 
         container.innerHTML =
-        "<div style='padding:20px;text-align:center;color:red'>Ошибка создания QR</div>";
+        "<div style='padding:20px;color:red;text-align:center'>Ошибка создания QR</div>";
 
     }
-
-}
-
-function refreshQR(){
-
-    const user = getCurrentProfile();
-
-    if(user){
-        generateUserQR(user);
-    }
-
-}
-
-function clearQR(){
-
-    const container = document.getElementById("qrCanvas");
-
-    if(container){
-        container.innerHTML = "";
-    }
-
-}
-
-function decodeQRDemo(text){
-
-    if(!text){
-        return null;
-    }
-
-    return text;
 
 }
