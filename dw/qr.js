@@ -7,128 +7,93 @@
 
 function getQRData(user){
 
-    if(!user) return "";
+    if(!user){
+        return "";
+    }
 
-    return JSON.stringify({
+    let badge = "Нет";
 
-        app:"WR ID+",
+    if(user.username === "yurskk"){
+        badge = "👑 Владелец";
+    }else if(user.username === "mikke"){
+        badge = "✔ Подтвержден";
+    }else if(user.wrPlus){
+        badge = "💚 WR+";
+    }
 
-        username:user.username,
-
-        name:
-            user.profile.firstName +
-            " " +
-            user.profile.lastName,
-
-        passport:
-            getPassportName(
-                user.profile.passportType
-            ),
-
-        created:user.created
-
-    });
+    return [
+        "WR ID+",
+        "Username: " + user.username,
+        "Name: " + user.profile.firstName + " " + user.profile.lastName,
+        "Passport: " + getPassportName(user.profile.passportType),
+        "Number: " + user.profile.passportNumber,
+        "Badge: " + badge
+    ].join("\n");
 
 }
 
 function generateUserQR(user){
 
-    const container =
-    document.getElementById("qrCanvas");
+    const container = document.getElementById("qrCanvas");
 
     if(!container || !user){
-
         return;
-
     }
 
     container.innerHTML = "";
 
-    new QRCode(container,{
+    try{
+    const qrText = getQRData(user);
 
-        text:getQRData(user),
+console.log(qrText);
+console.log("Длина QR:", qrText.length);
 
-        width:220,
+new QRCode(container,{
+    text: qrText,
+        new QRCode(container,{
+            text:getQRData(user),
+            width:220,
+            height:220,
+            correctLevel:QRCode.CorrectLevel.L
+        });
 
-        height:220,
+    }catch(e){
 
-        colorDark:"#111111",
+        console.error("Ошибка QR:",e);
 
-        colorLight:"#ffffff",
+        container.innerHTML =
+        "<div style='padding:20px;text-align:center;color:red'>Ошибка создания QR</div>";
 
-        correctLevel:
-        QRCode.CorrectLevel.H
-
-    });
+    }
 
 }
 
 function refreshQR(){
 
-    const user =
-    getCurrentProfile();
+    const user = getCurrentProfile();
 
     if(user){
-
         generateUserQR(user);
-
     }
 
 }
 
 function clearQR(){
 
-    const container =
-    document.getElementById("qrCanvas");
+    const container = document.getElementById("qrCanvas");
 
     if(container){
-
-        container.innerHTML="";
-
+        container.innerHTML = "";
     }
 
 }
 
-function decodeQRDemo(data){
+function decodeQRDemo(text){
 
-    try{
-
-        return JSON.parse(data);
-
-    }
-
-    catch{
-
+    if(!text){
         return null;
-
     }
 
+    return text;
+
 }
-
-/*
-=====================================
-Автоматическая генерация
-=====================================
-*/
-
-document.addEventListener("DOMContentLoaded",()=>{
-
-    setTimeout(()=>{
-
-        refreshQR();
-
-    },300);
-
-});
-
-/*
-=====================================
-Если профиль изменился
-=====================================
-*/
-
-window.addEventListener("storage",()=>{
-
-    refreshQR();
-
-});
