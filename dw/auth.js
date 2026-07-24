@@ -5,83 +5,57 @@
 =====================================
 */
 
-const RESERVED = {
+const RESERVED_USERS = {
 
     yurskk:{
+
         password:"Yura29102011",
+
         badge:"owner",
+
         passportType:"ru",
+
         passportNumber:"4525 702109"
+
     },
 
     mikke:{
+
         password:"Asap1131/",
+
         badge:"verified",
+     
         passportType:"ru",
-        passportNumber:"4525 723197"
+
+        passportNumber:"4525 712047"
+
     }
 
 };
 
 /*
-==========================
-Запуск
-==========================
-*/
-
-window.addEventListener("load",initAuth);
-
-function initAuth(){
-
-    const current = getCurrentProfile();
-
-    if(current){
-
-        if(
-            current.profile.firstName &&
-            current.profile.lastName
-        ){
-
-            showHome();
-
-        }else{
-
-            showSetup();
-
-        }
-
-        return;
-
-    }
-
-    showRegister();
-
-}
-
-/*
-==========================
+=====================================
 Регистрация
-==========================
+=====================================
 */
-
-document
-.getElementById("registerButton")
-.onclick = register;
 
 function register(){
 
     const username =
-    document.getElementById("username")
+    document
+    .getElementById("username")
     .value
     .trim()
     .toLowerCase();
 
     const password =
-    document.getElementById("password")
+    document
+    .getElementById("password")
     .value;
 
     const password2 =
-    document.getElementById("password2")
+    document
+    .getElementById("password2")
     .value;
 
     if(username.length < 3){
@@ -110,7 +84,7 @@ function register(){
 
     if(username === "yurskk"){
 
-        alert("Этот аккаунт уже существует.");
+        alert("Этот юзернейм занят.");
 
         return;
 
@@ -118,19 +92,21 @@ function register(){
 
     if(username === "mikke"){
 
-        alert("Этот аккаунт уже существует.");
+        alert("Этот юзернейм занят.");
 
         return;
 
     }
 
-    if(!createUser(username,password)){
+    if(findUser(username)){
 
-        alert("Юзернейм уже занят.");
+        alert("Юзернейм уже существует.");
 
         return;
 
     }
+
+    createUser(username,password);
 
     login(username,password);
 
@@ -139,14 +115,10 @@ function register(){
 }
 
 /*
-==========================
+=====================================
 Вход
-==========================
+=====================================
 */
-
-document
-.getElementById("loginButton")
-.onclick = loginAccount;
 
 function loginAccount(){
 
@@ -162,38 +134,61 @@ function loginAccount(){
     .getElementById("loginPassword")
     .value;
 
-    if(RESERVED[username]){
+    if(RESERVED_USERS[username]){
 
         if(
-            RESERVED[username].password === password
+            RESERVED_USERS[username]
+            .password !== password
         ){
 
-            if(!findUser(username)){
-
-                createUser(username,password);
-
-            }
-
-            login(username,password);
-
-            const user =
-            getCurrentProfile();
-
-            if(username==="yurskk"){
-
-                user.profile.passportType="ru";
-
-                user.profile.passportNumber="4525 702109";
-
-            }
-
-            updateUser(user);
-
-            showHome();
+            alert("Неверный пароль.");
 
             return;
 
         }
+
+        if(!findUser(username)){
+
+            createUser(
+                username,
+                password
+            );
+
+        }
+
+        login(
+            username,
+            password
+        );
+
+        const user =
+        getCurrentProfile();
+             if(username === "yurskk"){
+
+            user.profile.passportType =
+            RESERVED_USERS[username].passportType;
+
+            user.profile.passportNumber =
+            RESERVED_USERS[username].passportNumber;
+
+            updateUser(user);
+
+        }
+
+        if(
+            user.profile.firstName &&
+            user.profile.lastName
+        ){
+
+            showHome();
+
+        }else{
+
+            showSetup();
+
+        }
+
+        return;
 
     }
 
@@ -205,12 +200,12 @@ function loginAccount(){
 
     }
 
-    const user =
+    const current =
     getCurrentProfile();
 
     if(
-        user.profile.firstName &&
-        user.profile.lastName
+        current.profile.firstName &&
+        current.profile.lastName
     ){
 
         showHome();
@@ -224,15 +219,38 @@ function loginAccount(){
 }
 
 /*
-==========================
-Кнопки
-==========================
+=====================================
+Инициализация кнопок
+=====================================
 */
 
-document
-.getElementById("loginOpenButton")
-.onclick = showLogin;
+window.addEventListener(
+    "DOMContentLoaded",
+    function(){
 
-document
-.getElementById("backRegister")
-.onclick = showRegister;
+        document
+        .getElementById("registerButton")
+        .onclick = register;
+
+        document
+        .getElementById("loginButton")
+        .onclick = loginAccount;
+
+        document
+        .getElementById("loginOpenButton")
+        .onclick = function(){
+
+            showLogin();
+
+        };
+
+        document
+        .getElementById("backRegister")
+        .onclick = function(){
+
+            showRegister();
+
+        };
+
+    }
+);
