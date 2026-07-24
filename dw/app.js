@@ -2,131 +2,172 @@
 =====================================
  WR ID+
  app.js
-
- Запуск приложения
 =====================================
 */
 
+window.addEventListener("load",startApp);
 
-document.addEventListener(
-    "DOMContentLoaded",
-    ()=>{
+/*
+==========================
+Запуск приложения
+==========================
+*/
 
+function startApp(){
 
-    /*
-    Инициализация
-    */
-
-    initAuth();
-
-    initProfileEvents();
-
-    initCardButton();
-
-
-
-    /*
-    Проверка устройства
-    */
-
-
-    if(!isMobileDevice()){
-
-
-        hideLoading();
-
+    setTimeout(function(){
 
         document
-        .getElementById(
-            "desktopScreen"
-        )
-        .classList
-        .remove(
-            "hidden"
-        );
+        .getElementById("loadingScreen")
+        .classList.add("hidden");
 
+        if(isDesktop()){
 
-        return;
+            document
+            .getElementById("desktopScreen")
+            .classList.remove("hidden");
 
-
-    }
-
-
-
-    /*
-    Мобильное устройство
-    */
-
-
-    setTimeout(()=>{
-
-
-        hideLoading();
-
-
-
-        const current =
-        getCurrentUser();
-
-
-
-        if(current){
-
-
-            const user =
-            getUser(current);
-
-
-
-            if(
-                profileCompleted(user)
-            ){
-
-
-                showScreen(
-                    "homeScreen"
-                );
-
-
-                loadProfile();
-
-
-            }
-            else{
-
-
-                showScreen(
-                    "setupScreen"
-                );
-
-
-            }
-
-
-
-        }
-        else{
-
-
-            showScreen(
-                "authScreen"
-            );
-
+            return;
 
         }
 
+        const user =
+        getCurrentProfile();
 
+        if(!user){
 
-    },800);
+            showRegister();
 
+            return;
 
-if(
-    "serviceWorker" in navigator
-){
+        }
 
-    navigator.serviceWorker.register(
-        "sw.js"
+        if(
+            !user.profile.firstName ||
+            !user.profile.lastName
+        ){
+
+            showSetup();
+
+            return;
+
+        }
+
+        showHome();
+
+    },1200);
+
+}
+
+/*
+==========================
+ПК или телефон
+==========================
+*/
+
+function isDesktop(){
+
+    return !/Android|iPhone|iPad|iPod|Mobile/i
+    .test(
+        navigator.userAgent
     );
 
 }
-});
+
+/*
+==========================
+Скрыть все экраны
+==========================
+*/
+
+function hideAllScreens(){
+
+    const screens=[
+
+        "authScreen",
+
+        "loginScreen",
+
+        "setupScreen",
+
+        "homeScreen",
+
+        "desktopScreen"
+
+    ];
+
+    screens.forEach(function(id){
+
+        document
+        .getElementById(id)
+        .classList.add("hidden");
+
+    });
+
+}
+
+/*
+==========================
+Экран регистрации
+==========================
+*/
+
+function showRegister(){
+
+    hideAllScreens();
+
+    document
+    .getElementById("authScreen")
+    .classList.remove("hidden");
+
+}
+
+/*
+==========================
+Экран входа
+==========================
+*/
+
+function showLogin(){
+
+    hideAllScreens();
+
+    document
+    .getElementById("loginScreen")
+    .classList.remove("hidden");
+
+}
+
+/*
+==========================
+Перезапуск интерфейса
+==========================
+*/
+
+function reloadInterface(){
+
+    const user =
+    getCurrentProfile();
+
+    if(!user){
+
+        showRegister();
+
+        return;
+
+    }
+
+    if(
+        !user.profile.firstName ||
+        !user.profile.lastName
+    ){
+
+        showSetup();
+
+        return;
+
+    }
+
+    showHome();
+
+}
