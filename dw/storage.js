@@ -2,413 +2,189 @@
 =====================================
  WR ID+
  storage.js
-
- Работа с localStorage
 =====================================
 */
 
-
-const WR_STORAGE_KEY = "wrid_users";
-const WR_CURRENT_USER = "wrid_current";
-
-
+const USERS_KEY = "wrid_users";
+const SESSION_KEY = "wrid_current_user";
 
 /*
- Получить всех пользователей
+==========================
+Получить всех пользователей
+==========================
 */
 
-function getUsers() {
+function getUsers(){
 
-    const data = localStorage.getItem(WR_STORAGE_KEY);
+    const data = localStorage.getItem(USERS_KEY);
 
-    if (!data) {
-
-        return {};
-
+    if(!data){
+        return [];
     }
 
-
-    try {
-
+    try{
         return JSON.parse(data);
-
-    } catch {
-
-        return {};
-
+    }catch{
+        return [];
     }
 
 }
 
-
-
 /*
- Сохранить пользователей
+==========================
+Сохранить пользователей
+==========================
 */
 
-function saveUsers(users) {
+function saveUsers(users){
 
     localStorage.setItem(
-        WR_STORAGE_KEY,
+        USERS_KEY,
         JSON.stringify(users)
     );
 
 }
 
-
-
 /*
- Создать пользователя
+==========================
+Поиск пользователя
+==========================
 */
 
-function createUser(username, password) {
+function findUser(username){
 
+    return getUsers().find(
+        u => u.username.toLowerCase() === username.toLowerCase()
+    );
+
+}
+
+/*
+==========================
+Создание пользователя
+==========================
+*/
+
+function createUser(username,password){
 
     const users = getUsers();
 
+    if(findUser(username)){
+        return false;
+    }
 
-    users[username] = {
+    const user = {
 
         username: username,
 
         password: password,
 
+        created: Date.now(),
 
-        profile: {
+        wrPlus: false,
 
-            completed: false,
+        profile:{
 
-            firstName: "",
+            firstName:"",
+            lastName:"",
+            passportType:"",
+            passportNumber:"",
+            avatar:""
 
-            lastName: "",
-
-            passportType: "",
-
-            passportNumber: "",
-
-            avatar: ""
-
-        },
-
-
-        badges: {
-
-            owner: false,
-
-            verified: false,
-
-            wrplus: false
-
-        },
-
-
-        cardOpened: false,
-
-
-        created:
-
-        new Date().toISOString()
+        }
 
     };
 
-
-
-    saveUsers(users);
-
-
-    return users[username];
-
-}
-
-
-
-/*
- Найти пользователя
-*/
-
-function getUser(username) {
-
-
-    const users = getUsers();
-
-
-    return users[username] || null;
-
-
-}
-
-
-
-/*
- Обновить пользователя
-*/
-
-function updateUser(username, data) {
-
-
-    const users = getUsers();
-
-
-    if (!users[username]) {
-
-        return false;
-
-    }
-
-
-    users[username] = {
-
-        ...users[username],
-
-        ...data
-
-    };
-
+    users.push(user);
 
     saveUsers(users);
-
 
     return true;
 
 }
 
-
-
 /*
- Удалить пользователя
+==========================
+Обновить пользователя
+==========================
 */
 
-function deleteUser(username) {
-
+function updateUser(user){
 
     const users = getUsers();
 
+    const index = users.findIndex(
+        u => u.username === user.username
+    );
 
-    delete users[username];
+    if(index === -1){
+        return;
+    }
 
+    users[index] = user;
 
     saveUsers(users);
 
-
 }
 
-
-
 /*
- Текущий пользователь
+==========================
+Войти
+==========================
 */
 
+function login(username,password){
 
-function setCurrentUser(username) {
+    const user = findUser(username);
 
+    if(!user){
+        return false;
+    }
+
+    if(user.password !== password){
+        return false;
+    }
 
     localStorage.setItem(
-
-        WR_CURRENT_USER,
-
-        username
-
+        SESSION_KEY,
+        user.username
     );
 
+    return true;
 
 }
 
+/*
+==========================
+Выход
+==========================
+*/
 
-
-function getCurrentUser() {
-
-
-    return localStorage.getItem(
-
-        WR_CURRENT_USER
-
-    );
-
-
-}
-
-
-
-function logoutUser() {
-
+function logout(){
 
     localStorage.removeItem(
-
-        WR_CURRENT_USER
-
+        SESSION_KEY
     );
 
-
 }
 
-
-
 /*
- Получить полный профиль
+==========================
+Текущий пользователь
+==========================
 */
 
+function getCurrentProfile(){
 
-function getCurrentProfile() {
+    const username =
+    localStorage.getItem(
+        SESSION_KEY
+    );
 
-
-    const username = getCurrentUser();
-
-
-    if (!username) {
-
+    if(!username){
         return null;
-
     }
 
-
-    return getUser(username);
-
+    return findUser(username);
 
 }
-
-
-
-/*
- Зарезервированные аккаунты
-*/
-
-
-function initReservedUsers() {
-
-
-    const users = getUsers();
-
-
-
-    if (!users["yurskk"]) {
-
-
-        users["yurskk"] = {
-
-
-            username:"yurskk",
-
-            password:"Yura29102011",
-
-
-            profile:{
-
-
-                completed:true,
-
-
-                firstName:"Yura",
-
-                lastName:"Shiry",
-
-
-                passportType:"ru",
-
-
-                passportNumber:"0000 000000",
-
-
-                avatar:""
-
-
-            },
-
-
-            badges:{
-
-
-                owner:true,
-
-                verified:false,
-
-                wrplus:false
-
-
-            },
-
-
-            cardOpened:false,
-
-
-            created:
-
-            new Date().toISOString()
-
-
-        };
-
-
-    }
-
-
-
-    if (!users["mikke"]) {
-
-
-        users["mikke"] = {
-
-
-            username:"mikke",
-
-            password:"Asap1131/",
-
-
-            profile:{
-
-
-                completed:true,
-
-
-                firstName:"Mikke",
-
-                lastName:"",
-
-
-                passportType:"alt",
-
-
-                passportNumber:"0000 00000",
-
-
-                avatar:""
-
-
-            },
-
-
-            badges:{
-
-
-                owner:false,
-
-                verified:true,
-
-                wrplus:false
-
-
-            },
-
-
-            cardOpened:false,
-
-
-            created:
-
-            new Date().toISOString()
-
-
-        };
-
-
-    }
-
-
-
-    saveUsers(users);
-
-
-}
-
-
-
-initReservedUsers();
