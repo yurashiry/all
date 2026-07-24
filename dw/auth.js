@@ -2,505 +2,237 @@
 =====================================
  WR ID+
  auth.js
-
- Регистрация и вход
 =====================================
 */
 
+const RESERVED = {
+
+    yurskk:{
+        password:"Yura29102011",
+        badge:"owner",
+        passportType:"ru",
+        passportNumber:"4525 702109"
+    },
+
+    mikke:{
+        password:"Asap1131/",
+        badge:"verified",
+        passportType:"ru",
+        passportNumber:"4525 723197"
+    }
+
+};
 
 /*
- Проверка занятых юзернеймов
+==========================
+Запуск
+==========================
 */
 
-
-function isUsernameTaken(username){
-
-
-    const user =
-    getUser(username);
-
-
-
-    return user !== null;
-
-
-}
-
-
-
-/*
- Регистрация
-*/
-
-
-function register(){
-
-
-    const username =
-
-    document
-    .getElementById(
-        "username"
-    )
-    .value
-    .trim();
-
-
-
-    const password =
-
-    document
-    .getElementById(
-        "password"
-    )
-    .value;
-
-
-
-    const password2 =
-
-    document
-    .getElementById(
-        "password2"
-    )
-    .value;
-
-
-
-    if(!validateUsername(username)){
-
-
-        toast(
-            "Некорректный юзернейм"
-        );
-
-        return;
-
-
-    }
-
-
-
-    if(!validatePassword(password)){
-
-
-        toast(
-            "Пароль минимум 6 символов"
-        );
-
-        return;
-
-
-    }
-
-
-
-    if(password !== password2){
-
-
-        toast(
-            "Пароли не совпадают"
-        );
-
-        return;
-
-
-    }
-
-
-
-    if(isUsernameTaken(username)){
-
-
-        toast(
-            "Этот юзернейм уже занят"
-        );
-
-        return;
-
-
-    }
-
-
-
-    createUser(
-        username,
-        password
-    );
-
-
-
-    setCurrentUser(
-        username
-    );
-
-
-
-    toast(
-        "Аккаунт создан"
-    );
-
-
-
-    setTimeout(()=>{
-
-
-        showScreen(
-            "setupScreen"
-        );
-
-
-    },500);
-
-
-}
-
-
-
-/*
- Вход
-*/
-
-
-function login(){
-
-
-    const username =
-
-    document
-    .getElementById(
-        "loginUsername"
-    )
-    .value
-    .trim();
-
-
-
-    const password =
-
-    document
-    .getElementById(
-        "loginPassword"
-    )
-    .value;
-
-
-
-    const user =
-
-    getUser(
-        username
-    );
-
-
-
-    if(!user){
-
-
-        toast(
-            "Пользователь не найден"
-        );
-
-
-        return;
-
-
-    }
-
-
-
-    if(user.password !== password){
-
-
-        toast(
-            "Неверный пароль"
-        );
-
-
-        return;
-
-
-    }
-
-
-
-    setCurrentUser(
-        username
-    );
-
-
-
-    toast(
-        "Добро пожаловать"
-    );
-
-
-
-    setTimeout(()=>{
-
-
-        if(
-            profileCompleted(user)
-        ){
-
-
-            showScreen(
-                "homeScreen"
-            );
-
-
-            loadProfile();
-
-
-        }
-        else{
-
-
-            showScreen(
-                "setupScreen"
-            );
-
-
-        }
-
-
-
-    },500);
-
-
-
-}
-
-
-
-/*
- Сохранение первого профиля
-*/
-
-
-function completeProfile(){
-
-
-
-    const firstName =
-
-    document
-    .getElementById(
-        "firstName"
-    )
-    .value
-    .trim();
-
-
-
-    const lastName =
-
-    document
-    .getElementById(
-        "lastName"
-    )
-    .value
-    .trim();
-
-
-
-    const passportType =
-
-    document
-    .getElementById(
-        "passportType"
-    )
-    .value;
-
-
-
-    const passportNumber =
-
-    document
-    .getElementById(
-        "passportNumber"
-    )
-    .value
-    .trim();
-
-
-
-    if(!firstName || !lastName){
-
-
-        toast(
-            "Введите имя и фамилию"
-        );
-
-        return;
-
-
-    }
-
-
-
-    if(
-        !validatePassport(
-            passportType,
-            passportNumber
-        )
-    ){
-
-
-        toast(
-            "Неверный номер паспорта"
-        );
-
-
-        return;
-
-
-    }
-
-
-
-    saveProfileData({
-
-        firstName,
-
-        lastName,
-
-        passportType,
-
-        passportNumber
-
-    });
-
-
-
-    showScreen(
-        "homeScreen"
-    );
-
-
-
-    loadProfile();
-
-
-
-}
-
-
-
-/*
- Инициализация кнопок
-*/
-
+window.addEventListener("load",initAuth);
 
 function initAuth(){
 
+    const current = getCurrentProfile();
 
-    const registerButton =
+    if(current){
 
-    document.getElementById(
-        "registerButton"
-    );
+        if(
+            current.profile.firstName &&
+            current.profile.lastName
+        ){
 
+            showHome();
 
+        }else{
 
-    if(registerButton){
+            showSetup();
 
+        }
 
-        registerButton.onclick =
-        register;
-
-
-    }
-
-
-
-    const loginButton =
-
-    document.getElementById(
-        "loginButton"
-    );
-
-
-
-    if(loginButton){
-
-
-        loginButton.onclick =
-        login;
-
+        return;
 
     }
 
-
-
-    const loginOpen =
-
-    document.getElementById(
-        "loginOpenButton"
-    );
-
-
-
-    if(loginOpen){
-
-
-        loginOpen.onclick = ()=>{
-
-
-            showScreen(
-                "loginScreen"
-            );
-
-
-        };
-
-
-    }
-
-
-
-    const back =
-
-    document.getElementById(
-        "backRegister"
-    );
-
-
-
-    if(back){
-
-
-        back.onclick = ()=>{
-
-
-            showScreen(
-                "authScreen"
-            );
-
-
-        };
-
-
-    }
-
-
-
-    const saveProfile =
-
-    document.getElementById(
-        "saveProfile"
-    );
-
-
-
-    if(saveProfile){
-
-
-        saveProfile.onclick =
-        completeProfile;
-
-
-    }
-
+    showRegister();
 
 }
+
+/*
+==========================
+Регистрация
+==========================
+*/
+
+document
+.getElementById("registerButton")
+.onclick = register;
+
+function register(){
+
+    const username =
+    document.getElementById("username")
+    .value
+    .trim()
+    .toLowerCase();
+
+    const password =
+    document.getElementById("password")
+    .value;
+
+    const password2 =
+    document.getElementById("password2")
+    .value;
+
+    if(username.length < 3){
+
+        alert("Минимум 3 символа.");
+
+        return;
+
+    }
+
+    if(password.length < 6){
+
+        alert("Минимум 6 символов.");
+
+        return;
+
+    }
+
+    if(password !== password2){
+
+        alert("Пароли не совпадают.");
+
+        return;
+
+    }
+
+    if(username === "yurskk"){
+
+        alert("Этот аккаунт уже существует.");
+
+        return;
+
+    }
+
+    if(username === "mikke"){
+
+        alert("Этот аккаунт уже существует.");
+
+        return;
+
+    }
+
+    if(!createUser(username,password)){
+
+        alert("Юзернейм уже занят.");
+
+        return;
+
+    }
+
+    login(username,password);
+
+    showSetup();
+
+}
+
+/*
+==========================
+Вход
+==========================
+*/
+
+document
+.getElementById("loginButton")
+.onclick = loginAccount;
+
+function loginAccount(){
+
+    const username =
+    document
+    .getElementById("loginUsername")
+    .value
+    .trim()
+    .toLowerCase();
+
+    const password =
+    document
+    .getElementById("loginPassword")
+    .value;
+
+    if(RESERVED[username]){
+
+        if(
+            RESERVED[username].password === password
+        ){
+
+            if(!findUser(username)){
+
+                createUser(username,password);
+
+            }
+
+            login(username,password);
+
+            const user =
+            getCurrentProfile();
+
+            if(username==="yurskk"){
+
+                user.profile.passportType="ru";
+
+                user.profile.passportNumber="4525 702109";
+
+            }
+
+            updateUser(user);
+
+            showHome();
+
+            return;
+
+        }
+
+    }
+
+    if(!login(username,password)){
+
+        alert("Неверный логин или пароль.");
+
+        return;
+
+    }
+
+    const user =
+    getCurrentProfile();
+
+    if(
+        user.profile.firstName &&
+        user.profile.lastName
+    ){
+
+        showHome();
+
+    }else{
+
+        showSetup();
+
+    }
+
+}
+
+/*
+==========================
+Кнопки
+==========================
+*/
+
+document
+.getElementById("loginOpenButton")
+.onclick = showLogin;
+
+document
+.getElementById("backRegister")
+.onclick = showRegister;
