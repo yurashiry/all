@@ -11,30 +11,42 @@ function getQRData(user){
         return "";
     }
 
-    let badge = "Нет";
+    let badge = "none";
 
     if(user.username === "yurskk"){
-        badge = "Владелец";
-    }else if(user.username === "mikke"){
-        badge = "Подтвержден";
-    }else if(user.wrPlus){
-        badge = "WR+";
+        badge = "owner";
+    }
+    else if(user.username === "mikke"){
+        badge = "verified";
+    }
+    else if(user.wrPlus){
+        badge = "wrplus";
     }
 
-    return [
-        "WR ID+",
-        "Username: " + user.username,
-        "Name: " + user.profile.firstName + " " + user.profile.lastName,
-        "Passport: " + getPassportName(user.profile.passportType),
-        "Number: " + user.profile.passportNumber,
-        "Badge: " + badge
-    ].join("\n");
+    return JSON.stringify({
+
+        app: "WR ID+",
+
+        username: user.username,
+
+        firstName: user.profile.firstName,
+
+        lastName: user.profile.lastName,
+
+        passportType: user.profile.passportType,
+
+        passportNumber: user.profile.passportNumber,
+
+        badge: badge
+
+    });
 
 }
 
 function generateUserQR(user){
 
-    const container = document.getElementById("qrCanvas");
+    const container =
+    document.getElementById("qrCanvas");
 
     if(!container || !user){
         return;
@@ -42,44 +54,69 @@ function generateUserQR(user){
 
     container.innerHTML = "";
 
-    const qrText = getQRData(user);
+    const text = getQRData(user);
 
-    console.log(qrText);
-    console.log("QR length:", qrText.length);
+    console.log("QR DATA:", text);
+    console.log("Length:", text.length);
 
-    new QRCode(container,{
-        text: qrText,
-        width:220,
-        height:220,
-        colorDark:"#111111",
-        colorLight:"#ffffff",
-        correctLevel:QRCode.CorrectLevel.L
-    });
+    try{
+
+        new QRCode(container,{
+            text: text,
+            width:220,
+            height:220,
+            colorDark:"#111111",
+            colorLight:"#ffffff",
+            correctLevel:QRCode.CorrectLevel.L
+        });
+
+    }catch(e){
+
+        console.error(e);
+
+        container.innerHTML =
+        "<p style='color:red'>Ошибка QR</p>";
+
+    }
 
 }
 
 function refreshQR(){
 
-    const user = getCurrentProfile();
+    const user =
+    getCurrentProfile();
 
     if(user){
+
         generateUserQR(user);
+
     }
 
 }
 
 function clearQR(){
 
-    const container = document.getElementById("qrCanvas");
+    const container =
+    document.getElementById("qrCanvas");
 
     if(container){
+
         container.innerHTML = "";
+
     }
 
 }
 
-function decodeQRDemo(text){
+function decodeQR(text){
 
-    return text;
+    try{
+
+        return JSON.parse(text);
+
+    }catch{
+
+        return null;
+
+    }
 
 }
