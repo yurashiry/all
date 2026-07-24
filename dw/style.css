@@ -666,20 +666,21 @@ button{
 }
 
 #qrCanvas{
-
     width:220px;
-
     height:220px;
 
-    margin:22px auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
-    border-radius:22px;
+    margin:20px auto;
+}
 
-    background:white;
-
-    padding:12px;
+#qrCanvas img,
+#qrCanvas canvas{
 
     display:block;
+    margin:auto;
 
 }
 
