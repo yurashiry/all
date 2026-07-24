@@ -2,458 +2,277 @@
 =====================================
  WR ID+
  profile.js
-
- Профиль пользователя
 =====================================
 */
 
+const OWNER = "yurskk";
+const VERIFIED = "mikke";
 
 /*
- Загрузка профиля на главный экран
+==========================
+Открыть главный экран
+==========================
 */
 
+function showHome(){
 
-function loadProfile(){
-
-
-    const user =
-    getCurrentProfile();
-
-
-
-    if(!user){
-
-        return;
-
-    }
-    generateUserQR(user);
-
-
-    const profile =
-    user.profile;
-
-
-
-    const name =
-    document.getElementById(
-        "profileName"
-    );
-
-
-    const username =
-    document.getElementById(
-        "profileUsername"
-    );
-
-
-    const avatar =
-    document.getElementById(
-        "avatar"
-    );
-
-
-    const badges =
-    document.getElementById(
-        "badgeContainer"
-    );
-
-
-
-    if(name){
-
-
-        name.innerText =
-
-        profile.firstName
-        +
-        " "
-        +
-        profile.lastName;
-
-
-    }
-
-
-
-    if(username){
-
-
-        username.innerText =
-
-        "@"
-        +
-        user.username;
-
-
-    }
-
-
-
-    if(avatar){
-
-
-        if(profile.avatar){
-
-
-            avatar.innerHTML =
-            
-            `
-
-            <img src="${profile.avatar}">
-
-            `;
-
-
-        }
-        else{
-
-
-            avatar.innerText =
-
-            getAvatarLetter(
-                profile.firstName
-            );
-
-
-        }
-
-
-    }
-
-
-
-    if(badges){
-
-
-        badges.innerHTML =
-
-        renderBadges(user);
-
-
-    }
-
-
-
-    renderPassport(user);
-
-    generateUserQR(user);
-
-    updateCardButton();
-
-
-}
-
-
-
-/*
- Открытие настроек
-*/
-
-
-function openSettings(){
-
-
-    const user =
-    getCurrentProfile();
-
-
-
-    if(!user){
-
-        return;
-
-    }
-
-
-
-    document.getElementById(
-        "editFirstName"
-    ).value =
-    user.profile.firstName;
-
-
-
-    document.getElementById(
-        "editLastName"
-    ).value =
-    user.profile.lastName;
-
-
+    hideAllScreens();
 
     document
-    .getElementById(
-        "settingsModal"
-    )
-    .classList
-    .remove(
-        "hidden"
-    );
-
-
-
-}
-
-
-
-/*
- Закрыть настройки
-*/
-
-
-function closeSettings(){
-
-
-    document
-    .getElementById(
-        "settingsModal"
-    )
-    .classList
-    .add(
-        "hidden"
-    );
-
-
-}
-
-
-
-/*
- Сохранение настроек
-*/
-
-
-function saveSettings(){
-
-
-    const username =
-    getCurrentUser();
-
-
-
-    const user =
-    getUser(username);
-
-
-
-    if(!user){
-
-        return;
-
-    }
-
-
-
-    user.profile.firstName =
-
-    document.getElementById(
-        "editFirstName"
-    ).value;
-
-
-
-    user.profile.lastName =
-
-    document.getElementById(
-        "editLastName"
-    ).value;
-
-
-
-    updateUser(
-
-        username,
-
-        {
-
-            profile:user.profile
-
-        }
-
-    );
-
-
+    .getElementById("homeScreen")
+    .classList.remove("hidden");
 
     loadProfile();
 
+}
 
+/*
+==========================
+Открыть заполнение профиля
+==========================
+*/
 
-    closeSettings();
+function showSetup(){
 
+    hideAllScreens();
 
-
-    toast(
-        "Профиль обновлён"
-    );
-
+    document
+    .getElementById("setupScreen")
+    .classList.remove("hidden");
 
 }
 
-
-
 /*
- Загрузка аватара
+==========================
+Загрузка профиля
+==========================
 */
 
+function loadProfile(){
 
-function initAvatarUpload(){
+    const user =
+    getCurrentProfile();
 
+    if(!user){
 
-    const input =
+        logout();
 
-    document.getElementById(
-        "avatarInput"
-    );
-
-
-
-    if(!input){
+        showRegister();
 
         return;
 
     }
 
+    document
+    .getElementById("profileName")
+    .textContent =
+    user.profile.firstName +
+    " " +
+    user.profile.lastName;
 
+    document
+    .getElementById("profileUsername")
+    .textContent =
+    "@" + user.username;
 
-    input.onchange = ()=>{
+    renderBadge(user);
 
+    renderPassport(user);
 
-        const file =
-        input.files[0];
+    refreshQR();
 
+    updateCardButton();
 
+}
+/*
+==========================
+Сохранить профиль
+==========================
+*/
 
-        if(!file){
+document
+.getElementById("saveProfile")
+.onclick = function(){
 
-            return;
+    const user =
+    getCurrentProfile();
 
-        }
+    if(!user){
+        return;
+    }
 
+    user.profile.firstName =
+    document
+    .getElementById("firstName")
+    .value
+    .trim();
 
+    user.profile.lastName =
+    document
+    .getElementById("lastName")
+    .value
+    .trim();
+
+    user.profile.passportType =
+    document
+    .getElementById("passportType")
+    .value;
+
+    user.profile.passportNumber =
+    document
+    .getElementById("passportNumber")
+    .value
+    .trim();
+
+    if(
+        !user.profile.firstName ||
+        !user.profile.lastName ||
+        !user.profile.passportNumber
+    ){
+
+        alert("Заполните все поля.");
+
+        return;
+
+    }
+
+    updateUser(user);
+
+    showHome();
+
+};
+
+/*
+==========================
+Галочки
+==========================
+*/
+
+function renderBadge(user){
+
+    const badge =
+    document.getElementById("badgeContainer");
+
+    badge.innerHTML = "";
+
+    if(user.username === "yurskk"){
+
+        badge.innerHTML =
+        '<span class="badge owner">👑</span>';
+
+        return;
+
+    }
+
+    if(user.username === "mikke"){
+
+        badge.innerHTML =
+        '<span class="badge verified">✔</span>';
+
+        return;
+
+    }
+
+    if(user.wrPlus){
+
+        badge.innerHTML =
+        '<span class="badge plus">💚</span>';
+
+    }
+
+}
+
+/*
+==========================
+Настройки
+==========================
+*/
+
+document
+.getElementById("profileButton")
+.onclick = function(){
+
+    const user =
+    getCurrentProfile();
+
+    document
+    .getElementById("editFirstName")
+    .value =
+    user.profile.firstName;
+
+    document
+    .getElementById("editLastName")
+    .value =
+    user.profile.lastName;
+
+    document
+    .getElementById("settingsModal")
+    .classList.remove("hidden");
+
+};
+
+document
+.getElementById("closeSettings")
+.onclick = function(){
+
+    document
+    .getElementById("settingsModal")
+    .classList.add("hidden");
+
+};
+
+document
+.getElementById("saveSettings")
+.onclick = function(){
+
+    const user =
+    getCurrentProfile();
+
+    user.profile.firstName =
+    document
+    .getElementById("editFirstName")
+    .value
+    .trim();
+
+    user.profile.lastName =
+    document
+    .getElementById("editLastName")
+    .value
+    .trim();
+
+    const file =
+    document
+    .getElementById("avatarInput")
+    .files[0];
+
+    if(file){
 
         const reader =
         new FileReader();
 
-
-
-        reader.onload = ()=>{
-
-
-            const username =
-            getCurrentUser();
-
-
-
-            const user =
-            getUser(username);
-
-
+        reader.onload = function(){
 
             user.profile.avatar =
-
             reader.result;
 
-
-
-            updateUser(
-
-                username,
-
-                {
-
-                    profile:user.profile
-
-                }
-
-            );
-
-
+            updateUser(user);
 
             loadProfile();
 
-
-
         };
 
+        reader.readAsDataURL(file);
 
+    }else{
 
-        reader.readAsDataURL(
-            file
-        );
+        updateUser(user);
 
-
-    };
-
-
-}
-
-
-
-/*
- Запуск событий профиля
-*/
-
-
-function initProfileEvents(){
-
-
-    const profileButton =
-
-    document.getElementById(
-        "profileButton"
-    );
-
-
-
-    if(profileButton){
-
-
-        profileButton.onclick =
-        openSettings;
-
+        loadProfile();
 
     }
 
+    document
+    .getElementById("settingsModal")
+    .classList.add("hidden");
 
-
-    const close =
-
-    document.getElementById(
-        "closeSettings"
-    );
-
-
-
-    if(close){
-
-
-        close.onclick =
-        closeSettings;
-
-
-    }
-
-
-
-    const save =
-
-    document.getElementById(
-        "saveSettings"
-    );
-
-
-
-    if(save){
-
-
-        save.onclick =
-        saveSettings;
-
-
-    }
-
-
-
-    initAvatarUpload();
-
-
-}
+};
