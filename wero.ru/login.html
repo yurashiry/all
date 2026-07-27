@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Вход — Wero Ru™</title>
+
+<meta name="theme-color" content="#000000">
+
+<link rel="manifest" href="manifest.json">
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body class="login-page">
+
+
+<div class="login-container">
+
+
+    <img
+    src="icons/logo.svg"
+    class="login-logo">
+
+
+    <h1>
+        Wero Ru™
+    </h1>
+
+
+    <p class="login-subtitle">
+        Электронный кошелёк sonne™
+    </p>
+
+
+
+    <div class="login-card">
+
+
+        <h2>
+            Создание аккаунта
+        </h2>
+
+
+
+        <input
+        id="firstName"
+        type="text"
+        placeholder="Имя">
+
+
+
+        <input
+        id="lastName"
+        type="text"
+        placeholder="Фамилия">
+
+
+
+        <input
+        id="username"
+        type="text"
+        placeholder="Username">
+
+
+
+        <input
+        id="phone"
+        type="tel"
+        placeholder="Номер телефона">
+
+
+
+        <button
+        id="createAccount">
+
+            Создать кошелёк
+
+        </button>
+      <!-- Существующий аккаунт -->
+
+<div class="login-existing">
+
+    <p>
+        Уже есть кошелёк?
+    </p>
+
+
+    <button
+    id="openWallet">
+
+        Войти в Wero Ru
+
+    </button>
+
+
+</div>
+
+
+
+<!-- Google вход -->
+
+<div class="google-login">
+
+
+    <div class="divider">
+
+        или
+
+    </div>
+
+
+    <button
+    id="googleLogin">
+
+        <img
+        src="icons/google.svg">
+
+        Войти через Google
+
+    </button>
+
+
+</div>
+
+
+
+<div
+id="loginError"
+class="login-error">
+
+</div>
+
+
+
+    </div>
+
+
+
+</div>
+
+
+
+<script src="js/storage.js"></script>
+
+<script src="js/auth.js"></script>
+
+
+</body>
+
+</html>
