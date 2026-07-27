@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+
+<title>Wero Ru</title>
+
+<meta name="theme-color" content="#0B57D0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wero Ru">
+
+<link rel="manifest" href="manifest.json">
+
+<link rel="icon" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+
+<link rel="stylesheet" href="style.css">
+
+<script src="storage.js"></script>
+
+</head>
+
+<body>
+
+<!-- ============================= -->
+<!-- LOADER -->
+<!-- ============================= -->
+
+<div id="loader">
+
+    <div class="loader-logo">
+
+        <div class="loader-circle"></div>
+
+        <img
+            src="assets/logo.svg"
+            id="loaderLogo"
+            draggable="false">
+
+    </div>
+
+    <div class="loader-title">
+
+        Wero Ru
+
+    </div>
+
+    <div class="loader-sub">
+
+        Secure Wallet
+
+    </div>
+
+</div>
+
+<!-- ============================= -->
+<!-- APP -->
+<!-- ============================= -->
+
+<div id="app" class="hidden">
+
+<header class="topbar">
+
+<div class="top-left">
+
+<div class="avatar" id="avatar">
+
+Y
+
+</div>
+
+<div class="user-info">
+
+<div id="username">
+
+Пользователь
+
+</div>
+
+<div id="walletStatus">
+
+Локальный кошелёк
+
+</div>
+
+</div>
+
+</div>
+
+<div class="top-right">
+
+<button
+id="settingsButton"
+class="iconButton">
+
+<svg viewBox="0 0 24 24">
+
+<path
+d="M19.4 13a7.9 7.9 0 0 0 .05-1
+7.9 7.9 0 0 0-.05-1l2.11-1.65
+-2-3.46-2.49 1a8.3 8.3 0 0 0-1.73-1L15
+2h-4l-.29 2.89a8.3 8.3 0 0 0-1.73 1l-2.49-1-2
+3.46L4.6 11a7.9 7.9 0 0 0-.05 1
+7.9 7.9 0 0 0 .05 1L2.49 14.65l2
+3.46 2.49-1a8.3 8.3 0 0 0 1.73 1L11
+22h4l.29-2.89a8.3 8.3 0 0 0 1.73-1l2.49
+1 2-3.46z"/>
+
+<circle
+cx="12"
+cy="12"
+r="3"/>
+
+</svg>
+
+</button>
+
+</div>
+
+</header>
+
+<!-- ============================= -->
+<!-- BALANCE -->
+<!-- ============================= -->
+
+<section class="balanceCard">
+
+<div class="balanceLabel">
+
+Баланс
+
+</div>
+
+<div
+class="balanceValue"
+id="balance">
+
+0,00 ₽
+
+</div>
+
+<div class="balanceButtons">
+
+<button id="depositBtn">
+
+Пополнить
+
+</button>
+
+<button id="sendBtn">
+
+Перевести
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ============================= -->
+<!-- QUICK ACTIONS -->
+<!-- ============================= -->
+
+<section class="quickGrid">
+
+<button class="quickItem" id="cardsPage">
+
+<div class="quickIcon">
+
+💳
+
+</div>
+
+<span>
+
+Карты
+
+</span>
+
+</button>
+
+<button class="quickItem" id="historyPage">
+
+<div class="quickIcon">
+
+🧾
+
+</div>
+
+<span>
+
+История
+
+</span>
+
+</button>
+
+<button class="quickItem" id="scanPage">
+
+<div class="quickIcon">
+
+📷
+
+</div>
+
+<span>
+
+QR
+
+</span>
+
+</button>
+
+<button class="quickItem" id="receivePage">
+
+<div class="quickIcon">
+
+⬇
+
+</div>
+
+<span>
+
+Получить
+
+</span>
+
+</button>
+
+</section>
+
+<!-- ============================= -->
+<!-- TRANSACTIONS -->
+<!-- ============================= -->
+
+<section class="transactions">
+
+<div class="sectionTitle">
+
+Последние операции
+
+</div>
+
+<div id="transactionsList">
+
+</div>
+
+</section>
+<!-- ============================= -->
+<!-- BOTTOM NAVIGATION -->
+<!-- ============================= -->
+
+<nav class="bottomBar">
+
+    <button class="navItem active" data-page="home">
+
+        <div class="navIcon">🏠</div>
+
+        <span>Главная</span>
+
+    </button>
+
+    <button class="navItem" data-page="cards">
+
+        <div class="navIcon">💳</div>
+
+        <span>Карты</span>
+
+    </button>
+
+    <button class="navItem" data-page="pay">
+
+        <div class="navIcon">💸</div>
+
+        <span>Оплата</span>
+
+    </button>
+
+    <button class="navItem" data-page="settings">
+
+        <div class="navIcon">⚙</div>
+
+        <span>Настройки</span>
+
+    </button>
+
+</nav>
+
+</div>
+
+<!-- ============================= -->
+<!-- CARDS PAGE -->
+<!-- ============================= -->
+
+<section
+    id="cardsScreen"
+    class="page hidden">
+
+    <header class="pageHeader">
+
+        <button class="backButton" data-close="cardsScreen">
+
+            ←
+
+        </button>
+
+        <h2>
+
+            Мои карты
+
+        </h2>
+
+    </header>
+
+    <div id="cardsContainer">
+
+    </div>
+
+    <button
+        id="createCardButton"
+        class="primaryButton">
+
+        + Создать карту
+
+    </button>
+
+</section>
+
+<!-- ============================= -->
+<!-- HISTORY PAGE -->
+<!-- ============================= -->
+
+<section
+    id="historyScreen"
+    class="page hidden">
+
+<header class="pageHeader">
+
+<button
+class="backButton"
+data-close="historyScreen">
+
+←
+
+</button>
+
+<h2>
+
+История операций
+
+</h2>
+
+</header>
+
+<div
+id="historyContainer">
+
+</div>
+
+</section>
+
+<!-- ============================= -->
+<!-- RECEIVE PAGE -->
+<!-- ============================= -->
+
+<section
+id="receiveScreen"
+class="page hidden">
+
+<header class="pageHeader">
+
+<button
+class="backButton"
+data-close="receiveScreen">
+
+←
+
+</button>
+
+<h2>
+
+Получить деньги
+
+</h2>
+
+</header>
+
+<div class="receiveBox">
+
+<div id="receiveQR">
+
+</div>
+
+<div
+class="walletAddress"
+id="walletAddress">
+
+—
+
+</div>
+
+<button
+id="copyWalletButton"
+class="primaryButton">
+
+Копировать адрес
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ============================= -->
+<!-- SEND PAGE -->
+<!-- ============================= -->
+
+<section
+id="sendScreen"
+class="page hidden">
+
+<header class="pageHeader">
+
+<button
+class="backButton"
+data-close="sendScreen">
+
+←
+
+</button>
+
+<h2>
+
+Перевод
+
+</h2>
+
+</header>
+
+<div class="form">
+
+<label>
+
+Получатель
+
+</label>
+
+<input
+type="text"
+id="sendTo"
+placeholder="ID кошелька">
+
+<label>
+
+Сумма
+
+</label>
+
+<input
+type="number"
+id="sendAmount"
+placeholder="0">
+
+<label>
+
+Комментарий
+
+</label>
+
+<input
+type="text"
+id="sendComment"
+placeholder="Необязательно">
+
+<button
+id="confirmTransfer"
+class="primaryButton">
+
+Отправить
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ============================= -->
+<!-- SETTINGS PAGE -->
+<!-- ============================= -->
+
+<section
+id="settingsScreen"
+class="page hidden">
+
+<header class="pageHeader">
+
+<button
+class="backButton"
+data-close="settingsScreen">
+
+←
+
+</button>
+
+<h2>
+
+Настройки
+
+</h2>
+
+</header>
+
+<div class="settingsList">
+
+<button id="changeName">
+
+Изменить имя
+
+</button>
+
+<button id="changePin">
+
+PIN-код
+
+</button>
+
+<button id="exportWallet">
+
+Экспорт
+
+</button>
+
+<button id="importWallet">
+
+Импорт
+
+</button>
+
+<button id="clearWallet">
+
+Очистить данные
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ============================= -->
+<!-- CREATE CARD MODAL -->
+<!-- ============================= -->
+
+<div
+id="createCardModal"
+class="modal hidden">
+
+<div class="modalContent">
+
+<h3>
+
+Новая карта
+
+</h3>
+
+<label>
+
+Название
+
+</label>
+
+<input
+type="text"
+id="cardName">
+
+<label>
+
+Цвет
+
+</label>
+
+<input
+type="color"
+id="cardColor"
+value="#0B57D0">
+
+<div class="modalButtons">
+
+<button
+id="cancelCreateCard">
+
+Отмена
+
+</button>
+
+<button
+id="saveCard">
+
+Создать
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ============================= -->
+<!-- PIN MODAL -->
+<!-- ============================= -->
+
+<div
+    id="pinModal"
+    class="modal hidden">
+
+    <div class="modalContent small">
+
+        <h3>
+
+            Введите PIN
+
+        </h3>
+
+        <input
+            id="pinInput"
+            type="password"
+            maxlength="6"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="••••">
+
+        <div class="modalButtons">
+
+            <button
+                id="cancelPin">
+
+                Отмена
+
+            </button>
+
+            <button
+                id="acceptPin">
+
+                OK
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ============================= -->
+<!-- RENAME MODAL -->
+<!-- ============================= -->
+
+<div
+    id="renameModal"
+    class="modal hidden">
+
+    <div class="modalContent">
+
+        <h3>
+
+            Имя владельца
+
+        </h3>
+
+        <input
+            id="newUsername"
+            type="text"
+            maxlength="32"
+            placeholder="Введите имя">
+
+        <div class="modalButtons">
+
+            <button
+                id="cancelRename">
+
+                Отмена
+
+            </button>
+
+            <button
+                id="saveUsername">
+
+                Сохранить
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ============================= -->
+<!-- IMPORT BACKUP -->
+<!-- ============================= -->
+
+<input
+    id="importFile"
+    type="file"
+    accept=".json"
+    hidden>
+
+<!-- ============================= -->
+<!-- TOAST -->
+<!-- ============================= -->
+
+<div
+    id="toast"
+    class="toast hidden">
+
+    <span id="toastText">
+
+        Готово
+
+    </span>
+
+</div>
+
+<!-- ============================= -->
+<!-- LOADING OVERLAY -->
+<!-- ============================= -->
+
+<div
+    id="overlay"
+    class="overlay hidden">
+
+    <div class="spinner">
+
+    </div>
+
+</div>
+
+<!-- ============================= -->
+<!-- CONFIRM DIALOG -->
+<!-- ============================= -->
+
+<div
+    id="confirmModal"
+    class="modal hidden">
+
+    <div class="modalContent">
+
+        <h3 id="confirmTitle">
+
+            Подтверждение
+
+        </h3>
+
+        <p id="confirmText">
+
+            Продолжить?
+
+        </p>
+
+        <div class="modalButtons">
+
+            <button
+                id="confirmCancel">
+
+                Нет
+
+            </button>
+
+            <button
+                id="confirmOk">
+
+                Да
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ============================= -->
+<!-- APP SCRIPTS -->
+<!-- ============================= -->
+
+<script src="app.js"></script>
+<script src="wallet.js"></script>
+<script src="cards.js"></script>
+<script src="transactions.js"></script>
+<script src="qr.js"></script>
+<script src="settings.js"></script>
+<script src="ui.js"></script>
+
+<script>
+
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", async () => {
+
+        try {
+
+            await navigator.serviceWorker.register("./sw.js");
+
+            console.log("Service Worker registered");
+
+        }
+
+        catch (e) {
+
+            console.error(e);
+
+        }
+
+    });
+
+}
+
+window.addEventListener("beforeinstallprompt", e => {
+
+    e.preventDefault();
+
+    window.deferredInstallPrompt = e;
+
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    if (typeof App !== "undefined") {
+
+        App.init();
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
