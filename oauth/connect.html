@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WR Auth — Подключение</title>
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --card-bg: #2a1f10;
+            --accent: #ff7b00;
+            --accent-hover: #ff9740;
+            --text: #f5f5f5;
+            --text-secondary: #b0a090;
+            --border: #5c3a10;
+            --input-bg: #2a1a0a;
+            --error: #ff4444;
+            --success: #4caf50;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image:
+                radial-gradient(ellipse at 30% 20%, rgba(255, 123, 0, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(255, 140, 20, 0.05) 0%, transparent 60%);
+        }
+
+        .container { width: 100%; max-width: 440px; padding: 20px; }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo { text-align: center; margin-bottom: 24px; }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--accent);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .logo h1 { font-size: 28px; font-weight: 700; margin-top: 12px; }
+        .logo span {
+            background: linear-gradient(135deg, var(--accent), #ffb366);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-info {
+            text-align: center;
+            margin-bottom: 28px;
+            padding: 16px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .app-info .app-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .app-info .app-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 15px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 123, 0, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            margin-top: 8px;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(255, 123, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.03); }
+
+        .message {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .message.error { background: rgba(255, 68, 68, 0.1); color: var(--error); display: block; }
+        .message.success { background: rgba(76, 175, 80, 0.1); color: var(--success); display: block; }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading-overlay.active { display: flex; }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 123, 0, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .permissions {
+            margin: 20px 0;
+            padding: 14px;
+            background: var(--input-bg);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .permissions span { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <div class="logo-icon">WR</div>
+                <h1>WR <span>Auth</span></h1>
+            </div>
+
+            <div class="app-info">
+                <div class="app-name" id="appName">Сторонний сайт</div>
+                <div class="app-desc">запрашивает доступ к вашему профилю</div>
+            </div>
+
+            <div class="permissions">
+                ✉️ <span>Email</span> — ваш адрес почты<br>
+                👤 <span>Имя</span> — ваше имя из профиля WR Auth
+            </div>
+
+            <form onsubmit="handleConnectLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="ivan@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Подключить</button>
+            </form>
+
+            <button class="btn btn-secondary" onclick="handleCancel()">Отмена</button>
+
+            <div class="message" id="loginMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const AUTH_LOGIN_URL = 'https://functions.yandexcloud.net/d4ehk4n8ltthm9n3p3k9';
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Параметры от стороннего сайта
+        const redirectUri = urlParams.get('redirect_uri');
+        const appName = urlParams.get('app_name') || 'Сторонний сайт';
+        const state = urlParams.get('state') || '';
+
+        // Отображаем название приложения
+        document.getElementById('appName').textContent = decodeURIComponent(appName);
+
+        // Проверяем, есть ли redirect_uri
+        if (!redirectUri) {
+            document.getElementById('loginMessage').textContent = 'Ошибка: не указан redirect_uri';
+            document.getElementById('loginMessage').className = 'message error';
+        }
+
+        function showMessage(text, type) {
+            const el = document.getElementById('loginMessage');
+            el.textContent = text;
+            el.className = 'message ' + type;
+            setTimeout(() => { el.className = 'message'; }, 5000);
+        }
+
+        function setLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        function handleCancel() {
+            if (redirectUri) {
+                window.location.href = redirectUri + '?error=access_denied&state=' + encodeURIComponent(state);
+            }
+        }
+
+        async function handleConnectLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!redirectUri) {
+                showMessage('Ошибка конфигурации', 'error');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(AUTH_LOGIN_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Формируем URL для возврата
+                    const userData = encodeURIComponent(JSON.stringify(data.user));
+                    const returnUrl = redirectUri + '?user=' + userData + '&state=' + encodeURIComponent(state);
+                    showMessage('Подключено! Перенаправляем...', 'success');
+                    setTimeout(() => { window.location.href = returnUrl; }, 1000);
+                } else {
+                    showMessage(data.error || 'Неверный email или пароль', 'error');
+                    setLoading(false);
+                }
+            } catch(e) {
+                showMessage('Сервер недоступен', 'error');
+                setLoading(false);
+            }
+        }
+    </script>
+</body>
+</html>

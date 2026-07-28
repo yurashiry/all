@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демо: Вход через WR Auth</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 20px;
+            background: #f5f5f5;
+            text-align: center;
+        }
+
+        .btn-wr {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: #ff7b00;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-wr:hover {
+            background: #ff9740;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 123, 0, 0.3);
+        }
+
+        .btn-wr-icon {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            color: #ff7b00;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .user-info {
+            margin-top: 24px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 14px;
+            display: none;
+            text-align: left;
+        }
+
+        .user-info.active { display: block; }
+
+        .user-info p { margin: 6px 0; color: #555; }
+        .user-info strong { color: #ff7b00; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🎯 Мой сайт</h2>
+        <p style="color: #888; margin: 12px 0;">Пример встраивания WR Auth</p>
+
+        <!-- КНОПКА ДЛЯ СТОРОННИХ САЙТОВ -->
+        <a class="btn-wr" id="wrLoginBtn" href="#">
+            <span class="btn-wr-icon">WR</span>
+            Войти через WR Auth
+        </a>
+
+        <p style="font-size: 12px; color: #999; margin-top: 12px;">
+            Нажимая, вы перейдёте на WR Auth для авторизации
+        </p>
+
+        <div class="user-info" id="userInfo">
+            <h3>✅ Пользователь авторизован</h3>
+            <p>Имя: <strong id="userName">—</strong></p>
+            <p>Email: <strong id="userEmail">—</strong></p>
+            <p>Метод: <strong id="userMethod">—</strong></p>
+            <button onclick="logout()" style="margin-top: 12px; padding: 10px 20px; background: #eee; border: none; border-radius: 8px; cursor: pointer;">Выйти</button>
+        </div>
+    </div>
+
+    <script>
+        // ================= НАСТРОЙКИ ДЛЯ СТОРОННЕГО САЙТА =================
+        const WR_AUTH_CONNECT_URL = 'https://yurashiry.github.io/oauth/connect.html';
+        const MY_APP_NAME = 'Мой сайт';
+        const MY_REDIRECT_URL = window.location.href; // Куда вернуться после входа
+        // =================================================================
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Генерируем ссылку для кнопки
+        const state = Math.random().toString(36).substring(2, 15);
+        const connectUrl = WR_AUTH_CONNECT_URL
+            + '?redirect_uri=' + encodeURIComponent(MY_REDIRECT_URL)
+            + '&app_name=' + encodeURIComponent(MY_APP_NAME);
+            + '&state=' + state;
+
+        document.getElementById('wrLoginBtn').href = connectUrl;
+
+        // Проверяем, вернулся ли пользователь после авторизации
+        if (urlParams.has('user')) {
+            try {
+                const user = JSON.parse(decodeURIComponent(urlParams.get('user')));
+                document.getElementById('userName').textContent = user.name || '—';
+                document.getElementById('userEmail').textContent = user.email || '—';
+                document.getElementById('userMethod').textContent = user.method || '—';
+                document.getElementById('userInfo').classList.add('active');
+                document.getElementById('wrLoginBtn').style.display = 'none';
+
+                // Убираем параметры из URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } catch(e) {
+                console.error('Ошибка обработки данных пользователя', e);
+            }
+        }
+
+        function logout() {
+            document.getElementById('userInfo').classList.remove('active');
+            document.getElementById('wrLoginBtn').style.display = 'inline-flex';
+        }
+    </script>
+</body>
+</html>

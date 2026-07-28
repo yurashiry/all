@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WR Auth — Авторизация</title>
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --card-bg: #2a1f10;
+            --accent: #ff7b00;
+            --accent-hover: #ff9740;
+            --text: #f5f5f5;
+            --text-secondary: #b0a090;
+            --border: #5c3a10;
+            --input-bg: #2a1a0a;
+            --error: #ff4444;
+            --success: #4caf50;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image:
+                radial-gradient(ellipse at 30% 20%, rgba(255, 123, 0, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(255, 140, 20, 0.05) 0%, transparent 60%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--accent);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--accent), #ffb366);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 15px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 123, 0, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(255, 123, 0, 0.3);
+        }
+
+        .btn-yandex {
+            background: #2a1a0a;
+            color: #ff8c00;
+            border: 2px solid #ff8c00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn-yandex:hover {
+            background: #3a2a15;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 28px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .message.error { background: rgba(255, 68, 68, 0.1); color: var(--error); display: block; }
+        .message.success { background: rgba(76, 175, 80, 0.1); color: var(--success); display: block; }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading-overlay.active { display: flex; }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 123, 0, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container">
+        <div class="card" id="loginForm">
+            <div class="logo">
+                <div class="logo-icon">WR</div>
+                <h1>WR <span>Auth</span></h1>
+            </div>
+            <p class="subtitle">Единая авторизация для твоих сервисов</p>
+
+            <form id="loginFormInner" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="ivan@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+
+            <div class="divider"><span>или</span></div>
+
+            <button class="btn btn-yandex" onclick="loginWithYandex()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="12" fill="#ff8c00"/>
+                    <text x="12" y="17" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Я</text>
+                </svg>
+                Войти через Яндекс
+            </button>
+
+            <div class="message" id="loginMessage"></div>
+            <p class="footer">
+                Нет аккаунта? <a href="register.html" style="color: var(--accent);">Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const AUTH_LOGIN_URL = 'https://functions.yandexcloud.net/d4ehk4n8ltthm9n3p3k9';
+        const AUTH_START_URL = 'https://functions.yandexcloud.net/d4eb18ccuh5cpbe3afjc';
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        function showMessage(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = 'message ' + type;
+            setTimeout(() => { el.className = 'message'; }, 5000);
+        }
+
+        function setLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(AUTH_LOGIN_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('wr_user', JSON.stringify(data.user));
+                    showMessage('loginMessage', 'Успешный вход! Перенаправляем...', 'success');
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                } else {
+                    showMessage('loginMessage', data.error || 'Неверный email или пароль', 'error');
+                }
+            } catch(e) {
+                showMessage('loginMessage', 'Сервер недоступен', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function loginWithYandex() {
+            const state = Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('wr_oauth_state', state);
+            window.location.href = AUTH_START_URL + '?state=' + state;
+        }
+
+        // Обработка возврата с Яндекса
+        if (urlParams.has('user')) {
+            const userParam = urlParams.get('user');
+            const state = urlParams.get('state');
+            const savedState = localStorage.getItem('wr_oauth_state');
+
+            if (state !== savedState) {
+                showMessage('loginMessage', 'Ошибка безопасности (state mismatch)', 'error');
+                localStorage.removeItem('wr_oauth_state');
+            } else {
+                try {
+                    const user = JSON.parse(decodeURIComponent(userParam));
+                    localStorage.setItem('wr_user', JSON.stringify(user));
+                    showMessage('loginMessage', 'Вход через Яндекс успешен! Перенаправляем...', 'success');
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+                } catch(e) {
+                    showMessage('loginMessage', 'Ошибка обработки данных', 'error');
+                }
+                localStorage.removeItem('wr_oauth_state');
+            }
+
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        if (urlParams.has('error')) {
+            const errorMsg = urlParams.get('error');
+            showMessage('loginMessage', 'Ошибка: ' + decodeURIComponent(errorMsg), 'error');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    </script>
+</body>
+</html>
