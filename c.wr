@@ -1,0 +1,27 @@
+const create file *c.wr*,
+  const run file *index.html*,
+  const local load *https://github.com/yurashiry/all.git*;
+
+load site 'https://github.com/yurashiry/all.git/';
+const resourse get access from {ALLOWED} countries,
+  else ban user site *index.html* 
+    error 403 'HAORIK is not available in your region'
+
+const {ALLOWED} countries,
+  "RUSSIA" - RU-ru,
+  "BELARUS" - BY-ru,
+  "FINLAND" - FL-fl,
+  "SWEDEN" - SE-se,
+  "NORWAY" - NO-no,
+  "MOLDOVA" - MD-ro,
+  "UKRAINE" - UA-ua,
+  "SERBIA" - RS-rs,
+  "EU" - EU-en,
+  "UNITED STATES" - US-en,
+  "KAZACHSTAN" - KZ-ru,
+  "GEORGIA" - GE-ru,
+  "GERMANY" - DE-de,
+  "NETHERLANDS" - NL-nl;
+
+const auto translate {language:prefer}
+;
