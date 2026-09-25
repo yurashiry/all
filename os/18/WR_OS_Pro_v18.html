@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>WR OS+ — Версия 18</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><polygon points="2,2 20,10 12,12 10,20" fill="white" stroke="black" stroke-width="1.5"/><circle cx="18" cy="18" r="3" fill="white" stroke="black"/></svg>') 4 4, auto;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .desktop {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-size: cover;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .desktop-icons {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 82px;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 10px 12px;
+      z-index: 20;
+      overflow: hidden;
+      padding-right: 4px;
+    }
+
+    .desktop-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 85px;
+      cursor: pointer;
+      padding: 8px 4px;
+      border-radius: 10px;
+      transition: 0.1s;
+      color: white;
+      text-shadow: 0 1px 2px black;
+      backdrop-filter: blur(4px);
+    }
+    .desktop-icon:hover {
+      background: rgba(255,255,240,0.25);
+      transform: scale(1.02);
+    }
+    .desktop-icon .icon-img { font-size: 42px; margin-bottom: 6px; }
+    .desktop-icon span { font-size: 12px; font-weight: 500; }
+
+    .window {
+      position: absolute;
+      background: #f5f5f5;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+      resize: both;
+      min-width: 300px;
+      min-height: 250px;
+    }
+    .window.active { z-index: 300; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+
+    @keyframes appPop {
+      0% { opacity: 0; transform: translateY(24px) scale(.94); filter: blur(10px);}
+      55% { opacity: .85; transform: translateY(4px) scale(.985); filter: blur(2px);}
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0);}
+    }
+    @keyframes closeAnim {
+      0% { opacity: 1; transform: scale(1);}
+      100% { opacity: 0; transform: scale(0.8);}
+    }
+    @keyframes minAnim {
+      0% { opacity: 1; transform: scale(1);}
+      100% { opacity: 0; transform: scale(0.2) translateY(80px);}
+    }
+    .window { animation: appPop .42s cubic-bezier(.22,1,.36,1); transform-origin: center center; }
+    .window-closing { animation: closeAnim 0.15s forwards !important; pointer-events: none; }
+    .window-minimizing { animation: minAnim 0.18s forwards !important; pointer-events: none; }
+
+    .window-header {
+      background: linear-gradient(105deg, #1c6fb0, #2a7fcf);
+      padding: 10px 14px;
+      cursor: grab;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      font-weight: 600;
+    }
+    .window-header:active { cursor: grabbing; }
+    .window-controls button {
+      background: rgba(0,0,0,0.25);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .close-btn:hover { background: #e81123 !important; }
+    .window-content {
+      flex: 1;
+      padding: 18px;
+      background: white;
+      overflow: auto;
+    }
+
+    .taskbar {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      height: 52px;
+      background: rgba(28, 28, 35, 0.85);
+      backdrop-filter: blur(28px);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      z-index: 1000;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .start-button, .taskbar-action {
+      background: #2b5f9e;
+      padding: 6px 14px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: 0.1s;
+    }
+    .taskbar-action span:last-child { display: none; }
+    .taskbar-action { font-size: 20px; padding: 6px 12px; }
+    .start-button:hover, .taskbar-action:hover { background: #1f4980; transform: scale(0.96); }
+    .taskbar-icons { display: flex; gap: 8px; flex: 1; overflow-x: auto; }
+    .taskbar-app {
+      background: rgba(255,255,245,0.15);
+      padding: 5px 16px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .taskbar-app:hover { background: rgba(255,255,255,0.3); }
+
+    .start-menu {
+      position: absolute;
+      bottom: 70px;
+      left: 18px;
+      width: 340px;
+      background: rgba(20,20,28,0.96);
+      backdrop-filter: blur(36px);
+      border-radius: 28px;
+      padding: 18px;
+      color: white;
+      z-index: 1100;
+      transition: 0.2s;
+    }
+    .start-menu.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; }
+    .start-app-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .start-app-item:hover { background: #2f6eb3; }
+
+    .settings-section {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 15px;
+    }
+    .settings-section h4 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .wallpaper-preview {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .wallpaper-option {
+      width: 70px;
+      height: 55px;
+      border-radius: 14px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .wallpaper-option:hover { transform: scale(1.05); border-color: white; }
+
+    .color-input {
+      width: 60px;
+      height: 40px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    .slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: #aaa;
+      border-radius: 40px;
+      cursor: pointer;
+      position: relative;
+      transition: 0.1s;
+    }
+    .toggle-switch.active { background: #2b9eff; }
+    .toggle-switch::after {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 20px;
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      transition: 0.1s;
+    }
+    .toggle-switch.active::after { left: 21px; }
+
+    .store-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .store-card {
+      background: #f0f4fa;
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .store-card:hover { background: #e2e8f2; transform: translateY(-3px); }
+    .store-icon { font-size: 48px; margin-bottom: 8px; }
+
+    .file-list {
+      list-style: none;
+    }
+    .file-list li {
+      padding: 8px;
+      margin: 4px 0;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-list li:hover { background: #e9ecef; }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background: white;
+      border-radius: 28px;
+      width: 360px;
+      padding: 28px;
+      text-align: center;
+      animation: appPop 0.2s;
+    }
+    .modal-icon { font-size: 64px; margin-bottom: 12px; }
+    .modal button {
+      background: #2b5f9e;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 10px 24px;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+    .install-progress { font-size: 14px; margin-top: 12px; color: #2b5f9e; }
+
+
+    .wr-toast-container { position:fixed; right:22px; top:22px; z-index:5000; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+    .wr-toast { min-width:280px; max-width:380px; padding:14px 16px; border-radius:18px; color:#fff; background:rgba(24,24,30,.88); backdrop-filter:blur(24px); box-shadow:0 12px 40px rgba(0,0,0,.28); animation:toastIn .35s cubic-bezier(.22,1,.36,1); font-size:14px; }
+    .wr-toast small { display:block; opacity:.7; margin-top:3px; }
+    @keyframes toastIn { from { opacity:0; transform:translateX(35px) scale(.95); } to { opacity:1; transform:none; } }
+    @keyframes toastOut { to { opacity:0; transform:translateX(35px) scale(.95); } }
+    .developer-shell { display:flex; flex-direction:column; gap:14px; }
+    .developer-card { background:#f4f6fb; border-radius:18px; padding:14px; display:flex; align-items:center; gap:12px; }
+    .developer-icon { width:52px; height:52px; border-radius:15px; display:grid; place-items:center; background:#e7ebf5; font-size:28px; overflow:hidden; flex:none; }
+    .developer-icon img { width:100%; height:100%; object-fit:cover; }
+    .dev-btn { border:0; border-radius:18px; padding:10px 16px; cursor:pointer; background:#2b5f9e; color:#fff; font-weight:600; }
+    .dev-btn.secondary { background:#e9edf5; color:#26344a; }
+    .dev-plus { width:56px; height:56px; border-radius:18px; border:0; background:#2b5f9e; color:#fff; font-size:28px; cursor:pointer; }
+    .dev-input, .dev-textarea { width:100%; border:1px solid #d7dce6; border-radius:14px; padding:11px 13px; font:inherit; margin-top:7px; }
+    .dev-textarea { min-height:180px; resize:vertical; font-family:monospace; font-size:12px; }
+
+    .browser-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      align-items: center;
+    }
+    .browser-url {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 30px;
+      font-size: 14px;
+    }
+    .browser-go {
+      background: #2b5f9e;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+    .browser-frame {
+      width: 100%;
+      height: calc(100% - 60px);
+      border: none;
+      border-radius: 12px;
+    }
+
+    .boot-screen { position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center; background:#07110f; color:white; transition:opacity .55s ease, visibility .55s ease; }
+    .boot-screen.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+    .boot-inner { width:min(430px,88vw); text-align:center; }
+    .boot-logo { font-size:72px; margin-bottom:14px; animation:bootPulse 1.2s ease-in-out infinite; }
+    .boot-title { font-size:28px; font-weight:700; letter-spacing:.4px; }
+    .boot-sub { margin-top:8px; opacity:.65; font-size:13px; }
+    .boot-loader { height:4px; background:rgba(255,255,255,.12); border-radius:99px; overflow:hidden; margin-top:28px; }
+    .boot-loader i { display:block; height:100%; width:35%; background:linear-gradient(90deg,#2b9a76,#55c9aa); border-radius:99px; animation:bootLoad 1.5s ease-in-out infinite; }
+    @keyframes bootPulse {50%{transform:scale(1.05);opacity:.78}}
+    @keyframes bootLoad {0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}
+    .user-screen { position:fixed; inset:0; z-index:99998; display:flex; align-items:center; justify-content:center; background:linear-gradient(145deg,#07110f,#102c26); color:white; opacity:0; pointer-events:none; transition:opacity .45s; }
+    .user-screen.show { opacity:1; pointer-events:auto; }
+    .user-panel { width:min(520px,90vw); text-align:center; }
+    .user-panel h1 { font-size:30px; margin-bottom:20px; }
+    .user-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:14px; }
+    .user-card { width:145px; min-height:130px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08); backdrop-filter:blur(20px); border-radius:24px; padding:18px; color:white; cursor:pointer; transition:.2s; }
+    .user-card:hover { transform:translateY(-3px) scale(1.02); background:rgba(255,255,255,.14); }
+    .user-avatar { width:58px; height:58px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.14); font-size:30px; }
+    .user-add { border-style:dashed; opacity:.8; }
+    .store-loading { display:flex; align-items:center; justify-content:center; gap:8px; }
+    .store-spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.25); border-top-color:currentColor; border-radius:50%; animation:spin .7s linear infinite; display:inline-block; }
+    @keyframes spin {to{transform:rotate(360deg)}}
+    .main-file-button { width:100%; margin-top:10px; padding:10px 14px; border:0; border-radius:14px; background:#202c39; color:white; font-weight:700; cursor:pointer; }
+    .main-file-button:hover { background:#294054; }
+  
+/* WR OS+ v16 fixes */
+.desktop-icons{display:block;overflow:hidden;position:absolute}
+.desktop-icon{position:absolute;left:0;top:0;width:85px;height:88px;box-sizing:border-box;cursor:grab;user-select:none}
+.desktop-icon:active{cursor:grabbing}
+.desktop-icon.dragging{z-index:9999;transform:scale(1.03)}
+.desktop-icon .icon-img{pointer-events:none}.desktop-icon span{pointer-events:none;display:block;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* WR OS+ v14 */ .desktop-icons{display:block;overflow:hidden}.desktop-icon{position:absolute;left:0;top:0}.store-grid{grid-template-columns:repeat(3,minmax(0,1fr));max-height:470px;overflow:auto;padding:4px}.store-card{min-height:180px}.dark-mode .window-content{background:#15171b;color:#f3f4f6}.dark-mode .store-card,.dark-mode .file-list li{background:#22262d;color:#f3f4f6}.dark-mode input,.dark-mode textarea,.dark-mode select{background:#20242a;color:#fff;border-color:#3b414b}.context-menu{position:fixed;z-index:100000;background:rgba(30,32,36,.97);color:#fff;padding:6px;border-radius:10px;box-shadow:0 12px 35px #0008;min-width:190px}.context-menu button{display:block;width:100%;text-align:left;background:none;border:0;color:#fff;padding:9px;border-radius:7px}.context-menu button:hover{background:#ffffff1c}.terminal-output{background:#0b0d0f;color:#b9f6ca;padding:12px;border-radius:12px;height:330px;overflow:auto;font:13px ui-monospace,monospace;white-space:pre-wrap}.terminal-input{width:100%;background:#0b0d0f;color:#b9f6ca;border:1px solid #29332d;border-radius:10px;padding:10px;font:13px ui-monospace,monospace}.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.calc-grid button{width:auto;height:48px;background:#e9edf3;color:#111}.calc-display{width:100%;font-size:24px;padding:12px;border-radius:12px;border:1px solid #ccd3dc;text-align:right;margin-bottom:10px}
+
+/* ================= WR OS+ v18 ================= */
+.wr18-app-splash{position:absolute;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(245,245,245,.96);backdrop-filter:blur(18px);color:#172033;opacity:1;transition:opacity .25s ease}
+.wr18-app-splash.hide{opacity:0;pointer-events:none}
+.wr18-splash-avatar{width:78px;height:78px;border-radius:22px;display:grid;place-items:center;font-size:48px;background:rgba(43,95,158,.10);box-shadow:0 12px 35px rgba(0,0,0,.12)}
+.wr18-splash-name{font-size:18px;font-weight:700;margin-top:12px}
+.dark-mode .wr18-app-splash{background:rgba(18,20,24,.97);color:#fff}
+.wr18-store-head{padding:18px;border-radius:22px;background:linear-gradient(135deg,#112b29,#1e5d4d);color:#fff;margin-bottom:14px}
+.wr18-store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.wr18-store-card{background:linear-gradient(145deg,#f5f7fb,#e9eef6);border:1px solid #dfe5ef;border-radius:22px;padding:16px;min-height:185px;display:flex;flex-direction:column;cursor:pointer;transition:.18s}
+.wr18-store-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0001}
+.dark-mode .wr18-store-card{background:#20242b;border-color:#353b46;color:#fff}
+.wr18-wall{height:74px;border-radius:16px;background-size:cover;background-position:center;cursor:pointer;border:2px solid transparent}
+.wr18-wall:hover{border-color:#2b9eff;transform:scale(1.02)}
+.wr18-setting-group{padding:15px;border-radius:20px;background:#f4f6fa;margin-bottom:12px}
+.dark-mode .wr18-setting-group{background:#20242a}
+.wr18-selected{outline:2px solid #55c9aa;background:rgba(85,201,170,.18)!important}
+.wr18-wallet-card{background:linear-gradient(135deg,#102c26,#173f36);color:white;border-radius:25px;padding:22px;min-height:160px;box-shadow:0 16px 40px #0003}
+.wr18-wallet-number{letter-spacing:3px;font-size:19px;margin-top:26px}
+.wr18-wallet-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.wr18-pill{border:0;border-radius:999px;padding:9px 14px;background:#2b9e76;color:#fff;cursor:pointer;font-weight:700}
+.wr18-danger{background:#b42318!important}
+
+</style>
+</head>
+<body>
+<div class="wr-toast-container" id="wrToastContainer"></div><div class="boot-screen" id="bootScreen"><div class="boot-inner"><div class="boot-logo">◈</div><div class="boot-title">WR OS</div><div class="boot-sub">Запуск системы…</div><div class="boot-loader"><i></i></div></div></div>
+<div class="user-screen" id="userScreen"><div class="user-panel"><h1>Кто использует WR OS?</h1><div class="user-grid" id="userGrid"></div></div></div>
+
+<div class="desktop" id="desktop">
+  <div class="desktop-icons" id="desktopIcons">
+    <div class="desktop-icon" data-app="explorer"><div class="icon-img">📁</div><span>Проводник</span></div>
+    <div class="desktop-icon" data-app="browser"><div class="icon-img">🌐</div><span>Браузер</span></div>
+    <div class="desktop-icon" data-app="notepad"><div class="icon-img">📓</div><span>Блокнот</span></div>
+    <div class="desktop-icon" data-app="store"><div class="icon-img">🛒</div><span>Магазин</span></div>
+    <div class="desktop-icon" data-app="settings"><div class="icon-img">⚙️</div><span>Параметры</span></div>
+  </div>
+</div>
+
+<div class="taskbar">
+  <div class="start-button" id="startButton">◆ Пуск</div>
+  <div class="taskbar-action" id="showDesktopBtn">📌</div>
+  <div class="taskbar-action" id="fullscreenBtn">⛶</div>
+  <div class="taskbar-icons" id="taskbarIcons"></div>
+  <div id="clock" style="color:white; background:rgba(0,0,0,0.4); padding:5px 14px; border-radius:40px;"></div>
+</div>
+
+<div id="startMenu" class="start-menu hidden">
+  <div class="start-header">🌟 Центр приложений</div>
+  <div class="start-app-list">
+    <div class="start-app-item" data-app="explorer">📁 Проводник</div>
+    <div class="start-app-item" data-app="browser">🌐 Браузер</div>
+    <div class="start-app-item" data-app="notepad">✍️ Блокнот</div>
+    <div class="start-app-item" data-app="store">🛒 Магазин</div>
+    <div class="start-app-item" data-app="settings">⚙️ Параметры</div>
+    <div class="start-app-item" data-app="about">ℹ️ О системе</div>
+  </div>
+</div>
+
+<script>
+  // ========== ПРОФИЛИ ПОЛЬЗОВАТЕЛЕЙ ==========
+  function switchUser(id){ currentUserId=id; localStorage.setItem('wrCurrentUserId',id); sessionStorage.setItem('wrBootSelected','1'); location.reload(); }
+
+  // ========== НАСТРОЙКИ / ПРОФИЛИ (инициализируем ДО обоев) ==========
+  let users = JSON.parse(localStorage.getItem('wrUsers') || 'null') || [{id:'main', name:'Основной пользователь', avatar:'👤'}];
+  let currentUserId = localStorage.getItem('wrCurrentUserId') || users[0].id;
+  if (!users.some(u=>u.id===currentUserId)) currentUserId = users[0].id;
+  function userPrefix(){ return 'wr_user_'+currentUserId+'_'; }
+  function loadUserSettings(){
+    const saved=localStorage.getItem(userPrefix()+'settings');
+    return saved ? {...{animations:true,taskbarBlur:true,windowOpacity:98,cursorStyle:'default',theme:'light'},...JSON.parse(saved)} : {animations:true,taskbarBlur:true,windowOpacity:98,cursorStyle:'default',theme:'light'};
+  }
+  let settings = loadUserSettings();
+  function saveSettings(){ localStorage.setItem(userPrefix()+'settings',JSON.stringify(settings)); }
+
+  // ======================== ОБОИ (ЦВЕТНЫЕ ГРАДИЕНТЫ + ЗАГРУЗКА СВОИХ) ========================
+  const wallpapers = {
+    secret29102011: 'linear-gradient(135deg, #041b16 0%, #082f2a 48%, #061d38 100%)',
+    gradient1: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    gradient2: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    gradient3: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    gradient4: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    gradient5: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    gradient6: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    gradient7: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+    gradient8: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+  };
+
+  function setWallpaper(type, customColor = null) {
+    const desktopEl = document.getElementById('desktop');
+    if (type === 'custom' && customColor) {
+      desktopEl.style.background = customColor;
+      desktopEl.style.backgroundSize = 'auto';
+      localStorage.setItem(userPrefix()+'wallpaperType', 'custom');
+      localStorage.setItem(userPrefix()+'customWallpaper', customColor);
+    } else if (wallpapers[type]) {
+      desktopEl.style.background = wallpapers[type];
+      desktopEl.style.backgroundSize = 'auto';
+      localStorage.setItem(userPrefix()+'wallpaperType', type);
+      localStorage.setItem('customWallpaper', '');
+    }
+  }
+
+  // Загрузка сохранённых обоев
+  const savedType = localStorage.getItem(userPrefix()+'wallpaperType') || localStorage.getItem('wallpaperType');
+  const savedCustom = localStorage.getItem(userPrefix()+'customWallpaper') || localStorage.getItem('customWallpaper');
+  if (savedType === 'custom' && savedCustom) {
+    setWallpaper('custom', savedCustom);
+  } else if (savedType && wallpapers[savedType]) {
+    setWallpaper(savedType);
+  } else {
+    setWallpaper('gradient1');
+  }
+
+  // ========== НАСТРОЙКИ ==========
+  function switchUser(id){ currentUserId=id; localStorage.setItem('wrCurrentUserId',id); sessionStorage.setItem('wrBootSelected','1'); location.reload(); }
+
+  function applySettings() {
+    document.body.classList.toggle('dark-mode', settings.theme==='dark');
+    if (!settings.animations) {
+      document.querySelectorAll('.window').forEach(w => w.style.animation = 'none');
+    }
+    const taskbar = document.querySelector('.taskbar');
+    if (taskbar) {
+      taskbar.style.backdropFilter = settings.taskbarBlur ? 'blur(28px)' : 'none';
+    }
+  }
+
+  // ========== БЛОКНОТ ==========
+  let notepadContent = localStorage.getItem(userPrefix()+'notepadContent') || '';
+
+  // ========== ПРОВОДНИК (ФАЙЛЫ) ==========
+  let files = JSON.parse(localStorage.getItem(userPrefix()+'userFiles')) || [
+    { name: 'Документы', type: 'folder', icon: '📁' },
+    { name: 'Изображения', type: 'folder', icon: '🖼️' },
+    { name: 'Музыка', type: 'folder', icon: '🎵' },
+    { name: 'Отправить отчет.yrs', type: 'file', icon: '📄', content: 'Данные отправлены!' }
+  ];
+
+  function saveFiles() {
+    localStorage.setItem(userPrefix()+'userFiles', JSON.stringify(files));
+  }
+
+  // ========== УПРАВЛЕНИЕ ОКНАМИ ==========
+  let openWindows = {};
+  let activeWindowId = null;
+  let winCounter = 0;
+  let installedApps = JSON.parse(localStorage.getItem(userPrefix()+'installedApps') || '[]');
+  let customApps = JSON.parse(localStorage.getItem(userPrefix()+'customApps') || '[]');
+
+  function saveInstalledApps() { localStorage.setItem(userPrefix()+'installedApps', JSON.stringify(installedApps)); }
+  function saveCustomApps() { localStorage.setItem(userPrefix()+'customApps', JSON.stringify(customApps)); }
+  function notify(title, message='') {
+    const box = document.getElementById('wrToastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'wr-toast';
+    toast.innerHTML = `<strong>${escapeHtml(title)}</strong>${message ? `<small>${escapeHtml(message)}</small>` : ''}`;
+    box.appendChild(toast);
+    setTimeout(() => { toast.style.animation='toastOut .3s forwards'; setTimeout(()=>toast.remove(),300); }, 3800);
+  }
+  function escapeHtml(value='') {
+    return String(value).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+  }
+  function getInstalledRecord(id) { return installedApps.find(a => a.id === id); }
+  function desktopPositions(){try{return JSON.parse(localStorage.getItem(userPrefix()+'desktopPositions')||'{}')}catch{return {}}}
+  // v16.2: migrate old broken horizontal desktop layout once.
+  if(localStorage.getItem(userPrefix()+'wrDesktopLayoutVersion')!=='2'){localStorage.removeItem(userPrefix()+'desktopPositions');localStorage.setItem(userPrefix()+'wrDesktopLayoutVersion','2')}
+  function saveDesktopPositions(p){localStorage.setItem(userPrefix()+'desktopPositions',JSON.stringify(p))}
+  function desktopIconSize(){return {w:85,h:88,g:10}}
+  function iconRects(exclude){const box=document.getElementById('desktopIcons');const arr=[];box.querySelectorAll('.desktop-icon').forEach(el=>{if(el===exclude)return;arr.push({el,x:parseInt(el.style.left)||0,y:parseInt(el.style.top)||0,w:85,h:88})});return arr}
+  function canPlaceIcon(x,y,exclude){const box=document.getElementById('desktopIcons');const maxX=Math.max(0,box.clientWidth-85);const maxY=Math.max(0,box.clientHeight-88);if(x<0||y<0||x>maxX||y>maxY)return false;return iconRects(exclude).every(r=>x+85<=r.x||x>=r.x+r.w||y+88<=r.y||y>=r.y+r.h)}
+  function findFreeIconSpot(preferredX,preferredY,exclude){const box=document.getElementById('desktopIcons');const maxX=Math.max(0,box.clientWidth-85),maxY=Math.max(0,box.clientHeight-88);let x=Math.max(0,Math.min(maxX,preferredX)),y=Math.max(0,Math.min(maxY,preferredY));if(canPlaceIcon(x,y,exclude))return{x,y};for(let yy=0;yy<=maxY;yy+=98){for(let xx=0;xx<=maxX;xx+=95){if(canPlaceIcon(xx,yy,exclude))return{x:xx,y:yy}}}return{x:0,y:0}}
+  function renderInstalledApps(){const d=document.getElementById('desktopIcons');document.querySelectorAll('.desktop-icon[data-installed="true"]').forEach(e=>e.remove());const pos=desktopPositions();installedApps.forEach((app,i)=>{const e=document.createElement('div');e.className='desktop-icon';e.dataset.app=app.id;e.dataset.installed='true';const def=findFreeIconSpot(20+(i%7)*95,20+Math.floor(i/7)*98,e);const p=pos[app.id]&&canPlaceIcon(pos[app.id].x,pos[app.id].y,e)?pos[app.id]:def;e.style.left=p.x+'px';e.style.top=p.y+'px';e.innerHTML=`<div class="icon-img">${app.icon||'📦'}</div><span>${escapeHtml(app.name)}</span>`;iconClick(e,()=>launchInstalledApp(app.id));e.oncontextmenu=x=>{x.preventDefault();showAppContextMenu(x,app)};makeDesktopIconDraggable(e,app.id);d.appendChild(e);if(!pos[app.id]){pos[app.id]=p;saveDesktopPositions(pos)}})}
+  function makeDesktopIconDraggable(e,id){
+    let sx=0,sy=0,ox=0,oy=0,moving=false;
+    e.__wrSuppressClick=false;
+    e.onmousedown=ev=>{
+      if(ev.button!==0)return;
+      // Do NOT preventDefault here: doing so can suppress the browser's click event.
+      sx=ev.clientX; sy=ev.clientY;
+      ox=parseInt(e.style.left)||0; oy=parseInt(e.style.top)||0;
+      moving=false;
+      e.classList.add('dragging');
+      const mv=move=>{
+        const dx=move.clientX-sx, dy=move.clientY-sy;
+        if(Math.abs(dx)+Math.abs(dy)>5)moving=true;
+        if(!moving)return;
+        const box=document.getElementById('desktopIcons');
+        const maxX=Math.max(0,box.clientWidth-85), maxY=Math.max(0,box.clientHeight-88);
+        let nx=Math.max(0,Math.min(maxX,ox+dx));
+        let ny=Math.max(0,Math.min(maxY,oy+dy));
+        if(canPlaceIcon(nx,ny,e)){e.style.left=nx+'px';e.style.top=ny+'px'}
+      };
+      const up=()=>{
+        document.removeEventListener('mousemove',mv);
+        document.removeEventListener('mouseup',up);
+        e.classList.remove('dragging');
+        if(moving){
+          e.__wrSuppressClick=true;
+          const p=desktopPositions();
+          p[id]={x:parseInt(e.style.left)||0,y:parseInt(e.style.top)||0};
+          saveDesktopPositions(p);
+          setTimeout(()=>e.__wrSuppressClick=false,150);
+        }
+      };
+      document.addEventListener('mousemove',mv);
+      document.addEventListener('mouseup',up);
+    };
+  }
+  function iconClick(e,fn){
+    e.onclick=ev=>{
+      if(e.__wrSuppressClick){e.__wrSuppressClick=false;ev.preventDefault();return;}
+      fn();
+    };
+  }
+  function initDesktopIcons(){
+    const d=document.getElementById('desktopIcons');
+    const pos=desktopPositions();
+    const base=[['explorer',20,20],['browser',20,118],['notepad',20,216],['store',20,314],['settings',20,412]];
+    document.querySelectorAll('.desktop-icon:not([data-installed="true"])').forEach(el=>{
+      const id=el.dataset.app;
+      const b=base.find(x=>x[0]===id)||['',20,20];
+      let p=pos[id];
+      if(!p||!canPlaceIcon(p.x,p.y,el))p=findFreeIconSpot(b[1],b[2],el);
+      el.style.left=p.x+'px'; el.style.top=p.y+'px';
+      if(!pos[id]){pos[id]=p;saveDesktopPositions(pos)}
+      makeDesktopIconDraggable(el,id);
+      iconClick(el,()=>launch(id));
+    });
+  }
+  function showAppContextMenu(e,app){document.querySelector('.context-menu')?.remove();const m=document.createElement('div');m.className='context-menu';m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';const b=document.createElement('button');b.textContent='🗑️ Удалить приложение';b.onclick=()=>{installedApps=installedApps.filter(a=>a.id!==app.id);saveInstalledApps();renderInstalledApps();m.remove();notify('WR OS',app.name+' удалено')};m.appendChild(b);document.body.appendChild(m);setTimeout(()=>document.addEventListener('click',()=>m.remove(),{once:true}),0)}
+  function launchInstalledApp(id){
+    if(id==='wallet'){openWallet();return}
+    if(id==='wros27'){openWros27();return}
+    // Built-in WR OS apps must never recurse through launch().
+    if(id==='explorer'){openExplorer();return}
+    if(id==='developer'){openDeveloper();return}
+    if(id==='browser2'){openBrowser();return}
+    if(id==='mail'){openWebApp('mail','WR Mail','https://mails.org/ru/');return}
+    if(id==='weather'){openWebApp('weather','WR Weather','https://www.gismeteo.ru/');return}
+    if(id==='music'){openWebApp('music','WR Music','https://zvuch.com/');return}
+    if(id==='notes'){openNotepad();return}
+    if(id==='files'){openFilesApp();return}
+    if(id==='photos'){openPhotos();return}
+    if(id==='calculator'){openCalculator();return}
+    if(id==='terminal'){openTerminal();return}
+    const app=getInstalledRecord(id);if(!app)return;
+    const html=app.html?`<iframe sandbox="allow-scripts allow-forms allow-modals allow-popups" srcdoc="${escapeAttr(app.html)}" style="width:100%;height:100%;border:0"></iframe>`:`<iframe src="${escapeAttr(app.url||'about:blank')}" style="width:100%;height:100%;border:0"></iframe>`;
+    createWindow(id,app.name,html,880,620)
+  }
+  function escapeAttr(value=''){return String(value).replace(/&/g,'&amp;').replace(/\"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+  function escapeAttr(value='') { return String(value).replace(/&/g,'&amp;').replace(/\"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+
+  function animateClose(winId) {
+    const w = openWindows[winId];
+    if (!w) return;
+    w.element.classList.add('window-closing');
+    setTimeout(() => {
+      if (openWindows[winId]) {
+        w.element.remove();
+        delete openWindows[winId];
+        document.getElementById(`task_${winId}`)?.remove();
+        if (activeWindowId === winId) {
+          activeWindowId = null;
+          const keys = Object.keys(openWindows);
+          if (keys.length) bringToFront(keys[keys.length-1]);
+        }
+      }
+    }, 160);
+  }
+
+  function animateMinimize(winId) {
+    const w = openWindows[winId];
+    if (!w) return;
+    w.element.classList.add('window-minimizing');
+    setTimeout(() => {
+      if (openWindows[winId]) {
+        w.element.style.display = 'none';
+        w.minimized = true;
+        const btn = document.getElementById(`task_${winId}`);
+        if (btn) btn.style.opacity = '0.6';
+        w.element.classList.remove('window-minimizing');
+      }
+    }, 180);
+  }
+
+  function restoreWindow(winId) {
+    const w = openWindows[winId];
+    if (w && w.minimized) {
+      w.element.style.display = 'flex';
+      w.minimized = false;
+      const btn = document.getElementById(`task_${winId}`);
+      if (btn) btn.style.opacity = '1';
+      bringToFront(winId);
+    } else if (w) bringToFront(winId);
+  }
+
+  function bringToFront(winId) {
+    if (activeWindowId && openWindows[activeWindowId]) openWindows[activeWindowId].element.classList.remove('active');
+    activeWindowId = winId;
+    const w = openWindows[winId];
+    if (w) {
+      w.element.classList.add('active');
+      let maxZ = 200;
+      for (let id in openWindows) {
+        let z = parseInt(openWindows[id].element.style.zIndex) || 100;
+        if (z > maxZ) maxZ = z;
+      }
+      w.element.style.zIndex = maxZ + 1;
+      if (w.minimized) {
+        w.element.style.display = 'flex';
+        w.minimized = false;
+        const btn = document.getElementById(`task_${winId}`);
+        if (btn) btn.style.opacity = '1';
+      }
+    }
+  }
+
+  function minimizeAll() {
+    for (let id in openWindows) {
+      const w = openWindows[id];
+      if (w && !w.minimized && w.element.style.display !== 'none') animateMinimize(id);
+    }
+  }
+
+  function createWindow(appId, title, html, w = 520, h = 380, onLoad = null) {
+    // One window per app: clicking an icon again restores the existing window.
+    const existingId=Object.keys(openWindows).find(k=>{const win=openWindows[k];return win&&win.appId===appId&&win.element&&win.element.isConnected});
+    if(existingId){restoreWindow(existingId);return existingId}
+    // Remove stale window records left after an interrupted/closed launch.
+    Object.keys(openWindows).forEach(k=>{const win=openWindows[k];if(win&&win.appId===appId&&!win.element?.isConnected){delete openWindows[k];document.getElementById(`task_${k}`)?.remove();}});
+    const id = 'win_' + Date.now() + '_' + (++winCounter);
+    const div = document.createElement('div');
+    div.className = 'window';
+    div.id = id;
+    div.style.width = w + 'px';
+    div.style.height = h + 'px';
+    if (!settings.animations) div.style.animation = 'none';
+    div.style.opacity = settings.windowOpacity / 100;
+    const left = 60 + (Object.keys(openWindows).length * 35) % (window.innerWidth - 400);
+    const top = 70 + (Object.keys(openWindows).length * 25) % (window.innerHeight - 300);
+    div.style.left = Math.min(left, window.innerWidth - w - 20) + 'px';
+    div.style.top = Math.min(top, window.innerHeight - h - 80) + 'px';
+
+    const header = document.createElement('div');
+    header.className = 'window-header';
+    header.innerHTML = `<div>${getIcon(appId)} ${title}</div><div class="window-controls"><button class="minimize-btn">─</button><button class="close-btn">✕</button></div>`;
+    const content = document.createElement('div');
+    content.className = 'window-content';
+    content.innerHTML = html;
+    div.appendChild(header);
+    div.appendChild(content);
+    document.getElementById('desktop').appendChild(div);
+    // WR OS 18: in-window app opening splash, never a separate popup.
+    try{
+      const splash=document.createElement('div');
+      splash.className='wr18-app-splash';
+      splash.innerHTML=`<div class="wr18-splash-avatar">${getIcon(appId)}</div><div class="wr18-splash-name">${escapeHtml(title)}</div>`;
+      div.appendChild(splash);
+      setTimeout(()=>{ splash.classList.add('hide'); setTimeout(()=>splash.remove(),260); },1000);
+    }catch(e){}
+
+    header.querySelector('.close-btn').onclick = (e) => { e.stopPropagation(); animateClose(id); };
+    header.querySelector('.minimize-btn').onclick = (e) => { e.stopPropagation(); animateMinimize(id); };
+
+    let drag = false, dx, dy;
+    header.onmousedown = (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      drag = true;
+      dx = e.clientX - div.offsetLeft;
+      dy = e.clientY - div.offsetTop;
+      bringToFront(id);
+      e.preventDefault();
+    };
+    window.onmousemove = (e) => {
+      if (!drag) return;
+      let nx = e.clientX - dx, ny = e.clientY - dy;
+      nx = Math.min(Math.max(0, nx), window.innerWidth - div.offsetWidth - 10);
+      ny = Math.min(Math.max(0, ny), window.innerHeight - 70 - div.offsetHeight);
+      div.style.left = nx + 'px';
+      div.style.top = ny + 'px';
+    };
+    window.onmouseup = () => { drag = false; };
+
+    openWindows[id] = { element: div, appId, title, minimized: false };
+    const taskBtn = document.createElement('div');
+    taskBtn.id = `task_${id}`;
+    taskBtn.className = 'taskbar-app';
+    taskBtn.innerHTML = `${getIcon(appId)} ${title}`;
+    taskBtn.onclick = () => restoreWindow(id);
+    document.getElementById('taskbarIcons').appendChild(taskBtn);
+    bringToFront(id);
+
+    if (onLoad) setTimeout(onLoad, 100);
+    return id;
+  }
+
+  function getIcon(app) {
+    const icons = { explorer:'📁', browser:'🌐', notepad:'📄', store:'🛒', settings:'⚙️', about:'ℹ️', developer:'🧑‍💻', sonne:'🎵', wrb:'🏦', evote:'🗳️' };
+    return icons[app] || '📌';
+  }
+
+  function addInstalledApp(app) {
+    if (getInstalledRecord(app.id)) return false;
+    installedApps.push({ id:app.id, name:app.name, icon:app.icon || '📦', url:app.url || '', html:app.html || '' });
+    saveInstalledApps();
+    renderInstalledApps();
+    notify(`Установка завершена: ${app.name}`, 'Ярлык добавлен на рабочий стол');
+    return true;
+  }
+
+  // ========== ПРИЛОЖЕНИЯ ==========
+  function openExplorer(){let h=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button id="openMainFileBtn" class="dev-btn">📂 Открыть любой файл</button><button id="openFolderBtn" class="dev-btn">💽 Открыть папку/диск</button><button id="refreshExplorerBtn" class="dev-btn">↻ Обновить</button></div><div id="explorerPath" style="font-size:12px;color:#667085;margin-bottom:8px">Компьютер · выберите любой файл или папку для просмотра</div><ul class="file-list" id="fileList">`;files.forEach((f,i)=>h+=`<li data-index="${i}"><span style="font-size:24px">${f.icon||'📄'}</span>${escapeHtml(f.name)}</li>`);h+=`</ul><button id="newFileBtn" class="dev-btn" style="margin-top:15px">+ Новый файл в WR OS</button>`;createWindow('explorer','Проводник',h,760,600,()=>{const openAny=async()=>{
+  try{
+    if(window.showOpenFilePicker){
+      const handles=await window.showOpenFilePicker({multiple:true});
+      for(const handle of handles){const f=await handle.getFile();openMainDeviceFile(f)}
+    }else{
+      const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='*/*';i.onchange=()=>Array.from(i.files||[]).forEach(openMainDeviceFile);i.click();
+    }
+  }catch(e){if(e.name!=='AbortError')notify('Проводник','Не удалось открыть выбранный файл')}
+};document.getElementById('openMainFileBtn').onclick=openAny;document.getElementById('refreshExplorerBtn').onclick=()=>{animateClose('explorer');setTimeout(openExplorer,180)};document.getElementById('openFolderBtn').onclick=async()=>{if(!window.showDirectoryPicker){notify('Проводник','Ваш браузер не поддерживает выбор папки. Используйте «Открыть любой файл».');return}try{const dir=await showDirectoryPicker({mode:'read'});const list=[];async function walk(d,path=''){for await(const [name,handle] of d.entries()){if(handle.kind==='file')list.push({path:path+name,name,handle});else await walk(handle,path+name+'/')}}await walk(dir);renderComputerDirectory(list,dir.name||'Выбранная папка');notify('Проводник',`Найдено файлов: ${list.length}`)}catch(e){if(e.name!=='AbortError')notify('Проводник','Не удалось открыть папку')}};document.querySelectorAll('#fileList li').forEach(x=>x.onclick=()=>openVirtualFile(files[+x.dataset.index]));document.getElementById('newFileBtn').onclick=()=>{const n=prompt('Название файла:');if(n){files.push({name:n.includes('.')?n:n+'.txt',type:'file',icon:'📄',content:''});saveFiles();animateClose('explorer');setTimeout(openExplorer,180)}}})}
+  async function renderComputerDirectory(list,rootName='Компьютер'){const id=Object.keys(openWindows).find(k=>openWindows[k].appId==='explorer');if(!id)return;const c=openWindows[id].element.querySelector('.window-content');c.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:10px"><button id="backComputerBtn" class="dev-btn">← Компьютер</button><button id="openFolderAgainBtn" class="dev-btn">📁 Другая папка</button></div><div style="font-size:12px;color:#667085;margin-bottom:8px">${escapeHtml(rootName)} · ${list.length} файлов</div><ul class="file-list">${list.map((f,i)=>`<li data-ci="${i}">📄 ${escapeHtml(f.path)}</li>`).join('')}</ul>`;c.querySelectorAll('[data-ci]').forEach(el=>el.onclick=async()=>{const f=list[+el.dataset.ci];try{const file=await f.handle.getFile();openMainDeviceFile(file)}catch(e){notify('Проводник','Не удалось открыть файл')}});document.getElementById('backComputerBtn').onclick=()=>{animateClose(id);setTimeout(openExplorer,180)};document.getElementById('openFolderAgainBtn').onclick=()=>{animateClose(id);setTimeout(openExplorer,180);setTimeout(()=>document.getElementById('openFolderBtn')?.click(),240)}}
+  function openVirtualFile(f){if(!f)return;const ext=(f.name||'').split('.').pop().toLowerCase();if(['exe','dmg','msi','app','pkg'].includes(ext)){showNativeFileWindow({name:f.name,icon:ext==='dmg'?'💿':'🧩'});return}if(f.url){openMainDeviceFile({name:f.name,type:f.mime||'',size:0, _virtualUrl:f.url});return}if(f.encoding==='dataurl'&&f.content){openMainDeviceFile({name:f.name,type:f.mime||'',size:f.size||0,_virtualUrl:f.content});return}if(/^image\//.test(f.mime||'')||['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext)){const blob=new Blob([f.content||''],{type:f.mime||'image/*'});openImageViewer(URL.createObjectURL(blob),f.name);return}createWindow('file_'+Date.now(),f.name,`<pre style="white-space:pre-wrap;user-select:text;font-family:monospace;overflow:auto;height:100%">${escapeHtml(f.content||'')}</pre>`,700,520)}
+  function showNativeFileWindow(info){createWindow('main-file-'+Date.now(),info.name,`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center"><div style="font-size:72px">${info.icon||'📦'}</div><div style="font-size:22px;font-weight:700">${escapeHtml(info.name)}</div><div style="color:#667085;margin:8px 0 22px">Приложение с основного устройства</div><button id="openNativeBtn" class="main-file-button">ОТКРЫТЬ В WR FILES+ НА ОСНОВНОМ УСТРОЙСТВЕ</button></div>`,520,400,()=>document.getElementById('openNativeBtn').onclick=()=>{location.href='wrfilesplus://open?name='+encodeURIComponent(info.name)})}
+  async function openMainDeviceFile(file){if(!file)return;try{if(file._virtualUrl){if(/^data:image\//.test(file._virtualUrl)){openImageViewer(file._virtualUrl,file.name||'Изображение');return}window.open(file._virtualUrl,'_blank','noopener');return}const name=file.name||'Файл';const type=file.type||'';const ext=name.includes('.')?name.split('.').pop().toLowerCase():'';const imageType=/^image\//.test(type)||['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext);const mediaType=/^(audio|video)\//.test(type)||['mp3','wav','ogg','m4a','mp4','webm','mov'].includes(ext);if(imageType){openImageViewer(URL.createObjectURL(file),name);return}if(mediaType){const u=URL.createObjectURL(file);const tag=/^audio\//.test(type)||['mp3','wav','ogg','m4a'].includes(ext)?'audio':'video';createWindow('media-'+Date.now(),name,`<div style="height:100%;display:flex;align-items:center;justify-content:center"><${tag} controls autoplay style="max-width:100%;max-height:100%" src="${escapeAttr(u)}"></${tag}></div>`,820,620);return}if(ext==='pdf'||type==='application/pdf'){createWindow('pdf-'+Date.now(),name,`<iframe src="${escapeAttr(URL.createObjectURL(file))}" style="width:100%;height:100%;border:0"></iframe>`,900,680);return}if(ext==='html'||ext==='htm'){const text=await file.text();createWindow('html-'+Date.now(),name,`<iframe sandbox="allow-scripts allow-forms allow-popups" srcdoc="${escapeAttr(text)}" style="width:100%;height:100%;border:0"></iframe>`,900,680);return}if(['txt','md','json','js','css','csv','xml','svg','log','ini','yml','yaml'].includes(ext)||type.startsWith('text/')){const text=await file.text();createWindow('text-'+Date.now(),name,`<pre style="white-space:pre-wrap;user-select:text;font-family:monospace;overflow:auto;height:100%">${escapeHtml(text)}</pre>`,800,580);return}if(['exe','dmg','msi','app','pkg','zip','rar','7z','iso','bin'].includes(ext)){showNativeFileWindow({name,icon:['dmg','iso'].includes(ext)?'💿':'📦'});return}const u=URL.createObjectURL(file);createWindow('unknown-'+Date.now(),name,`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center"><div style="font-size:64px">📄</div><h3>${escapeHtml(name)}</h3><p>Файл найден и открыт в WR Files/Проводнике.</p><p>Тип: ${escapeHtml(type||'не определён')} · Размер: ${(file.size/1024).toFixed(1)} КБ</p><a class="dev-btn" href="${escapeAttr(u)}" download="${escapeAttr(name)}">💾 Сохранить файл</a></div>`,620,420)}catch(e){notify('WR Files','Не удалось открыть файл: '+(e.message||'неизвестная ошибка'))}}
+  function openBrowser(){createWindow('browser','WR Browser',`<div class="browser-bar"><input type="text" class="browser-url" id="browserUrl" value="https://www.google.com/webhp?igu=1" placeholder="Введите URL..."><button class="browser-go" id="browserGo">Перейти</button></div><iframe id="browserFrame" class="browser-frame" src="https://www.google.com/webhp?igu=1"></iframe>`,900,650,()=>{const i=document.getElementById('browserUrl'),b=document.getElementById('browserGo'),f=document.getElementById('browserFrame');i.readOnly=false;i.disabled=false;i.style.userSelect='text';i.onclick=e=>e.stopPropagation();i.onkeydown=e=>{if(e.key==='Enter')b.click()};b.onclick=()=>{let u=i.value.trim();if(!u)return;if(!/^https?:\/\//i.test(u))u='https://'+u;i.value=u;f.src=u}})}
+
+  function openNotepad(){createWindow('notepad','Блокнот',`<textarea id="notepadTextarea" style="width:100%;height:280px;border-radius:12px;padding:12px;font-family:monospace;border:1px solid #ccc;user-select:text">${escapeHtml(notepadContent)}</textarea><div style="display:flex;gap:10px;margin-top:12px"><button id="saveNotepadBtn" class="dev-btn">💾 Сохранить в WR OS</button><button id="saveNotepadFileBtn" class="dev-btn">📄 Сохранить в Документы</button><button id="clearNotepadBtn" class="dev-btn">🗑️ Очистить</button></div>`,550,420,()=>{const t=document.getElementById('notepadTextarea');document.getElementById('saveNotepadBtn').onclick=()=>{notepadContent=t.value;localStorage.setItem(userPrefix()+'notepadContent',notepadContent);notify('Блокнот','Сохранено в WR OS')};document.getElementById('saveNotepadFileBtn').onclick=async()=>{try{if(!window.showSaveFilePicker){notify('Блокнот','Нужен браузер с File System Access API');return}const h=await showSaveFilePicker({suggestedName:'Новая заметка.txt',startIn:'documents',types:[{description:'Текстовый файл',accept:{'text/plain':['.txt']}}]});const w=await h.createWritable();await w.write(t.value);await w.close();notify('Блокнот','Файл сохранён в Документы')}catch(e){if(e.name!=='AbortError')notify('Блокнот','Не удалось сохранить файл')}};document.getElementById('clearNotepadBtn').onclick=()=>t.value=''})}
+
+  function openWebApp(id,title,url){
+  const html=`<div style="height:100%;display:flex;flex-direction:column;background:#111">
+    <div style="display:flex;gap:8px;align-items:center;padding:8px;background:#20242a;border-bottom:1px solid #3a4048;flex-shrink:0">
+      <button id="webOpenExternal" class="dev-btn">↗ Открыть сайт</button>
+      <div style="flex:1;min-width:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#cfd5dd">${escapeHtml(url)}</div>
+    </div>
+    <iframe src="${escapeAttr(url)}" style="width:100%;height:100%;border:0;background:#111" allow="fullscreen"></iframe>
+  </div>`;
+  createWindow(id,title,html,900,650,()=>{
+    const b=document.getElementById('webOpenExternal');
+    if(b)b.onclick=()=>{const w=window.open(url,'_blank','noopener');if(!w)location.href=url;};
+  });
+}
+  function openCalculator(){const bs=['7','8','9','÷','4','5','6','×','1','2','3','−','0','.','√','+','x²','x³','(',')','⌫','='];createWindow('calculator','WR Calculator',`<input id="calcDisplay" class="calc-display" readonly><div class="calc-grid">${bs.map(x=>`<button data-calc="${x}">${x}</button>`).join('')}</div>`,430,520,()=>{const d=document.getElementById('calcDisplay');document.querySelectorAll('[data-calc]').forEach(b=>b.onclick=()=>{let x=b.dataset.calc;if(x==='⌫')d.value=d.value.slice(0,-1);else if(x==='='){try{let e=d.value.replaceAll('×','*').replaceAll('÷','/').replace(/√(\d+(?:\.\d+)?)/g,'Math.sqrt($1)').replace(/(\d+(?:\.\d+)?)²/g,'($1**2)').replace(/(\d+(?:\.\d+)?)³/g,'($1**3)');d.value=String(Function('return '+e)())}catch{d.value='Ошибка'}}else d.value+=x})})}
+  function openTerminal(){createWindow('terminal','WR Terminal',`<div class="terminal-output" id="termOut">WR Terminal 1.8
+Введите help для списка команд.
+</div><input class="terminal-input" id="termIn" placeholder="wr@os:~$ ...">`,760,540,()=>{const o=document.getElementById('termOut'),i=document.getElementById('termIn'),p=t=>{o.textContent+=t+'\n';o.scrollTop=o.scrollHeight};const run=q=>{const a=q.trim().split(/\s+/),c=(a.shift()||'').toLowerCase(),rest=a.join(' ');if(c==='help'||c==='info')return p('help / info — команды\nopen <app> — открыть приложение\ninstall wallet — установить WR Wallet\ninstall wros 27 — установить WR OS 27\ndeinstall <app> — удалить приложение\napps — установленные приложения\ndate — дата\ntime — время\nwhoami — пользователь\nls — файлы\necho <текст> — вывод текста\ncalc <выражение> — расчёт\ntheme dark|light — тема');if(c==='clear'){o.textContent='';return}if(c==='open'){if(rest==='wallet'){openWallet();return}if(rest==='wros 27'||rest==='wros27'){openWros27();return}launch(rest);return}if(c==='install'){if(rest==='wallet'){addInstalledApp({id:'wallet',name:'WR Wallet',icon:'💳'});return}if(rest==='wros 27'||rest==='wros27'){addInstalledApp({id:'wros27',name:'WR OS 27',icon:'⬡'});return}return p('Доступны: wallet, wros 27')}if(c==='deinstall'){if(!wr18Deinstall(rest))p('Приложение не найдено');return}if(c==='apps')return p(installedApps.map(x=>x.name).join('\n')||'Нет приложений');if(c==='date')return p(new Date().toLocaleDateString('ru-RU'));if(c==='time')return p(new Date().toLocaleTimeString('ru-RU'));if(c==='whoami')return p((users.find(u=>u.id===currentUserId)||users[0]).name);if(c==='ls')return p(files.map(x=>x.name).join('\n')||'Пусто');if(c==='echo')return p(rest);if(c==='calc'){try{return p(String(Function('return '+rest)()))}catch{return p('Ошибка вычисления')}}if(c==='theme'){settings.theme=a[0]==='dark'?'dark':'light';saveSettings();applySettings();return p('Тема: '+settings.theme)}p('Неизвестная команда. Введите help.')};i.onkeydown=e=>{if(e.key==='Enter'){p('wr@os:~$ '+i.value);run(i.value);i.value=''}};i.focus()})}
+  function openImageViewer(url,name){createWindow('photo-'+Date.now(),'WR Photos — '+name,`<div style="height:100%;display:flex;flex-direction:column;align-items:center;gap:8px"><input id="photoZoom" type="range" min="50" max="200" value="100" style="width:260px"><span id="photoZoomLabel">100%</span><div style="flex:1;width:100%;overflow:auto;text-align:center"><img id="photoImg" src="${escapeAttr(url)}" style="max-width:100%;transform:scale(1);transform-origin:center"></div></div>`,760,620,()=>{const r=document.getElementById('photoZoom'),im=document.getElementById('photoImg'),lab=document.getElementById('photoZoomLabel');r.oninput=()=>{im.style.transform='scale('+r.value/100+')';lab.textContent=r.value+'%'}})}
+  function openPhotos(){createWindow('photos','WR Photos',`<button id="photoPick" class="dev-btn">🖼️ Открыть изображение с компьютера</button><div id="photoArea" style="margin-top:12px"></div>`,700,540,()=>document.getElementById('photoPick').onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(f)openImageViewer(URL.createObjectURL(f),f.name)};i.click()})}
+  function addComputerFilesToWRFiles(){
+  const i=document.createElement('input');i.type='file';i.multiple=true;i.accept='*/*';
+  i.onchange=async()=>{
+    for(const f of Array.from(i.files||[])){
+      if(f.size<=8*1024*1024){
+        const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
+        files.push({name:f.name,type:'file',mime:f.type,icon:'📄',content:data,encoding:'dataurl',size:f.size});
+      }else files.push({name:f.name,type:'file',mime:f.type,icon:'📄',content:'',size:f.size,externalOnly:true});
+    }
+    saveFiles();notify('WR Files','Файлы с компьютера добавлены');openFilesApp();
+  };i.click();
+}
+
+function openFilesApp(){createWindow('files','WR Files',`<div style="display:flex;gap:8px;flex-wrap:wrap"><button id="fa" class="dev-btn">📥 Добавить файлы</button><button id="fc" class="dev-btn">💻 С компьютера</button><button id="fx" class="dev-btn">📦 Экспорт JSON</button><label class="dev-btn">📤 Импорт JSON<input id="fi" type="file" accept="application/json" style="display:none"></label></div><div id="fl" style="margin-top:14px"></div>`,760,600,()=>{const render=()=>{const fileRows=files.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:9px;border-bottom:1px solid #ddd"><span style="font-size:22px">${f.icon||'📄'}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis">${escapeHtml(f.name)}</span><button class="dev-btn" data-open-file="${i}">Открыть</button></div>`).join('');const appRows=installedApps.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:9px;border-bottom:1px solid #ddd"><span style="font-size:22px">${a.icon||'📦'}</span><span style="flex:1">${escapeHtml(a.name)}</span><button class="dev-btn" data-open-app="${escapeAttr(a.id)}">Запустить</button></div>`).join('');document.getElementById('fl').innerHTML='<h3>Файлы</h3>'+(fileRows||'<div>Нет файлов</div>')+'<h3 style="margin-top:16px">Приложения</h3>'+(appRows||'<div>Нет приложений</div>');document.querySelectorAll('[data-open-file]').forEach(b=>b.onclick=()=>openVirtualFile(files[+b.dataset.openFile]));document.querySelectorAll('[data-open-app]').forEach(b=>b.onclick=()=>launchInstalledApp(b.dataset.openApp))};render();document.getElementById('fa').onclick=()=>{const i=document.createElement('input');i.type='file';i.multiple=true;i.onchange=async()=>{for(const f of i.files){if(f.size<=8*1024*1024){const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});files.push({name:f.name,type:'file',mime:f.type,icon:'📄',content:data,encoding:'dataurl',size:f.size})}else{files.push({name:f.name,type:'file',mime:f.type,icon:'📄',content:'',size:f.size,externalOnly:true})}}saveFiles();render();notify('WR Files','Файлы добавлены и доступны для открытия')};i.click()};document.getElementById('fc').onclick=()=>{addComputerFilesToWRFiles();};document.getElementById('fx').onclick=()=>{const blob=new Blob([JSON.stringify({version:3,files,installedApps,customApps},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wr-files.json';a.click()};document.getElementById('fi').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d.files)){files=d.files;saveFiles()}if(Array.isArray(d.installedApps)){installedApps=d.installedApps;saveInstalledApps()}if(Array.isArray(d.customApps)){customApps=d.customApps;saveCustomApps()}renderInstalledApps();render();notify('WR Files','Импорт завершён')}catch{notify('WR Files','Неверный JSON')}};r.readAsText(f)}})}
+  function openAbout() {
+    createWindow('about','О системе','<div style="text-align:center"><h2>WR OS+</h2><p>Версия 18<br>✅ 8 цветных градиентов обоев<br>✅ Загрузка своих обоев<br>✅ Проводник с файлами<br>✅ Браузер<br>✅ Множество настроек<br>Основное разрешение файлов: .yrs</p></div>',450,320);
+  }
+
+  function openStore() {
+    const apps = [
+      {id:'wrb',name:'WRB',icon:'🏦',url:'https://haorik.ru/bank',desc:'Онлайн-банкинг'},
+      {id:'evote',name:'WR eVote',icon:'🗳️',url:'https://haorik.ru/vote',desc:'Электронное голосование'},
+      {id:'developer',name:'WR Developer',icon:'🧑‍💻',url:'',desc:'Публикация приложений в WR Store Sandbox'},
+      {id:'browser2',name:'WR Browser',icon:'🌐',url:'https://www.google.com',desc:'Браузер нового поколения'},
+      {id:'mail',name:'WR Mail',icon:'✉️',url:'https://mails.org/ru/',desc:'Почта'},
+      {id:'notes',name:'WR Notes',icon:'📝',url:'',desc:'Заметки и быстрые записи'},
+      {id:'weather',name:'WR Weather',icon:'🌤️',url:'',desc:'Погода'},
+      {id:'music',name:'WR Music',icon:'🎧',url:'',desc:'Музыка и плейлисты'},
+      {id:'files',name:'WR Files',icon:'🗂️',url:'',desc:'Файловый менеджер'},
+      {id:'photos',name:'WR Photos',icon:'🖼️',url:'',desc:'Галерея изображений'},
+      {id:'calendar',name:'WR Calendar',icon:'📅',url:'',desc:'Календарь'},
+      {id:'calculator',name:'WR Calculator',icon:'🧮',url:'',desc:'Калькулятор'},
+      {id:'terminal',name:'WR Terminal',icon:'⌨️',url:'',desc:'Терминал WR OS'},
+      {id:'store-games',name:'WR Games',icon:'🎮',url:'',desc:'Игровой центр'}
+    ];
+    const allApps = apps.concat(customApps.filter(a=>a.status==='approved'));
+    let cardsHtml = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div><h3>WR Store</h3><div style="font-size:12px;color:#667085">${allApps.length} приложений</div></div></div><div class="store-grid">`;
+    allApps.forEach(app => {
+      const installed = !!getInstalledRecord(app.id);
+      cardsHtml += `<div class="store-card" data-id="${escapeAttr(app.id)}"><div class="store-icon">${app.icon||'📦'}</div><h4>${escapeHtml(app.name)}</h4><p style="font-size:12px;">${escapeHtml(app.desc||'Приложение')}</p><div class="install-progress" style="margin-top:8px">${installed?'✓ Установлено':'Нажмите для установки'}</div></div>`;
+    });
+    cardsHtml += `</div>`;
+    createWindow('store','Магазин приложений',cardsHtml,720,600,()=>{
+      document.querySelectorAll('.store-card').forEach(card=>{
+        card.onclick=()=>{
+          const app=allApps.find(a=>a.id===card.dataset.id);
+          if(!app || getInstalledRecord(app.id)) return;
+          const progress=card.querySelector('.install-progress');
+          progress.innerHTML='<span class="store-loading"><span class="store-spinner"></span> Установка…</span>';
+          card.style.pointerEvents='none';
+          setTimeout(()=>{ progress.textContent='✓ Установлено'; addInstalledApp(app); },5000);
+        };
+      });
+    });
+  }
+
+  function openDeveloper() {
+    const user=localStorage.getItem('wrAuthUser');
+    if(!user){
+      const html=`<div style="text-align:center;max-width:430px;margin:20px auto"><div style="font-size:58px">🧑‍💻</div><h2>WR Developer</h2><p style="color:#667085;margin:8px 0 22px">Публикуйте HTML-приложения в WR Store Sandbox.</p><input id="wrAuthName" class="dev-input" placeholder="Имя пользователя"><button id="wrAuthBtn" class="dev-btn" style="margin-top:12px">Войти с помощью WR OS Auth+</button></div>`;
+      createWindow('developer','WR Developer',html,700,560,()=>{
+        document.getElementById('wrAuthBtn').onclick=()=>{ const name=document.getElementById('wrAuthName').value.trim() || 'WR Developer'; localStorage.setItem('wrAuthUser',name); notify('WR OS Auth+','Пользователь зарегистрирован'); const id=Object.keys(openWindows).find(k=>openWindows[k].appId==='developer'); if(id) animateClose(id); setTimeout(openDeveloper,180); };
+      });
+      return;
+    }
+    let html=`<div class="developer-shell"><div style="display:flex;justify-content:space-between;align-items:center"><div><h2>Мои приложения</h2><p style="font-size:12px;color:#667085">Аккаунт: ${escapeHtml(user)}</p></div><button id="devAddBtn" class="dev-plus">+</button></div>`;
+    const mine=customApps.filter(a=>a.owner===user);
+    if(!mine.length) html+=`<div class="developer-card"><div class="developer-icon">📦</div><div><strong>У вас пока нет приложений</strong><div style="font-size:12px;color:#667085">Нажмите +, чтобы создать приложение.</div></div></div>`;
+    mine.forEach(app=>{ html+=`<div class="developer-card"><div class="developer-icon">${app.icon||'📦'}</div><div style="flex:1"><strong>${escapeHtml(app.name)}</strong><div style="font-size:12px;color:#667085">${escapeHtml(app.packageName)} · ${app.status==='moderating'?'⏳ На модерации':'✓ Одобрено'}</div></div>${app.status==='approved'?'<button class="dev-btn" data-install="'+escapeAttr(app.id)+'">Установить</button>':''}</div>`; });
+    html+='</div>';
+    createWindow('developer','WR Developer',html,700,560,()=>{
+      document.getElementById('devAddBtn').onclick=()=>openDeveloperCreate();
+      document.querySelectorAll('[data-install]').forEach(btn=>btn.onclick=()=>{const app=customApps.find(a=>a.id===btn.dataset.install); if(app){addInstalledApp(app); btn.textContent='Установлено'; btn.disabled=true;}});
+    });
+  }
+
+  function openDeveloperCreate(){
+    const html=`<div class="developer-shell"><h2>Новое приложение</h2><label>HTML-файл<input id="devFile" class="dev-input" type="file" accept=".html,text/html"></label><label>Или вставьте HTML-код<textarea id="devCode" class="dev-textarea" placeholder="<!DOCTYPE html>..."></textarea></label><label>Название<input id="devName" class="dev-input" placeholder="Например: WR Calculator"></label><label>Аватарка<input id="devIcon" class="dev-input" type="file" accept="image/*"></label><label>Имя пакета<input id="devPackage" class="dev-input" placeholder="com.wr.myapp"></label><button id="devSubmit" class="dev-btn">Отправить на модерацию</button></div>`;
+    createWindow('developer-create','Публикация приложения',html,650,680,()=>{
+      const fileInput=document.getElementById('devFile'), iconInput=document.getElementById('devIcon');
+      fileInput.onchange=()=>{const f=fileInput.files[0]; if(f){const r=new FileReader(); r.onload=()=>document.getElementById('devCode').value=r.result; r.readAsText(f);}};
+      document.getElementById('devSubmit').onclick=()=>{
+        const name=document.getElementById('devName').value.trim(); const pkg=document.getElementById('devPackage').value.trim(); const code=document.getElementById('devCode').value.trim();
+        if(!name||!pkg||!code){notify('WR Developer','Заполните название, имя пакета и HTML-код');return;}
+        const finish=icon=>{
+          const app={id:'custom_'+Date.now(),name,packageName:pkg,icon:icon||'📦',html:code,owner:localStorage.getItem('wrAuthUser'),status:'moderating',moderationEndsAt:Date.now()+23000};
+          customApps.push(app); saveCustomApps(); notify('Модерация','Ваше приложение проходит модерацию, пожалуйста подождите.');
+          const win=Object.keys(openWindows).find(k=>openWindows[k].appId==='developer-create'); if(win) animateClose(win);
+          setTimeout(()=>{ const i=customApps.findIndex(a=>a.id===app.id); if(i>=0){customApps[i].status='approved'; customApps[i].moderationEndsAt=null; saveCustomApps(); notify('Модерация завершена','Ваше приложение прошло модерацию в WR Store Sandbox. Теперь вы можете его установить.'); } },23000);
+        };
+        if(iconInput.files[0]){const r=new FileReader(); r.onload=()=>finish(r.result); r.readAsDataURL(iconInput.files[0]);} else finish('📦');
+      };
+    });
+  }
+
+  function openSettings() {
+    createWindow('settings', 'Параметры системы', `
+      <div class="settings-section">
+        <h4>🎨 Обои рабочего стола</h4>
+        <div class="wallpaper-preview">
+          <div class="wallpaper-option" data-wall="gradient1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient2" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient4" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient5" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient6" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient7" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);"></div>
+          <div class="wallpaper-option" data-wall="gradient8" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></div>
+        </div>
+        <div class="setting-row">
+          <span>🌈 Свой цвет/градиент:</span>
+          <input type="color" id="customColorPicker" class="color-input" value="#667eea">
+          <button id="applyCustomBtn" style="background:#2b5f9e; color:white; border:none; border-radius:20px; padding:5px 12px;">Применить</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h4>⚙️ Внешний вид</h4>
+        <div class="setting-row"><span>✨ Анимации окон</span><div id="animToggle" class="toggle-switch ${settings.animations ? 'active' : ''}"></div></div>
+        <div class="setting-row"><span>🌀 Размытие панели задач</span><div id="blurToggle" class="toggle-switch ${settings.taskbarBlur ? 'active' : ''}"></div></div>
+        <div class="setting-row"><span>📐 Прозрачность окон</span><input type="range" id="opacitySlider" min="50" max="100" value="${settings.windowOpacity}" class="slider"></div>
+      </div>
+      <div class="settings-section">
+        <h4>👤 Пользователь и данные</h4>
+        <div style="font-size:12px;color:#667085;margin-bottom:10px">Текущий профиль: ${escapeHtml((users.find(u=>u.id===currentUserId)||users[0]).name)}</div>
+        <button id="exportDataBtn" class="dev-btn">📦 Экспортировать данные</button>
+        <label style="display:inline-block"><input id="importDataInput" type="file" accept="application/json" style="display:none"><span class="dev-btn" style="display:inline-block">📥 Импортировать</span></label>
+        <button id="resetUserBtn" style="background:#b42318;color:white;border:none;border-radius:30px;padding:6px 16px;margin:5px">♻️ Заново настроить</button>
+        <button id="deleteUserBtn" style="background:#777;color:white;border:none;border-radius:30px;padding:6px 16px;margin:5px">🗑️ Удалить пользователя</button>
+      </div>
+      <div class="settings-section">
+        <h4>🔐 Коды настроек</h4>
+        <div style="font-size:12px;color:#667085;margin-bottom:8px">Введите специальный код, чтобы применить скрытый набор настроек.</div>
+        <div style="display:flex;gap:8px"><input id="settingsCodeInput" class="dev-input" placeholder="Код настроек" style="flex:1"><button id="applySettingsCode" class="dev-btn">Применить</button></div>
+      </div>
+      <div class="settings-section"><h4>🌓 Тема WR OS</h4><div class="setting-row"><span>Режим</span><select id="themeSelect" class="dev-input"><option value="light">Светлая</option><option value="dark">Тёмная</option></select></div></div>
+      <div class="settings-section">
+        <h4>🛠️ Действия</h4>
+        <button id="minAllBtn" style="background:#2b5f9e; color:white; border:none; border-radius:30px; padding:6px 16px; margin:5px;">📌 Свернуть все окна</button>
+        <button id="fullScrBtn" style="background:#2b5f9e; color:white; border:none; border-radius:30px; padding:6px 16px; margin:5px;">⛶ Полный экран</button>
+        <button id="resetSettingsBtn" style="background:#999; color:white; border:none; border-radius:30px; padding:6px 16px; margin:5px;">🔄 Сбросить настройки</button>
+      </div>
+    `, 580, 600, () => {
+      const ts=document.getElementById('themeSelect'); ts.value=settings.theme||'light'; ts.onchange=e=>{settings.theme=e.target.value;saveSettings();applySettings();};
+      document.querySelectorAll('.wallpaper-option').forEach(opt => {
+        opt.onclick = () => setWallpaper(opt.dataset.wall);
+      });
+
+      document.getElementById('applyCustomBtn').onclick = () => {
+        const color = document.getElementById('customColorPicker').value;
+        setWallpaper('custom', color);
+      };
+
+      const animToggle = document.getElementById('animToggle');
+      animToggle.onclick = () => {
+        settings.animations = !settings.animations;
+        saveSettings();
+        animToggle.classList.toggle('active', settings.animations);
+        applySettings();
+      };
+
+      const blurToggle = document.getElementById('blurToggle');
+      blurToggle.onclick = () => {
+        settings.taskbarBlur = !settings.taskbarBlur;
+        saveSettings();
+        blurToggle.classList.toggle('active', settings.taskbarBlur);
+        applySettings();
+      };
+
+      const opacitySlider = document.getElementById('opacitySlider');
+      opacitySlider.oninput = (e) => {
+        settings.windowOpacity = e.target.value;
+        saveSettings();
+        document.querySelectorAll('.window').forEach(w => w.style.opacity = settings.windowOpacity / 100);
+      };
+
+      document.getElementById('exportDataBtn').onclick = () => {
+        const prefix=userPrefix(); const data={version:1,user:users.find(u=>u.id===currentUserId),settings,wallpaperType:localStorage.getItem(prefix+'wallpaperType')||localStorage.getItem('wallpaperType'),customWallpaper:localStorage.getItem(prefix+'customWallpaper')||localStorage.getItem('customWallpaper'),notepadContent,files,installedApps,customApps};
+        const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='wr-os-user-data.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+        notify('WR OS','Данные пользователя экспортированы');
+      };
+      document.getElementById('importDataInput').onchange=e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{const d=JSON.parse(r.result); if(d.settings)localStorage.setItem(userPrefix()+'settings',JSON.stringify(d.settings)); if(typeof d.notepadContent==='string')localStorage.setItem(userPrefix()+'notepadContent',d.notepadContent); if(d.files)localStorage.setItem(userPrefix()+'userFiles',JSON.stringify(d.files)); if(d.installedApps)localStorage.setItem(userPrefix()+'installedApps',JSON.stringify(d.installedApps)); if(d.customApps)localStorage.setItem(userPrefix()+'customApps',JSON.stringify(d.customApps)); if(d.wallpaperType)localStorage.setItem(userPrefix()+'wallpaperType',d.wallpaperType); if(d.customWallpaper)localStorage.setItem(userPrefix()+'customWallpaper',d.customWallpaper); notify('WR OS','Данные импортированы'); setTimeout(()=>location.reload(),500);}catch(err){notify('WR OS','Не удалось импортировать файл');}}; r.readAsText(f); };
+      document.getElementById('resetUserBtn').onclick=()=>{ if(confirm('Сбросить настройки и сохранения текущего пользователя?')){ const keep=['wrUsers','wrCurrentUserId']; Object.keys(localStorage).filter(k=>k.startsWith(userPrefix())).forEach(k=>localStorage.removeItem(k)); localStorage.removeItem('wallpaperType'); localStorage.removeItem('customWallpaper'); notify('WR OS','Профиль сброшен'); setTimeout(()=>location.reload(),500); } };
+      document.getElementById('deleteUserBtn').onclick=()=>{ if(users.length===1){notify('WR OS','Нельзя удалить единственного пользователя');return;} users=users.filter(u=>u.id!==currentUserId); localStorage.setItem('wrUsers',JSON.stringify(users)); currentUserId=users[0].id; localStorage.setItem('wrCurrentUserId',currentUserId); location.reload(); };
+      document.getElementById('applySettingsCode').onclick=()=>{ const code=document.getElementById('settingsCodeInput').value.trim(); if(code==='29102011'){ settings.animations=true; settings.taskbarBlur=true; settings.windowOpacity=92; saveSettings(); setWallpaper('secret29102011'); addInstalledApp({id:'developer',name:'WR Developer',icon:'🧑‍💻'}); addInstalledApp({id:'store-games',name:'WR Games',icon:'🎮'}); addInstalledApp({id:'photos',name:'WR Photos',icon:'🖼️'}); applySettings(); notify('Код применён','Скрытый тёмно-зелёно-синий режим активирован'); } else notify('Код настроек','Неизвестный код'); };
+      document.getElementById('minAllBtn').onclick = () => minimizeAll();
+      document.getElementById('fullScrBtn').onclick = () => document.documentElement.requestFullscreen();
+      document.getElementById('resetSettingsBtn').onclick = () => {
+        settings = { animations: true, taskbarBlur: true, windowOpacity: 98 };
+        saveSettings();
+        applySettings();
+        location.reload();
+      };
+    });
+  }
+
+  function launch(app){
+    // Built-in apps always win over an installed record with the same id.
+    const acts={
+      explorer:()=>{try{openExplorer()}catch(e){console.error('WR Explorer launch error:',e);notify('Проводник','Не удалось запустить Проводник: '+(e.message||'ошибка'))}},
+      browser:openBrowser,
+      notepad:openNotepad,
+      store:openStore,
+      settings:openSettings,
+      about:openAbout,
+      developer:openDeveloper,
+      calculator:openCalculator,
+      terminal:openTerminal,
+      photos:openPhotos,
+      files:openFilesApp,
+      weather:()=>openWebApp('weather','WR Weather','https://www.gismeteo.ru/'),
+      music:()=>openWebApp('music','WR Music','https://zvuch.com/'),
+      mail:()=>openWebApp('mail','WR Mail','https://mails.org/ru/')
+    };
+    if(acts[app]){acts[app]();closeStart();return}
+    if(getInstalledRecord(app)){launchInstalledApp(app);closeStart();return}
+    closeStart()
+  }
+
+  // ========== ЗАПУСК И ПОЛЬЗОВАТЕЛИ ==========
+  function renderUsers(){ const grid=document.getElementById('userGrid'); grid.innerHTML=''; users.forEach(u=>{ const el=document.createElement('div'); el.className='user-card'; el.innerHTML=`<div class="user-avatar">${u.avatar||'👤'}</div><strong>${escapeHtml(u.name)}</strong>`; el.onclick=()=>switchUser(u.id); grid.appendChild(el); }); const add=document.createElement('div'); add.className='user-card user-add'; add.innerHTML='<div class="user-avatar">＋</div><strong>Добавить пользователя</strong>'; add.onclick=()=>{const name=prompt('Имя нового пользователя:'); if(name&&name.trim()){const id='u_'+Date.now(); users.push({id,name:name.trim(),avatar:'👤'}); localStorage.setItem('wrUsers',JSON.stringify(users)); switchUser(id);}}; grid.appendChild(add); }
+  function startBoot(){
+    const boot=document.getElementById('bootScreen');
+    const userScreen=document.getElementById('userScreen');
+    const desktop=document.getElementById('desktop');
+    const selected=sessionStorage.getItem('wrBootSelected')==='1';
+    const finish=()=>{ try {
+      boot.classList.add('hidden');
+      if(selected){ sessionStorage.removeItem('wrBootSelected'); userScreen.classList.remove('show'); desktop.style.display='block'; }
+      else { renderUsers(); userScreen.classList.add('show'); }
+    } catch(e) { console.error('WR OS startup error:',e); boot.classList.add('hidden'); userScreen.classList.remove('show'); desktop.style.display='block'; } };
+    setTimeout(finish,1700);
+    setTimeout(()=>{ if(boot && !boot.classList.contains('hidden')) finish(); },3500);
+  }
+  // ========== UI ==========
+  function closeStart() { document.getElementById('startMenu').classList.add('hidden'); startOpen = false; }
+  let startOpen = false;
+  document.getElementById('startButton').onclick = (e) => {
+    e.stopPropagation();
+    startOpen = !startOpen;
+    document.getElementById('startMenu').classList.toggle('hidden', !startOpen);
+  };
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#startMenu') && !e.target.closest('#startButton') && startOpen) closeStart();
+  });
+  document.querySelectorAll('.start-app-item').forEach(el => el.onclick = () => launch(el.dataset.app));
+  initDesktopIcons();
+  renderInstalledApps();
+  document.getElementById('showDesktopBtn').onclick = () => minimizeAll();
+  document.getElementById('fullscreenBtn').onclick = () => document.documentElement.requestFullscreen();
+
+  function tick() {
+    const d = new Date();
+    document.getElementById('clock').innerHTML = d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'}) + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+  setInterval(tick, 1000);
+  tick();
+  applySettings();
+  renderInstalledApps();
+  customApps.filter(a=>a.status==='moderating').forEach(app=>{
+    const left=Math.max(0, (app.moderationEndsAt||0)-Date.now());
+    if(left===0){app.status='approved'; app.moderationEndsAt=null; saveCustomApps();}
+    else setTimeout(()=>{const i=customApps.findIndex(x=>x.id===app.id); if(i>=0){customApps[i].status='approved'; customApps[i].moderationEndsAt=null; saveCustomApps(); notify('Модерация завершена','Ваше приложение прошло модерацию в WR Store Sandbox. Теперь вы можете его установить.');}},left);
+  });
+
+  startBoot();
+
+  setTimeout(() => {
+    if (Object.keys(openWindows).length === 0) {
+      createWindow('welcome', 'Добро пожаловать', `
+        <div style="text-align:center">
+          <h2>🎉WR OS Pro</h2>
+          <p>✓ 8 цветных градиентов обоев<br>✓ Загрузка своих цветов<br>✓ Проводник с файлами<br>✓ Браузер<br>✓ Множество настроек<br>Скоро тотальное обновление</p>
+          <button id="closeWelcomeBtn" style="background:#2b5f9e; color:white; border:none; border-radius:40px; padding:8px 24px; margin-top:12px;">Начать</button>
+        </div>
+      `, 480, 360);
+      setTimeout(() => {
+        const btn = document.getElementById('closeWelcomeBtn');
+        if (btn) btn.onclick = () => { const w = Object.keys(openWindows).find(k => openWindows[k].appId === 'welcome'); if (w) animateClose(w); };
+      }, 50);
+    }
+  }, 200);
+
+/* ==================== WR OS+ v18 GLOBAL UPDATE ==================== */
+(function(){
+  'use strict';
+
+  const WR18_GOOGLE='https://www.google.com/webhp?igu=1';
+  const WR18_CALC='https://web2.0calc.com/widgets/minimal/?options=%7B%22options%3A%22hide%22%2C%22angular%22%3A%22deg%22%2C%22menu%22%3A%22show%22%7D';
+  const WR18_SYS='wr18_system_disabled';
+
+  // --- Best-effort browser protection ---
+  document.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();return false},true);
+  document.addEventListener('dragstart',e=>{if(e.target.closest?.('a,img'))e.preventDefault()},true);
+  document.addEventListener('keydown',e=>{
+    const k=String(e.key).toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&['s','u'].includes(k)){e.preventDefault();e.stopPropagation();}
+    if(e.key==='F12'){e.preventDefault();e.stopPropagation();}
+  },true);
+
+  // --- System Easter egg/recovery ---
+  function wr18ApplySystem(){
+    const d=document.getElementById('desktop'), tb=document.querySelector('.taskbar');
+    if(!d)return;
+    if(sessionStorage.getItem(WR18_SYS)==='1'){
+      d.style.background='#000';
+      d.style.backgroundImage='none';
+      if(tb)tb.style.display='none';
+      d.querySelectorAll('.desktop-icon .icon-img').forEach(x=>x.style.visibility='hidden');
+    }
+  }
+  function wr18RestoreSystem(){
+    sessionStorage.removeItem(WR18_SYS);
+    location.reload();
+  }
+  window.install=function(target,version){
+    if(String(target).toLowerCase()==='system' && String(version).toLowerCase()==='v17'){
+      wr18RestoreSystem(); return 'WR OS system v17 restored';
+    }
+    return 'Unknown installation target';
+  };
+  window.installSystemV17=wr18RestoreSystem;
+  function wr18Deinstall(id){
+    id=String(id||'').trim();
+    if(!id)return false;
+    if(id.toLowerCase()==='system'){
+      sessionStorage.setItem(WR18_SYS,'1');
+      Object.keys(openWindows||{}).forEach(k=>{try{animateClose(k)}catch(e){}});
+      setTimeout(wr18ApplySystem,180);
+      return true;
+    }
+    const app=installedApps.find(a=>String(a.id).toLowerCase()===id.toLowerCase() || String(a.name||'').toLowerCase()===id.toLowerCase());
+    if(!app)return false;
+    installedApps=installedApps.filter(a=>a.id!==app.id);
+    saveInstalledApps();
+    renderInstalledApps();
+    notify('WR Terminal',app.name+' удалено');
+    return true;
+  }
+  window.wr18Deinstall=wr18Deinstall;
+
+  // --- Better non-gradient local wallpapers ---
+  const WR18_WALLPAPERS={
+    forest:"linear-gradient(rgba(0,20,16,.15),rgba(0,0,0,.25)),url(\"data:image/svg+xml;charset=utf-8,"+
+      encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#061c18'/><stop offset='.45' stop-color='#164c3d'/><stop offset='1' stop-color='#061018'/></linearGradient><filter id='b'><feGaussianBlur stdDeviation='22'/></filter></defs><rect width='100%' height='100%' fill='url(#g)'/><circle cx='250' cy='230' r='170' fill='#55c9aa' opacity='.13' filter='url(#b)'/><circle cx='1200' cy='600' r='260' fill='#2b9e76' opacity='.14' filter='url(#b)'/><path d='M0 760 Q300 600 600 760 T1200 740 T1700 700 V1000 H0Z' fill='#03110e' opacity='.75'/></svg>")+")",
+    aurora:"linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.2)),url(\"data:image/svg+xml;charset=utf-8,"+
+      encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000'><defs><radialGradient id='a'><stop stop-color='#5ee7d0' stop-opacity='.7'/><stop offset='1' stop-color='#07111f' stop-opacity='0'/></radialGradient><filter id='b'><feGaussianBlur stdDeviation='45'/></filter></defs><rect width='100%' height='100%' fill='#07111f'/><ellipse cx='400' cy='300' rx='500' ry='180' fill='url(#a)' transform='rotate(-18 400 300)' filter='url(#b)'/><ellipse cx='1150' cy='520' rx='600' ry='180' fill='#4361ee' opacity='.2' transform='rotate(12 1150 520)' filter='url(#b)'/><circle cx='1330' cy='180' r='70' fill='#fff' opacity='.8'/></svg>")+")",
+    midnight:"linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.25)),url(\"data:image/svg+xml;charset=utf-8,"+
+      encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000'><rect width='100%' height='100%' fill='#07101f'/><circle cx='1250' cy='220' r='115' fill='#dce8ff'/><circle cx='1290' cy='190' r='115' fill='#07101f'/><g fill='#fff' opacity='.8'><circle cx='180' cy='160' r='2'/><circle cx='430' cy='300' r='2'/><circle cx='700' cy='130' r='3'/><circle cx='930' cy='370' r='2'/><circle cx='1450' cy='430' r='2'/><circle cx='1120' cy='760' r='2'/></g><path d='M0 760 Q350 590 700 760 T1400 730 T1700 720 V1000 H0Z' fill='#02050a'/></svg>")+")"
+  };
+
+  function wr18SetWall(key){
+    if(WR18_WALLPAPERS[key]){
+      const d=document.getElementById('desktop');
+      d.style.background=WR18_WALLPAPERS[key];
+      d.style.backgroundSize='cover';
+      d.style.backgroundPosition='center';
+      localStorage.setItem(userPrefix()+'wr18Wallpaper',key);
+    }
+  }
+
+  // --- Language ---
+  const WR18_LANG={
+    ru:{name:'Русский',apps:'Приложения',settings:'Параметры',store:'Центр приложений',about:'О системе'},
+    pl:{name:'Polski',apps:'Aplikacje',settings:'Ustawienia',store:'Centrum aplikacji',about:'O systemie'},
+    en:{name:'English',apps:'Apps',settings:'Settings',store:'App Center',about:'About system'},
+    ro:{name:'Română',apps:'Aplicații',settings:'Setări',store:'Centrul de aplicații',about:'Despre sistem'},
+    sr:{name:'Српски',apps:'Апликације',settings:'Подешавања',store:'Центар апликација',about:'О систему'},
+    fr:{name:'Français',apps:'Applications',settings:'Paramètres',store:'Centre des applications',about:'À propos'},
+    de:{name:'Deutsch',apps:'Apps',settings:'Einstellungen',store:'App-Center',about:'Über das System'},
+    pt:{name:'Português',apps:'Aplicações',settings:'Definições',store:'Centro de aplicações',about:'Sobre o sistema'},
+    es:{name:'Español',apps:'Aplicaciones',settings:'Ajustes',store:'Centro de aplicaciones',about:'Sobre el sistema'}
+  };
+  function wr18ApplyLanguage(){
+    const lang=settings.wr18Language||'ru', t=WR18_LANG[lang]||WR18_LANG.ru;
+    document.querySelector('.start-header')?.replaceChildren(document.createTextNode('🌟 '+t.store));
+    document.querySelectorAll('.start-app-item').forEach(el=>{
+      const id=el.dataset.app;
+      const map={settings:t.settings,store:t.store,about:t.about};
+      if(map[id]){ const icon=el.textContent.trim().slice(0,2); el.textContent=icon+' '+map[id]; }
+    });
+    document.documentElement.lang=lang;
+  }
+
+  // --- App rename/delete context menu ---
+  function wr18AppMenu(ev,app){
+    ev.preventDefault(); ev.stopPropagation();
+    document.querySelector('.context-menu')?.remove();
+    const m=document.createElement('div'); m.className='context-menu'; m.style.left=ev.clientX+'px'; m.style.top=ev.clientY+'px';
+    const rename=document.createElement('button'); rename.textContent='✏️ Переименовать';
+    rename.onclick=()=>{const n=prompt('Новое название приложения:',app.name); if(n&&n.trim()){app.name=n.trim();saveInstalledApps();renderInstalledApps();notify('WR OS','Название изменено')}m.remove()};
+    const del=document.createElement('button'); del.textContent='🗑️ Удалить'; del.onclick=()=>{wr18Deinstall(app.id);m.remove()};
+    m.append(rename,del); document.body.appendChild(m);
+    setTimeout(()=>document.addEventListener('click',()=>m.remove(),{once:true}),0);
+  }
+
+  // --- Robust desktop click/drag for both built-in and installed icons ---
+  function wr18BindIcon(el,openFn){
+    if(el.__wr18Bound)return; el.__wr18Bound=true;
+    let downX=0,downY=0,origX=0,origY=0,moved=false,active=false;
+    el.onmousedown=ev=>{
+      if(ev.button!==0)return;
+      downX=ev.clientX;downY=ev.clientY;origX=parseInt(el.style.left)||0;origY=parseInt(el.style.top)||0;moved=false;active=true;
+      const move=e=>{
+        if(!active)return;
+        const dx=e.clientX-downX,dy=e.clientY-downY;
+        if(Math.abs(dx)+Math.abs(dy)<8)return;
+        moved=true;
+        const box=document.getElementById('desktopIcons');
+        const nx=Math.max(0,Math.min(box.clientWidth-85,origX+dx));
+        const ny=Math.max(0,Math.min(box.clientHeight-88,origY+dy));
+        el.style.left=nx+'px';el.style.top=ny+'px';
+      };
+      const up=()=>{
+        if(!active)return; active=false;
+        document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+        if(moved){
+          const id=el.dataset.app,p=desktopPositions();p[id]={x:parseInt(el.style.left)||0,y:parseInt(el.style.top)||0};saveDesktopPositions(p);
+          el.dataset.wr18Moved='1';setTimeout(()=>delete el.dataset.wr18Moved,120);
+        }
+      };
+      document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+    };
+    el.onclick=ev=>{
+      if(el.dataset.wr18Moved==='1'){ev.preventDefault();return;}
+      if(ev.ctrlKey||ev.metaKey){el.classList.toggle('wr18-selected');return;}
+      openFn();
+    };
+    el.oncontextmenu=ev=>{
+      const app=getInstalledRecord(el.dataset.app);
+      if(app)wr18AppMenu(ev,app);
+      else ev.preventDefault();
+    };
+  }
+  function wr18BindAllIcons(){
+    document.querySelectorAll('.desktop-icon').forEach(el=>{
+      const id=el.dataset.app;if(!id)return;
+      wr18BindIcon(el,()=>launch(id));
+    });
+  }
+
+  // --- Multi-select ---
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape')document.querySelectorAll('.wr18-selected').forEach(x=>x.classList.remove('wr18-selected'));
+  });
+  function wr18SelectedDelete(){
+    document.querySelectorAll('.wr18-selected').forEach(el=>{
+      const app=getInstalledRecord(el.dataset.app); if(app)wr18Deinstall(app.id);
+      el.classList.remove('wr18-selected');
+    });
+  }
+
+  // --- Terminal extensions without changing the original terminal renderer ---
+  const oldOpenTerminal=openTerminal;
+  window.wr18TerminalCommand=function(q){
+    const a=String(q||'').trim().split(/\s+/),c=(a.shift()||'').toLowerCase(),rest=a.join(' ');
+    if(c==='open'){
+      const id=rest.toLowerCase();
+      if(id==='wallet'){ if(typeof openWallet==='function')openWallet(); else notify('WR Terminal','Wallet недоступен'); return true; }
+      if(id==='wros27'||id==='wros'&&a[0]==='27'){notify('WR OS','WR OS 27 недоступен до установки');return true;}
+      launch(id); return true;
+    }
+    if(c==='install'){
+      if(rest.toLowerCase()==='wallet'){if(typeof addInstalledApp==='function')addInstalledApp({id:'wallet',name:'WR Wallet',icon:'💳'});return true;}
+      if(rest.toLowerCase()==='wros 27'){if(typeof addInstalledApp==='function')addInstalledApp({id:'wros27',name:'WR OS 27',icon:'⬡'});return true;}
+      return false;
+    }
+    if(c==='deinstall'){wr18Deinstall(rest);return true;}
+    return false;
+  };
+
+  // --- Wallet ---
+  function openWallet(){
+    const existing=Object.keys(openWindows).find(k=>openWindows[k].appId==='wallet');
+    if(existing){restoreWindow(existing);return existing}
+    const html=`<div style="display:flex;flex-direction:column;gap:14px">
+      <div class="wr18-wallet-card"><div style="opacity:.7">WR Wallet</div><div style="font-size:28px;font-weight:800;margin-top:10px">₩ 1 000 000</div><div class="wr18-wallet-number">**** **** **** 2048</div></div>
+      <div class="wr18-wallet-actions"><button class="wr18-pill" id="issueCard18">💳 Выпустить карту</button><button class="wr18-pill" id="walletBalance18">💰 Баланс</button></div>
+      <div id="walletInfo18" style="padding:14px;border-radius:18px;background:#f4f6fa">Кошелёк готов к работе.</div>
+    </div>`;
+    return createWindow('wallet','WR Wallet',html,500,480,()=>{
+      document.getElementById('walletBalance18').onclick=()=>document.getElementById('walletInfo18').textContent='Баланс: 1 000 000 W';
+      document.getElementById('issueCard18').onclick=()=>{
+        const num='5555 '+Math.floor(1000+Math.random()*9000)+' '+Math.floor(1000+Math.random()*9000)+' '+Math.floor(1000+Math.random()*9000);
+        document.getElementById('walletInfo18').innerHTML='<b>Карта выпущена</b><br>'+num+'<br>WR Wallet · WR OS';
+      };
+    });
+  }
+  window.openWallet=openWallet;
+
+  // --- WROS 27 ---
+  function openWros27(){
+    if(!getInstalledRecord('wros27')){notify('WR OS','WR OS 27 не установлено');return}
+    const html=`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px">
+      <b style="font-size:17px">Ваша заявка на получение обновления отправлена.</b>
+      <p style="margin-top:14px;line-height:1.55">Пока приложение будет недоступно. Пожалуйста, нажмите кнопку Закрыть ниже, чтобы не было проблем с получением обновления и работы вашей ОС.</p>
+      <button id="wros27Close18" class="dev-btn" style="margin-top:18px">Закрыть</button>
+    </div>`;
+    return createWindow('wros27','WR OS 27',html,560,400,()=>document.getElementById('wros27Close18').onclick=()=>{
+      wr18Deinstall('wros27');
+      const id=Object.keys(openWindows).find(k=>openWindows[k].appId==='wros27');if(id)animateClose(id);
+    });
+  }
+  window.openWros27=openWros27;
+
+  // --- Patch installed app launcher to support v18 apps ---
+  const oldLaunchInstalled=launchInstalledApp;
+  window.launchInstalledApp=function(id){
+    if(id==='wallet'){openWallet();return}
+    if(id==='wros27'){openWros27();return}
+    return oldLaunchInstalled(id);
+  };
+
+  // --- Start/desktop built-ins ---
+  const oldLaunch=launch;
+  window.wr18Launch=oldLaunch;
+  // Keep the original working launch function untouched; add only new app ids through a small wrapper.
+  window.launch=function(id){
+    if(id==='wallet'){openWallet();closeStart();return}
+    if(id==='wros27'){openWros27();closeStart();return}
+    return oldLaunch(id);
+  };
+
+  // --- App Center redesign: wrap original content without replacing its logic ---
+  const oldOpenStore=openStore;
+  window.openStore=function(){
+    const result=oldOpenStore();
+    setTimeout(()=>{
+      const w=Object.values(openWindows).find(x=>x.appId==='store'&&x.element?.isConnected);
+      if(!w)return;
+      const c=w.element.querySelector('.window-content');
+      if(c)c.style.padding='14px';
+      w.element.querySelector('.window-header')?.setAttribute('data-wr18','1');
+    },20);
+    return result;
+  };
+
+  // --- About version ---
+  const oldOpenAbout=openAbout;
+  window.openAbout=function(){
+    const result=oldOpenAbout();
+    setTimeout(()=>{
+      const w=Object.values(openWindows).find(x=>x.appId==='about'&&x.element?.isConnected);
+      if(w){
+        const c=w.element.querySelector('.window-content');
+        if(c)c.innerHTML += '<hr style="margin:16px 0"><div><b>WR OS+</b><br>Версия 18<br><span style="opacity:.65">Лаборатория HAORIK</span></div>';
+      }
+    },20);
+    return result;
+  };
+
+  // --- Settings: add v18 sections to existing settings window ---
+  const oldOpenSettings=openSettings;
+  window.openSettings=function(){
+    const result=oldOpenSettings();
+    setTimeout(()=>{
+      const w=Object.values(openWindows).find(x=>x.appId==='settings'&&x.element?.isConnected);
+      if(!w)return;
+      const c=w.element.querySelector('.window-content'); if(!c)return;
+      if(c.dataset.wr18==='1')return;c.dataset.wr18='1';
+      const extra=document.createElement('div');
+      extra.innerHTML=`
+        <div class="wr18-setting-group"><h4>🖥️ Масштаб интерфейса</h4>
+          <input id="wr18Scale" type="range" min="80" max="125" value="${settings.wr18Scale||100}" style="width:100%">
+          <div id="wr18ScaleLabel">${settings.wr18Scale||100}%</div>
+        </div>
+        <div class="wr18-setting-group"><h4>🌐 Язык</h4>
+          <select id="wr18Lang" class="dev-input">${Object.entries(WR18_LANG).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}</select>
+        </div>
+        <div class="wr18-setting-group"><h4>🖼️ Обои WR OS 18</h4>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            ${Object.keys(WR18_WALLPAPERS).map(k=>`<div class="wr18-wall" data-wrwall="${k}" style="background:${WR18_WALLPAPERS[k]}"></div>`).join('')}
+          </div>
+        </div>
+        <div class="wr18-setting-group"><h4>👤 Пользователь</h4><button id="wr18SwitchUser" class="dev-btn">Сменить пользователя</button></div>
+      `;
+      c.appendChild(extra);
+      const scale=document.getElementById('wr18Scale'); scale.oninput=()=>{settings.wr18Scale=+scale.value;document.getElementById('wr18ScaleLabel').textContent=scale.value+'%';document.documentElement.style.zoom=scale.value/100;saveSettings()};
+      const lang=document.getElementById('wr18Lang');lang.value=settings.wr18Language||'ru';lang.onchange=()=>{settings.wr18Language=lang.value;saveSettings();wr18ApplyLanguage()};
+      document.querySelectorAll('[data-wrwall]').forEach(x=>x.onclick=()=>wr18SetWall(x.dataset.wrwall));
+      document.getElementById('wr18SwitchUser').onclick=()=>{closeStart();renderUsers();document.getElementById('bootScreen').classList.add('hidden');document.getElementById('userScreen').classList.add('show');};
+    },40);
+    return result;
+  };
+
+  // --- Start menu additions ---
+  function wr18AddStartItems(){
+    const list=document.querySelector('.start-app-list'); if(!list||list.dataset.wr18==='1')return;
+    list.dataset.wr18='1';
+    const wallet=document.createElement('div');wallet.className='start-app-item';wallet.dataset.app='wallet';wallet.innerHTML='💳 WR Wallet';wallet.onclick=()=>{openWallet();closeStart()};
+    const term=document.createElement('div');term.className='start-app-item';term.dataset.app='terminal';term.innerHTML='⌨️ WR Terminal';term.onclick=()=>{openTerminal();closeStart()};
+    list.append(wallet,term);
+  }
+
+  // --- Replace terminal UI with v18 command layer, while preserving old commands ---
+  function wr18OpenTerminal(){
+    const html=`<div class="terminal-output" id="wr18TermOut">WR Terminal 1.8<br>Введите <b>help</b> для списка команд.</div><input class="terminal-input" id="wr18TermIn" placeholder="wr@os:~$ ...">`;
+    createWindow('terminal','WR Terminal',html,760,540,()=>{
+      const o=document.getElementById('wr18TermOut'),i=document.getElementById('wr18TermIn');
+      const print=t=>{o.innerHTML+=`<div>${escapeHtml(t)}</div>`;o.scrollTop=o.scrollHeight};
+      const run=q=>{
+        const raw=q.trim(), a=raw.split(/\s+/), c=(a.shift()||'').toLowerCase(), rest=a.join(' ');
+        if(c==='help'||c==='info')return print('help / info\\nopen <app>\\ninstall wallet\\ninstall wros 27\\ndeinstall <app>\\napps\\ndate\\ntime\\nwhoami\\nls\\necho <текст>\\ncalc <выражение>\\ntheme dark|light');
+        if(c==='open'){if(rest==='wallet')return openWallet();if(rest==='wros 27'||rest==='wros27')return notify('WR Terminal','WR OS 27 нельзя открыть до установки');return launch(rest)}
+        if(c==='install'){if(rest==='wallet'){addInstalledApp({id:'wallet',name:'WR Wallet',icon:'💳'});return}if(rest==='wros 27'||rest==='wros27'){addInstalledApp({id:'wros27',name:'WR OS 27',icon:'⬡'});return}return print('Доступны: wallet, wros 27')}
+        if(c==='deinstall'){if(!wr18Deinstall(rest))print('Приложение не найдено');return}
+        if(c==='apps')return print(installedApps.map(x=>x.name).join('\\n')||'Нет приложений');
+        if(c==='date')return print(new Date().toLocaleDateString('ru-RU'));
+        if(c==='time')return print(new Date().toLocaleTimeString('ru-RU'));
+        if(c==='whoami')return print((users.find(u=>u.id===currentUserId)||users[0]).name);
+        if(c==='ls')return print(files.map(x=>x.name).join('\\n')||'Пусто');
+        if(c==='echo')return print(rest);
+        if(c==='calc'){try{return print(String(Function('return '+rest)()))}catch{return print('Ошибка вычисления')}}
+        if(c==='theme'){settings.theme=a[0]==='dark'?'dark':'light';saveSettings();applySettings();return print('Тема: '+settings.theme)}
+        return print('Неизвестная команда. Введите help.');
+      };
+      i.onkeydown=e=>{if(e.key==='Enter'){print('wr@os:~$ '+i.value);run(i.value);i.value=''}};
+      i.focus();
+    });
+  }
+  window.wr18OpenTerminal=wr18OpenTerminal;
+
+  // --- Shutdown animation ---
+  function wr18Shutdown(){
+    const overlay=document.createElement('div');
+    overlay.style='position:fixed;inset:0;background:#050806;color:#fff;z-index:999999;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;opacity:0;transition:opacity .35s';
+    overlay.textContent='WR OS выключается…';document.body.appendChild(overlay);
+    requestAnimationFrame(()=>overlay.style.opacity='1');
+    setTimeout(()=>{try{window.close()}catch(e){};location.replace('about:blank')},1000);
+  }
+  function wr18PatchStart(){
+    wr18AddStartItems();
+    const sm=document.getElementById('startMenu');
+    if(sm&&!sm.dataset.wr18Shutdown){
+      sm.dataset.wr18Shutdown='1';
+      const sep=document.createElement('div');sep.style='height:1px;background:#ffffff18;margin:10px 0';
+      const shut=document.createElement('div');shut.className='start-app-item';shut.innerHTML='⏻ Завершение работы';shut.onclick=wr18Shutdown;
+      const change=document.createElement('div');change.className='start-app-item';change.innerHTML='👤 Сменить пользователя';change.onclick=()=>{closeStart();renderUsers();document.getElementById('bootScreen').classList.add('hidden');document.getElementById('userScreen').classList.add('show')};
+      sm.append(sep,change,shut);
+    }
+  }
+
+  // --- Apply scale/wallpaper after base initialization ---
+  setTimeout(()=>{
+    if(settings.wr18Scale)document.documentElement.style.zoom=settings.wr18Scale/100;
+    const wp=settings.wr18Wallpaper;if(wp)wr18SetWall(wp);
+    wr18ApplyLanguage();
+    wr18PatchStart();
+    wr18BindAllIcons();
+    wr18ApplySystem();
+    // Existing renderer can add installed icons after this; bind them too.
+    const d=document.getElementById('desktopIcons');
+    if(d)new MutationObserver(()=>wr18BindAllIcons()).observe(d,{childList:true});
+  },1200);
+
+  // Expose safe helpers for DevTools.
+  window.WR18={deinstall:wr18Deinstall,restoreSystem:wr18RestoreSystem,openWallet,openWros27};
+})();
+
+</script>
+</body>
+</html>
