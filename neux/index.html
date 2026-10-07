@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Neux — Open Browser Software</title>
+    <meta name="description" content="Neux — открытое браузерное программное обеспечение от Лаборатории HAORIK.">
+    <meta name="theme-color" content="#080b10">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 50% -10%, rgba(80, 130, 255, 0.22), transparent 38%),
+                radial-gradient(circle at 10% 80%, rgba(0, 220, 180, 0.08), transparent 30%),
+                #080b10;
+            color: #fff;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "SF Pro Display",
+                "SF Pro Text",
+                "Segoe UI",
+                Arial,
+                sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* фоновые свечения */
+
+        .glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: .15;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glow.one {
+            background: #286cff;
+            top: -250px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .glow.two {
+            background: #00e5b0;
+            bottom: -350px;
+            left: -200px;
+        }
+
+        /* навигация */
+
+        nav {
+            width: min(1100px, calc(100% - 32px));
+            height: 64px;
+            margin: 18px auto 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 20px;
+
+            background: rgba(18, 22, 30, .62);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 20px;
+
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -.4px;
+        }
+
+        .brand-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+
+            background:
+                linear-gradient(135deg, #67a7ff, #426cff 48%, #00d8ae);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            box-shadow:
+                0 5px 25px rgba(55, 110, 255, .3);
+        }
+
+        .brand-logo::before {
+            content: "";
+            width: 11px;
+            height: 11px;
+            border-radius: 4px;
+            background: rgba(255,255,255,.92);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            color: #aeb6c5;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 9px 13px;
+            border-radius: 12px;
+            transition: .2s;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255,255,255,.07);
+        }
+
+        /* главный экран */
+
+        .hero {
+            width: min(1000px, calc(100% - 32px));
+            margin: 0 auto;
+
+            min-height: 690px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+            padding: 80px 0 50px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            background: rgba(255,255,255,.055);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 999px;
+
+            color: #aeb8c9;
+            font-size: 13px;
+
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+
+            animation: appear .7s ease both;
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #39e6ae;
+            box-shadow: 0 0 12px #39e6ae;
+        }
+
+        h1 {
+            margin-top: 25px;
+
+            font-size: clamp(72px, 14vw, 150px);
+            line-height: .9;
+            letter-spacing: -8px;
+
+            font-weight: 800;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff 10%,
+                    #cbd8ff 48%,
+                    #71a1ff 75%,
+                    #48dcb5
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+
+            filter: drop-shadow(0 20px 50px rgba(60,120,255,.15));
+
+            animation: titleIn .9s cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .subtitle {
+            max-width: 610px;
+            margin-top: 28px;
+
+            color: #9fa9b9;
+            font-size: 18px;
+            line-height: 1.65;
+
+            animation: appear 1s .15s ease both;
+        }
+
+        .subtitle strong {
+            color: #dfe7f5;
+            font-weight: 600;
+        }
+
+        /* кнопки */
+
+        .buttons {
+            margin-top: 35px;
+
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+
+            animation: appear 1s .25s ease both;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            min-height: 50px;
+            padding: 0 21px;
+
+            border-radius: 15px;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            text-decoration: none;
+
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button:active {
+            transform: scale(.97);
+        }
+
+        .primary {
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #397cff,
+                    #4b69ff 55%,
+                    #00cfa9
+                );
+
+            box-shadow:
+                0 12px 35px rgba(48, 105, 255, .25);
+        }
+
+        .primary:hover {
+            box-shadow:
+                0 16px 45px rgba(48, 105, 255, .38);
+        }
+
+        .secondary {
+            color: #dce3ef;
+
+            background: rgba(255,255,255,.055);
+            border: 1px solid rgba(255,255,255,.09);
+
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .secondary:hover {
+            background: rgba(255,255,255,.09);
+            border-color: rgba(255,255,255,.14);
+        }
+
+        /* информация */
+
+        .info {
+            width: min(1050px, calc(100% - 32px));
+            margin: 0 auto;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+
+            padding-bottom: 70px;
+        }
+
+        .card {
+            padding: 25px;
+
+            min-height: 170px;
+
+            border-radius: 23px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.065),
+                    rgba(255,255,255,.025)
+                );
+
+            border: 1px solid rgba(255,255,255,.075);
+
+            box-shadow:
+                inset 0 1px rgba(255,255,255,.035);
+
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+
+            transition:
+                transform .25s ease,
+                border-color .25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(110,150,255,.2);
+        }
+
+        .icon {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 13px;
+
+            background: rgba(75,110,255,.12);
+            border: 1px solid rgba(100,140,255,.12);
+
+            font-size: 19px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 17px;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: #8994a5;
+            line-height: 1.55;
+            font-size: 14px;
+        }
+
+        /* блок загрузки */
+
+        .download {
+            width: min(1050px, calc(100% - 32px));
+            margin: 0 auto 80px;
+
+            padding: 45px;
+
+            border-radius: 28px;
+
+            text-align: center;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(65,110,255,.12),
+                    transparent 55%
+                ),
+                rgba(255,255,255,.035);
+
+            border: 1px solid rgba(255,255,255,.075);
+
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+
+        .download h2 {
+            font-size: 28px;
+            letter-spacing: -.8px;
+            margin-bottom: 10px;
+        }
+
+        .download p {
+            color: #8e99aa;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .version {
+            display: inline-block;
+            margin-top: 18px;
+
+            color: #6e7888;
+            font-size: 12px;
+        }
+
+        /* футер */
+
+        footer {
+            width: min(1050px, calc(100% - 32px));
+            margin: 0 auto;
+
+            padding: 25px 5px 35px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            border-top: 1px solid rgba(255,255,255,.06);
+
+            color: #697383;
+            font-size: 13px;
+        }
+
+        .haorik {
+            color: #dce3ed;
+            text-decoration: none;
+            font-weight: 600;
+
+            transition: .2s;
+        }
+
+        .haorik:hover {
+            color: #70a0ff;
+        }
+
+        .open-source {
+            color: #697383;
+        }
+
+        /* анимации */
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes titleIn {
+            from {
+                opacity: 0;
+                transform: translateY(25px) scale(.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* мобильная версия */
+
+        @media (max-width: 700px) {
+
+            nav {
+                height: 58px;
+                border-radius: 17px;
+            }
+
+            .nav-link {
+                display: none;
+            }
+
+            .hero {
+                min-height: 620px;
+                padding-top: 55px;
+            }
+
+            h1 {
+                font-size: 76px;
+                letter-spacing: -5px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .buttons {
+                width: 100%;
+            }
+
+            .button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .info {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                min-height: auto;
+            }
+
+            .download {
+                padding: 32px 20px;
+                border-radius: 23px;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 13px;
+                text-align: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glow one"></div>
+    <div class="glow two"></div>
+
+    <!-- Навигация -->
+
+    <nav>
+        <a href="#" class="brand">
+            <span class="brand-logo"></span>
+            Neux
+        </a>
+
+        <div class="nav-right">
+            <a href="#about" class="nav-link">О проекте</a>
+            <a href="#download" class="nav-link">Загрузка</a>
+        </div>
+    </nav>
+
+
+    <!-- Главный экран -->
+
+    <main>
+
+        <section class="hero">
+
+            <div class="badge">
+                <span class="badge-dot"></span>
+                Open Browser Software
+            </div>
+
+            <h1>Neux</h1>
+
+            <p class="subtitle">
+                Современное открытое браузерное программное обеспечение,
+                созданное для свободного использования, изучения и развития.
+                <strong>Без лишнего.</strong>
+            </p>
+
+            <div class="buttons">
+
+                <!-- ЗАМЕНИ ССЫЛКУ НА ССЫЛКУ НА СКАЧИВАНИЕ -->
+
+                <a
+                    class="button primary"
+                    href="https://github.com/yurashiry/all/blob/6bebfa9c7c0ad61dcb181ba13f452ae0805fa839/neux/neux_26.html"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    ↓&nbsp; Скачать Neux
+                </a>
+
+                <a
+                    class="button secondary"
+                    href="https://github.com/yurashiry/all/raw/main/neux/neux_26.html"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    ◇&nbsp; Исходный код
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- Карточки -->
+
+        <section class="info" id="about">
+
+            <div class="card">
+
+                <div class="icon">⌘</div>
+
+                <h2>Открытый код</h2>
+
+                <p>
+                    Neux создаётся как открытое программное обеспечение.
+                    Исходный код доступен для изучения и развития проекта.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="icon">◎</div>
+
+                <h2>В браузере</h2>
+
+                <p>
+                    Neux работает непосредственно в браузерной среде,
+                    поэтому начать работу можно практически сразу.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="icon">✦</div>
+
+                <h2>Просто и современно</h2>
+
+                <p>
+                    Минималистичный интерфейс, плавные анимации
+                    и современный подход без ненужной сложности.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Загрузка -->
+
+        <section class="download" id="download">
+
+            <h2>Готовы попробовать Neux?</h2>
+
+            <p>
+                Скачайте последнюю версию или изучите исходный код проекта.
+            </p>
+
+            <a
+                class="button primary"
+                href="https://github.com/yurashiry/all/blob/6bebfa9c7c0ad61dcb181ba13f452ae0805fa839/neux/neux_26.html"
+                target="_blank"
+                rel="noopener"
+            >
+                Скачать последнюю версию
+            </a>
+
+            <div class="version">
+                Neux • Open Browser Software
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Футер -->
+
+    <footer>
+
+        <span class="open-source">
+            © 2026 Neux
+        </span>
+
+        <a
+            class="haorik"
+            href="https://t.me/yurskk"
+            target="_blank"
+            rel="noopener"
+        >
+            Лаборатория HAORIK
+        </a>
+
+    </footer>
+
+
+    <script>
+        // Небольшая интерактивность для кнопок
+
+        document.querySelectorAll(".button").forEach(button => {
+
+            button.addEventListener("pointerdown", () => {
+                button.style.transform = "scale(.97)";
+            });
+
+            button.addEventListener("pointerup", () => {
+                button.style.transform = "";
+            });
+
+            button.addEventListener("pointerleave", () => {
+                button.style.transform = "";
+            });
+
+        });
+    </script>
+
+</body>
+</html>
