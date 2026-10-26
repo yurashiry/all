@@ -1,0 +1,579 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071b2b">
+<title>AltPay — Выпуск через партнера</title>
+<style>
+:root {
+  --bg:#07131f;
+  --panel:#0e2232;
+  --panel2:#142c3e;
+  --blue:#28b8e8;
+  --green:#4be0a4;
+  --text:#f3f8fc;
+  --muted:#8da6b8;
+  --line:#244154;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--blue);outline-offset:3px
+}
+.app{max-width:1040px;margin:auto;padding:22px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-size:27px;font-weight:850;letter-spacing:-1px}
+.brand span{color:var(--green)}
+.status{font-size:12px;color:var(--green);display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;background:var(--green);border-radius:50%}
+h1{font-size:30px;letter-spacing:-1px;margin:30px 0 8px}
+.subtitle{color:var(--muted);margin:0 0 24px}
+.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+.panel{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:22px;padding:20px;min-width:0
+}
+.panel-title{font-size:16px;font-weight:750;margin-bottom:17px}
+.card{
+  position:relative;aspect-ratio:1.586;width:100%;
+  border-radius:20px;overflow:hidden;
+  background:linear-gradient(135deg,#103f55,#087e8a 60%,#164d72);
+  box-shadow:0 18px 48px #0005;
+  margin-bottom:20px;
+}
+.card-bg{position:absolute;width:100%;height:100%;inset:0;object-fit:cover}
+.card:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(110deg,#041725aa,#04172522 70%,#04172566);
+}
+.card-content{position:absolute;z-index:1;inset:0;padding:6.5%;display:flex;flex-direction:column;justify-content:space-between}
+.card-top{display:flex;justify-content:space-between;align-items:center}
+.card-logo{font-size:clamp(17px,3vw,25px);font-weight:900;letter-spacing:-1px}
+.card-logo span{color:#66f0c1}
+.chip{width:37px;height:27px;border:1px solid #ffffff99;border-radius:6px;background:#ffffff25}
+.card-number{font-size:clamp(15px,3.1vw,24px);letter-spacing:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.card-bottom{display:flex;justify-content:space-between;align-items:end;gap:10px}
+.card-caption{font-size:9px;color:#d1e7ee;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+.card-value{font-size:12px;font-weight:700;letter-spacing:.8px}
+.card-network{font-size:14px;font-weight:900;font-style:italic;letter-spacing:-1px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;border-radius:12px;padding:13px 12px;font-weight:750;transition:.2s}
+.btn:active{transform:scale(.98)}
+.primary{background:linear-gradient(100deg,var(--blue),var(--green));color:#06202a}
+.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+.danger{color:#ff9292;border:1px solid #633b45;background:#321e2a}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.hidden{display:none!important}
+.info-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.info-row:last-child{border:0}
+.muted{color:var(--muted);font-size:13px}
+.value{font-size:14px;font-weight:700;text-align:right;overflow-wrap:anywhere}
+.copy{border:0;background:none;color:var(--blue);padding:0 0 0 8px}
+.section{margin-top:18px}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 8px}
+input,select{
+  width:100%;background:#091a27;color:var(--text);
+  border:1px solid var(--line);border-radius:11px;padding:13px;
+}
+.field{margin-bottom:15px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+.note{font-size:12px;color:var(--muted);line-height:1.6;margin-top:12px}
+.badge{border-radius:20px;padding:6px 10px;font-size:11px;font-weight:800}
+.badge.active{background:#103b34;color:var(--green)}
+.badge.blocked{background:#45262d;color:#ff9a9a}
+.empty{text-align:center;padding:22px 0}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty p{color:var(--muted);line-height:1.6;font-size:14px}
+.tabs{display:flex;gap:8px;overflow:auto;margin:24px 0}
+.tab{white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 15px;border-radius:12px}
+.tab.selected{background:var(--panel2);color:var(--text);border-color:#3c7188}
+.view{display:none}
+.view.selected{display:block}
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);
+  background:#183547;border:1px solid #356175;border-radius:12px;
+  padding:13px 18px;opacity:0;pointer-events:none;transition:.25s;
+  z-index:10;max-width:calc(100% - 30px);font-size:13px
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.overlay{
+  position:fixed;inset:0;background:#030b12eF;z-index:20;
+  display:flex;align-items:center;justify-content:center;padding:22px;
+}
+.modal{
+  max-width:390px;width:100%;background:var(--panel);
+  border:1px solid var(--line);border-radius:24px;padding:26px;text-align:center
+}
+.spinner{
+  width:66px;height:66px;margin:10px auto 22px;border-radius:50%;
+  border:3px solid #284656;border-top-color:var(--green);
+  border-right-color:var(--blue);animation:spin .8s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes reveal{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.reveal{animation:reveal .6s ease both}
+@media(max-width:700px){
+  .app{padding:16px}
+  .layout{grid-template-columns:1fr}
+  h1{font-size:26px;margin-top:25px}
+  .panel{padding:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">Alt<span>Pay</span></div>
+    <div class="status"><i class="dot"></i> Управление картой</div>
+  </header>
+
+  <h1>Мои карты</h1>
+  <p class="subtitle">Виртуальная карта и управление настройками</p>
+
+  <div class="tabs">
+    <button class="tab selected" data-view="main">Обзор</button>
+    <button class="tab" data-view="limits">Лимиты</button>
+    <button class="tab" data-view="travel">Путешествия</button>
+    <button class="tab" data-view="security">Безопасность</button>
+  </div>
+
+  <section id="main" class="view selected">
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-title">Виртуальная карта</div>
+        <div id="cardArea">
+          <div class="empty">
+            <div class="empty-icon">▤</div>
+            <strong>У вас пока нет карты</strong>
+            <p>Выпустите виртуальную карту и настройте её под себя.</p>
+            <button class="btn primary" id="issue">Выпустить карту</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Информация</div>
+        <div id="details">
+          <div class="empty"><p>Информация появится после выпуска карты.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="limits" class="view">
+    <div class="panel">
+      <div class="panel-title">Лимиты расходов</div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="daily">Лимит в день</label>
+          <input id="daily" type="number" min="0" max="100000000" step="1" placeholder="Например, 5000">
+        </div>
+        <div class="field">
+          <label for="monthly">Лимит в месяц</label>
+          <input id="monthly" type="number" min="0" max="100000000" step="1" placeholder="Например, 50000">
+        </div>
+      </div>
+      <button class="btn primary" id="saveLimits">Сохранить лимиты</button>
+      <p class="note">Лимиты сохраняются в настройках этой карты.</p>
+    </div>
+  </section>
+
+  <section id="travel" class="view">
+    <div class="panel">
+      <div class="panel-title">Уведомление о поездке</div>
+      <div class="field">
+        <label for="country">Страна назначения</label>
+        <select id="country"></select>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="depart">Дата отправления</label>
+          <input id="depart" type="date">
+        </div>
+        <div class="field">
+          <label for="returnDate">Дата возвращения</label>
+          <input id="returnDate" type="date">
+        </div>
+      </div>
+      <button class="btn primary" id="saveTravel">Сохранить поездку</button>
+      <div id="travelInfo" class="section muted"></div>
+    </div>
+  </section>
+
+  <section id="security" class="view">
+    <div class="panel">
+      <div class="panel-title">Безопасность карты</div>
+      <div class="field">
+        <label for="pin">Новый PIN-код (4–6 цифр)</label>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" placeholder="••••">
+      </div>
+      <div class="field">
+        <label for="pinConfirm">Повторите PIN-код</label>
+        <input id="pinConfirm" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" placeholder="••••">
+      </div>
+      <button class="btn primary" id="savePin">Установить PIN</button>
+      <p class="note">Пин-код будет установлен.</p>
+    </div>
+  </section>
+</div>
+
+<div id="overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="spinner"></div>
+    <h2 id="modalTitle">Выпускаем карту</h2>
+    <p id="modalText" class="muted">Подготавливаем параметры карты…</p>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const STORAGE_KEY = "altpay.virtual-card.v1";
+  const $ = id => document.getElementById(id);
+  let state = load();
+  let toastTimer;
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const value = JSON.parse(raw);
+      if (!value || value.version !== 1 ||
+          typeof value.id !== "string" ||
+          !["active", "blocked"].includes(value.status)) return null;
+      return value;
+    } catch {
+      return null;
+    }
+  }
+
+  function persist() {
+    try {
+      if (state) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      else localStorage.removeItem(STORAGE_KEY);
+      return true;
+    } catch {
+      notify("Не удалось сохранить данные в браузере.");
+      return false;
+    }
+  }
+
+  function notify(message) {
+    $("toast").textContent = message;
+    $("toast").classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => $("toast").classList.remove("show"), 2600);
+  }
+
+  function moneyInput(id) {
+    const el = $(id);
+    if (el.value.trim() === "") return null;
+    const value = Number(el.value);
+    if (!Number.isSafeInteger(value) || value < 0 || value > 100000000) {
+      throw new Error("Укажите целый лимит от 0 до 100 000 000.");
+    }
+    return value;
+  }
+
+  function safeText(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;",
+      '"':"&quot;", "'":"&#39;"
+    }[char]));
+  }
+
+  function expiryDate() {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 8);
+    return {
+      month: String(d.getMonth() + 1).padStart(2, "0"),
+      year: String(d.getFullYear()).slice(-2)
+    };
+  }
+
+  // Локальный визуальный идентификатор не является реквизитом,
+  // авторизованным платёжной системой или эмитентом.
+  function createCard() {
+    const expiry = expiryDate();
+    return {
+      version: 1,
+      id: crypto.randomUUID ? crypto.randomUUID() :
+        Date.now().toString(36) + Math.random().toString(36).slice(2),
+      status: "active",
+      createdAt: new Date().toISOString(),
+      cardNumber: "771015" + Array.from(
+        {length: 10}, () => Math.floor(Math.random() * 10)
+      ).join(""),
+      expiry: expiry.month + "/" + expiry.year,
+      cvv: String(Math.floor(100 + Math.random() * 900)),
+      dailyLimit: null,
+      monthlyLimit: null,
+      travel: null,
+      pinConfigured: false
+    };
+  }
+
+  function showCard(number) {
+    return number.match(/.{1,4}/g).join(" ");
+  }
+
+  function render() {
+    const area = $("cardArea");
+    const details = $("details");
+
+    if (!state) {
+      area.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">▤</div>
+          <strong>У вас пока нет карты</strong>
+          <p>Выпустите виртуальную карту и настройте её под себя.</p>
+          <button class="btn primary" id="issue">Выпустить карту</button>
+        </div>`;
+      details.innerHTML = `<div class="empty"><p>Информация появится после выпуска карты.</p></div>`;
+      $("issue").addEventListener("click", issue);
+      return;
+    }
+
+    const blocked = state.status === "blocked";
+    area.innerHTML = `
+      <div class="card reveal">
+        <img class="card-bg" src="https://haorik.ru/wrb/ppcard.jpg" alt="" onerror="this.style.display='none'">
+        <div class="card-content">
+          <div class="card-top">
+            <div class="card-logo">Alt<span>Pay</span></div>
+            <div class="chip"></div>
+          </div>
+          <div class="card-number">${showCard(state.cardNumber)}</div>
+          <div class="card-bottom">
+            <div>
+              <div class="card-caption">Срок действия</div>
+              <div class="card-value">${safeText(state.expiry)}</div>
+            </div>
+            <div class="card-network">AltPay</div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="toggleDetails">Реквизиты</button>
+        <button class="btn secondary" id="replace">Перевыпустить</button>
+        <button class="btn ${blocked ? "primary" : "danger"}" id="toggleBlock">
+          ${blocked ? "Разблокировать" : "Заблокировать"}
+        </button>
+        <button class="btn secondary" id="remove">Удалить карту</button>
+      </div>
+      <div id="secrets" class="section hidden"></div>`;
+
+    details.innerHTML = `
+      <div class="info-row"><span class="muted">Статус</span>
+        <span class="badge ${blocked ? "blocked" : "active"}">${blocked ? "Заблокирована" : "Активна"}</span></div>
+      <div class="info-row"><span class="muted">BIN</span><span class="value">771015</span></div>
+      <div class="info-row"><span class="muted">PIN-код</span><span class="value">${state.pinConfigured ? "Установлен" : "Не установлен"}</span></div>
+      <div class="info-row"><span class="muted">Лимит в день</span><span class="value">${state.dailyLimit == null ? "Не задан" : state.dailyLimit.toLocaleString("ru-RU")}</span></div>
+      <div class="info-row"><span class="muted">Лимит в месяц</span><span class="value">${state.monthlyLimit == null ? "Не задан" : state.monthlyLimit.toLocaleString("ru-RU")}</span></div>
+      <div class="info-row"><span class="muted">Создана</span><span class="value">${new Date(state.createdAt).toLocaleDateString("ru-RU")}</span></div>`;
+
+    $("toggleDetails").addEventListener("click", () => {
+      const box = $("secrets");
+      if (!box.classList.contains("hidden")) {
+        box.classList.add("hidden");
+        box.innerHTML = "";
+        return;
+      }
+      box.innerHTML = `
+        <div class="info-row"><span class="muted">Номер</span>
+          <span class="value">${showCard(state.cardNumber)}
+          <button class="copy" id="copyNumber" type="button">Копировать</button></span></div>
+        <div class="info-row"><span class="muted">Срок действия</span><span class="value">${safeText(state.expiry)}</span></div>
+        <div class="info-row"><span class="muted">CVV</span><span class="value">${safeText(state.cvv)}</span></div>
+        <p class="note">Реквизиты доступны только в этом браузере.</p>`;
+      box.classList.remove("hidden");
+      $("copyNumber").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(state.cardNumber);
+          notify("Номер скопирован");
+        } catch { notify("Копирование недоступно в этом браузере"); }
+      });
+    });
+
+    $("toggleBlock").addEventListener("click", () => {
+      state.status = blocked ? "active" : "blocked";
+      persist();
+      render();
+      notify(blocked ? "Карта разблокирована" : "Карта заблокирована");
+    });
+
+    $("replace").addEventListener("click", () => {
+      if (!confirm("Перевыпустить карту? Текущий номер будет заменён.")) return;
+      const old = state;
+      state = {
+        ...createCard(),
+        dailyLimit: old.dailyLimit,
+        monthlyLimit: old.monthlyLimit,
+        travel: old.travel,
+        pinConfigured: false
+      };
+      persist();
+      render();
+      notify("Карта перевыпущена");
+    });
+
+    $("remove").addEventListener("click", () => {
+      if (!confirm("Удалить карту и её настройки из этого браузера?")) return;
+      state = null;
+      persist();
+      render();
+      notify("Карта удалена");
+    });
+  }
+
+  function issue() {
+    if (state) {
+      notify("У вас уже есть карта.");
+      return;
+    }
+
+    const overlay = $("overlay");
+    overlay.classList.remove("hidden");
+    $("modalTitle").textContent = "Выпускаем карту";
+    $("modalText").textContent = "Подготавливаем параметры карты…";
+
+    setTimeout(() => {
+      state = createCard();
+      const saved = persist();
+      overlay.classList.add("hidden");
+      render();
+      notify(saved ? "Карта создана" : "Карта успешно создана!");
+    }, 1800);
+  }
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("selected"));
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("selected"));
+      tab.classList.add("selected");
+      $(tab.dataset.view).classList.add("selected");
+    });
+  });
+
+  $("saveLimits").addEventListener("click", () => {
+    if (!state) return notify("Сначала выпустите карту.");
+    try {
+      state.dailyLimit = moneyInput("daily");
+      state.monthlyLimit = moneyInput("monthly");
+      if (state.dailyLimit != null && state.monthlyLimit != null &&
+          state.dailyLimit > state.monthlyLimit) {
+        throw new Error("Дневной лимит не должен превышать месячный.");
+      }
+      if (persist()) {
+        render();
+        notify("Лимиты сохранены");
+      }
+    } catch (e) { notify(e.message); }
+  });
+
+  $("savePin").addEventListener("click", () => {
+    if (!state) return notify("Сначала выпустите карту.");
+    const pin = $("pin").value;
+    if (!/^\d{4,6}$/.test(pin)) return notify("PIN должен содержать 4–6 цифр.");
+    if (pin !== $("pinConfirm").value) return notify("PIN-коды не совпадают.");
+
+    // PIN намеренно не сохраняется в localStorage.
+    // В реальном продукте настройка должна идти через эмитента.
+    state.pinConfigured = true;
+    if (persist()) {
+      $("pin").value = "";
+      $("pinConfirm").value = "";
+      render();
+      notify("Настройка PIN отмечена");
+    }
+  });
+
+  const countries = [
+    "Австралия","Австрия","Азербайджан","Албания","Алжир","Ангола",
+    "Андорра","Антигуа и Барбуда","Аргентина","Армения","Афганистан",
+    "Багамы","Бангладеш","Барбадос","Бахрейн","Беларусь","Белиз",
+    "Бельгия","Бенин","Болгария","Боливия","Босния и Герцеговина",
+    "Ботсвана","Бразилия","Бруней","Буркина-Фасо","Бурунди","Бутан",
+    "Вануату","Ватикан","Великобритания","Венгрия","Венесуэла","Вьетнам",
+    "Габон","Гаити","Гайана","Гамбия","Гана","Гватемала","Гвинея",
+    "Гвинея-Бисау","Германия","Гондурас","Гренада","Греция","Грузия",
+    "Дания","Джибути","Доминика","Доминиканская Республика","Египет",
+    "Замбия","Зимбабве","Израиль","Индия","Индонезия","Иордания","Ирак",
+    "Иран","Ирландия","Исландия","Испания","Италия","Йемен","Кабо-Верде",
+    "Казахстан","Камбоджа","Камерун","Канада","Катар","Кения","Кипр",
+    "Киргизия","Кирибати","Китай","Колумбия","Коморы","Конго",
+    "Коста-Рика","Кот-д’Ивуар","Куба","Кувейт","Лаос","Латвия","Лесото",
+    "Либерия","Ливан","Ливия","Литва","Лихтенштейн","Люксембург",
+    "Маврикий","Мавритания","Мадагаскар","Малави","Малайзия","Мали",
+    "Мальдивы","Мальта","Марокко","Маршалловы Острова","Мексика",
+    "Микронезия","Мозамбик","Молдова","Монако","Монголия","Мьянма",
+    "Намибия","Науру","Непал","Нигер","Нигерия","Нидерланды","Никарагуа",
+    "Новая Зеландия","Норвегия","ОАЭ","Оман","Пакистан","Палау","Панама",
+    "Папуа — Новая Гвинея","Парагвай","Перу","Польша","Португалия",
+    "Россия","Руанда","Румыния","Сальвадор","Самоа","Сан-Марино",
+    "Сан-Томе и Принсипи","Саудовская Аравия","Северная Корея",
+    "Северная Македония","Сейшелы","Сенегал","Сент-Винсент и Гренадины",
+    "Сент-Китс и Невис","Сент-Люсия","Сербия","Сингапур","Сирия",
+    "Словакия","Словения","Соломоновы Острова","Сомали","Судан","Суринам",
+    "США","Сьерра-Леоне","Таджикистан","Таиланд","Танзания","Тимор-Лесте",
+    "Того","Тонга","Тринидад и Тобаго","Тувалу","Тунис","Туркменистан",
+    "Турция","Уганда","Узбекистан","Украина","Уругвай","Фиджи","Филиппины",
+    "Финляндия","Франция","Хорватия","ЦАР","Чад","Черногория","Чехия",
+    "Чили","Швейцария","Швеция","Шри-Ланка","Эквадор","Экваториальная Гвинея",
+    "Эритрея","Эсватини","Эстония","Эфиопия","ЮАР","Южная Корея","Южный Судан",
+    "Ямайка","Япония","Палестина","Косово","Тайвань"
+  ].sort((a,b) => a.localeCompare(b, "ru"));
+
+  $("country").innerHTML = '<option value="">Выберите страну</option>' +
+    countries.map(c => `<option value="${safeText(c)}">${safeText(c)}</option>`).join("");
+
+  $("saveTravel").addEventListener("click", () => {
+    if (!state) return notify("Сначала выпустите карту.");
+    const country = $("country").value;
+    const depart = $("depart").value;
+    const ret = $("returnDate").value;
+    if (!country || !depart || !ret) return notify("Заполните все поля поездки.");
+    if (ret < depart) return notify("Дата возвращения должна быть позже даты отправления.");
+
+    state.travel = { country, depart, returnDate: ret };
+    if (persist()) {
+      renderTravel();
+      notify("Поездка сохранена");
+    }
+  });
+
+  function renderTravel() {
+    $("travelInfo").textContent = state && state.travel
+      ? `Поездка: ${state.travel.country}, ${state.travel.depart} — ${state.travel.returnDate}`
+      : "Сохранённых поездок пока нет.";
+  }
+
+  if (state) {
+    $("daily").value = state.dailyLimit ?? "";
+    $("monthly").value = state.monthlyLimit ?? "";
+    if (state.travel) {
+      $("country").value = state.travel.country;
+      $("depart").value = state.travel.depart;
+      $("returnDate").value = state.travel.returnDate;
+    }
+  }
+
+  render();
+  renderTravel();
+})();
+</script>
+</body>
+</html>
