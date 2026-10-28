@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07110f">
+<title>WRB TV</title>
+<script src="https://telegram.org/js/telegram-web-app.js?64"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+<style>
+:root{color-scheme:dark;--bg:#07110f;--panel:rgba(19,34,30,.78);--panel2:#142720;--line:rgba(255,255,255,.09);--text:#f3faf6;--muted:#9aafa5;--green:#6cf0ad;--blue:#74cfff;--danger:#ff7e86}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 500px at 10% -10%,#174333 0%,transparent 60%),radial-gradient(700px 450px at 100% 0%,#132e3a 0%,transparent 58%),var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer;color:inherit;border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:14px;padding:10px 13px}button:active{transform:scale(.98)}button.primary{background:linear-gradient(135deg,#71f0ae,#6bc9ff);color:#062018;border:0;font-weight:800}button.active{border-color:var(--green);background:rgba(108,240,173,.13)}input,select{width:100%;color:var(--text);background:#10201b;border:1px solid var(--line);border-radius:14px;padding:12px;outline:none}input:focus,select:focus{border-color:#6cf0ad}
+.app{max-width:1100px;margin:auto;padding:18px 16px calc(100px + env(safe-area-inset-bottom))}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:11px}.logo{width:43px;height:43px;border-radius:15px;background:linear-gradient(145deg,#75f2b3,#71caff);display:grid;place-items:center;color:#071a13;font-weight:1000;font-size:17px;box-shadow:0 8px 28px #50dca333}.brand h1{font-size:21px;letter-spacing:-.6px;margin:0}.sub{color:var(--muted);font-size:12px}.avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#18362a;border:1px solid var(--line)}.glass{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-radius:23px;box-shadow:0 12px 45px #0002}.hero{padding:20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.hero h2{margin:0 0 5px;font-size:clamp(23px,5vw,34px);letter-spacing:-1px}.hero p{margin:0;color:var(--muted);max-width:520px}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#ffffff08;padding:6px 10px;border-radius:999px;font-size:12px;color:#cce8da;white-space:nowrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px #6cf0ad88}.controls{display:grid;grid-template-columns:1fr 160px 160px;gap:9px;margin-bottom:13px}.tabs{display:flex;gap:8px;overflow:auto;padding:2px 0 14px;scrollbar-width:none}.tabs button{white-space:nowrap}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:18px 2px 12px}.section-head h3{margin:0;font-size:17px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.channel{padding:13px;min-width:0;display:flex;gap:11px;align-items:center;text-align:left;width:100%;border-radius:19px;background:var(--panel);border:1px solid var(--line)}.channel:hover{border-color:#6cf0ad77}.ch-logo{flex:0 0 52px;width:52px;height:52px;object-fit:contain;background:#e8f4ed;border-radius:14px;padding:5px}.ch-fallback{display:grid;place-items:center;color:#092017;font-size:19px;font-weight:900}.ch-info{min-width:0;flex:1}.ch-name{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ch-meta{color:var(--muted);font-size:12px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.star{font-size:19px;color:#b9cbbf;padding:5px;background:transparent;border:0}.star.saved{color:#ffe38a}.empty{padding:26px;text-align:center;color:var(--muted)}.player-wrap{display:none;overflow:hidden;margin-bottom:17px}.player-wrap.show{display:block}.video-box{background:#000;aspect-ratio:16/9;display:grid;place-items:center;position:relative}.video-box video{width:100%;height:100%;max-height:70vh;object-fit:contain;background:#000}.player-info{padding:13px;display:flex;align-items:center;gap:10px}.player-info .name{flex:1;font-weight:750}.error{color:#ffc0c5;font-size:13px;padding:10px 14px;display:none}.error.show{display:block}.profile{padding:19px;margin-bottom:15px}.profile-top{display:flex;align-items:center;gap:13px;margin-bottom:17px}.profile-top .avatar{width:58px;height:58px}.profile-name{font-size:18px;font-weight:800}.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.setting{background:#ffffff06;border:1px solid var(--line);border-radius:15px;padding:12px;min-width:0}.setting label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.setting strong{overflow-wrap:anywhere}.notice{font-size:12px;color:var(--muted);margin-top:13px}.bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#07110ff0 22%);backdrop-filter:blur(14px)}.nav{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:7px;border:1px solid var(--line);border-radius:23px;background:#10211be8;box-shadow:0 10px 40px #0004}.nav button{border:0;background:transparent;padding:9px 4px;font-size:11px;color:var(--muted);display:grid;justify-items:center;gap:4px}.nav button span{font-size:19px}.nav button.active{background:#ffffff0d;color:var(--green);border-radius:15px}.toast{position:fixed;left:50%;bottom:105px;transform:translateX(-50%);background:#203b30;border:1px solid var(--line);border-radius:12px;padding:10px 15px;z-index:30;display:none;max-width:90%;text-align:center}.toast.show{display:block}.hide{display:none!important}
+@media(min-width:720px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:25px}.app{padding-top:25px}.channel{padding:15px}}
+@media(max-width:520px){.controls{grid-template-columns:1fr 1fr}.controls input{grid-column:1/-1}.hero{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.profile-grid{grid-template-columns:1fr 1fr}.pill{align-self:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="logo">WRB</div><div><h1>WRB TV</h1><div class="sub" id="greeting">Телевидение мира</div></div></div>
+    <img id="topAvatar" class="avatar" alt="" hidden>
+  </header>
+
+  <main id="homePage">
+    <section class="hero glass">
+      <div><h2>Твой мир. В прямом эфире.</h2><p>Открытые телевизионные каналы со всего мира — в одном месте.</p></div>
+      <span class="pill"><i class="dot"></i><span id="channelCount">Загрузка каналов…</span></span>
+    </section>
+    <section id="player" class="player-wrap glass">
+      <div class="video-box"><video id="video" controls playsinline autoplay></video></div>
+      <div id="playerError" class="error"></div>
+      <div class="player-info"><div class="name" id="playingName">Канал</div><button id="fullBtn" title="Полный экран">⛶</button><button id="closePlayer" title="Закрыть">✕</button></div>
+    </section>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Поиск каналов…" autocomplete="off" aria-label="Поиск каналов">
+      <select id="countryFilter" aria-label="Страна"><option value="">Все страны</option></select>
+      <select id="categoryFilter" aria-label="Категория"><option value="">Все категории</option></select>
+    </div>
+    <div class="tabs" id="quickTabs">
+      <button class="active" data-mode="all">🌍 Все каналы</button><button data-mode="popular">✨ Подборка</button><button data-mode="favorites">⭐ Избранное</button><button data-mode="history">◷ Недавно смотрели</button>
+    </div>
+    <div class="section-head"><h3 id="listTitle">Каналы</h3><span class="sub" id="shownCount"></span></div>
+    <div id="channels" class="grid"><div class="empty">Загружаем список каналов…</div></div>
+    <p class="notice">Каталог содержит ссылки на публичные потоки сторонних вещателей. Некоторые каналы могут быть недоступны, ограничены по региону или не поддерживаться браузером.</p>
+  </main>
+
+  <main id="favoritesPage" class="hide">
+    <section class="hero glass"><div><h2>Избранное</h2><p>Твои сохранённые телеканалы.</p></div></section>
+    <div id="favoritesList" class="grid"></div>
+  </main>
+
+  <main id="historyPage" class="hide">
+    <section class="hero glass"><div><h2>Недавно смотрели</h2><p>История просмотров хранится на этом устройстве.</p></div><button id="clearHistory">Очистить</button></section>
+    <div id="historyList" class="grid"></div>
+  </main>
+
+  <main id="settingsPage" class="hide">
+    <section class="profile glass">
+      <div class="profile-top"><img id="profileAvatar" class="avatar" alt=""><div><div class="profile-name" id="profileName">Гость</div><div class="sub" id="profileUsername">Открыто вне Telegram</div></div></div>
+      <div class="profile-grid">
+        <div class="setting"><label>Telegram ID</label><strong id="profileId">Не передан</strong></div>
+        <div class="setting"><label>Язык Telegram</label><strong id="profileLang">—</strong></div>
+        <div class="setting"><label>Платформа</label><strong id="profilePlatform">Браузер</strong></div>
+        <div class="setting"><label>Статус</label><strong id="profileStatus">Локальный профиль</strong></div>
+      </div>
+      <p class="notice" id="authNote">Профиль подставляется Telegram автоматически, когда Mini App открыт внутри Telegram. На GitHub Pages данные профиля показываются на клиенте; серверная проверка подписи не выполняется.</p>
+    </section>
+    <section class="profile glass">
+      <div class="section-head"><h3>Настройки приложения</h3></div>
+      <div class="setting"><label for="languageSelect">Язык интерфейса</label><select id="languageSelect"><option value="ru">Русский</option><option value="en">English</option></select></div>
+      <div style="height:10px"></div>
+      <div class="setting"><label>Данные приложения</label><button id="exportData">Экспорт избранного и истории</button> <button id="clearData">Сбросить данные</button></div>
+      <p class="notice">Избранное и история сохраняются в localStorage браузера и не синхронизируются между устройствами.</p>
+    </section>
+  </main>
+</div>
+<nav class="bottom"><div class="nav">
+  <button class="active" data-page="homePage"><span>⌂</span>Главная</button>
+  <button data-page="favoritesPage"><span>☆</span>Избранное</button>
+  <button data-page="historyPage"><span>◷</span>История</button>
+  <button data-page="settingsPage"><span>⚙</span>Настройки</button>
+</div></nav>
+<div id="toast" class="toast"></div>
+<script>
+(() => {
+  "use strict";
+  const PLAYLIST_URL = "https://iptv-org.github.io/iptv/index.m3u";
+  const $ = id => document.getElementById(id);
+  const safeRead = (key, fallback) => { try { const x=JSON.parse(localStorage.getItem(key)); return x ?? fallback; } catch { return fallback; } };
+  let channels = [], mode = "all", currentChannel = null, hls = null, toastTimer;
+  let favorites = safeRead("wrbtv:favorites", []), history = safeRead("wrbtv:history", []);
+  const tg = window.Telegram?.WebApp;
+  if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor?.("#07110f"); tg.setBackgroundColor?.("#07110f"); } catch {} }
+
+  function notify(message) { const t=$("toast"); t.textContent=message; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600); }
+  function save() { localStorage.setItem("wrbtv:favorites",JSON.stringify(favorites)); localStorage.setItem("wrbtv:history",JSON.stringify(history.slice(0,50))); }
+  function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function profile() {
+    const user = tg?.initDataUnsafe?.user;
+    const name = user ? [user.first_name,user.last_name].filter(Boolean).join(" ") : "Гость";
+    $("greeting").textContent = user ? `Привет, ${name}` : "Телевидение мира";
+    $("topAvatar").hidden = !user?.photo_url;
+    if(user?.photo_url) $("topAvatar").src=user.photo_url;
+    $("profileAvatar").src = user?.photo_url || "data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="40" fill="#18362a"/><circle cx="40" cy="29" r="14" fill="#6cf0ad"/><path d="M14 74c2-18 13-27 26-27s24 9 26 27" fill="#6cf0ad"/></svg>');
+    $("profileName").textContent=name;
+    $("profileUsername").textContent=user?.username ? "@"+user.username : (user ? "Telegram-профиль" : "Откройте Mini App через Telegram");
+    $("profileId").textContent=user?.id ?? "Не передан";
+    $("profileLang").textContent=user?.language_code ?? "—";
+    $("profilePlatform").textContent=tg?.platform ?? "Браузер";
+    $("profileStatus").textContent=user ? "Telegram-профиль получен" : "Локальный профиль";
+    $("authNote").textContent=user
+      ? "Данные профиля получены из Telegram Mini App API. Клиентские данные не являются подтверждённой сервером авторизацией."
+      : "Профиль появится автоматически при запуске внутри Telegram. Для проверки подлинности initData необходим сервер.";
+  }
+  function parseM3U(text) {
+    const lines=text.replace(/^\uFEFF/,"").split(/\r?\n/); const out=[]; let meta=null;
+    for(const line0 of lines) {
+      const line=line0.trim(); if(!line) continue;
+      if(line.startsWith("#EXTINF")) {
+        const comma=line.lastIndexOf(","); const title=comma>=0?line.slice(comma+1).trim():"Без названия";
+        const attrs={}; const re=/([\w-]+)="([^"]*)"/g; let m;
+        while((m=re.exec(line.slice(0,comma>=0?comma:line.length)))) attrs[m[1]]=m[2];
+        meta={name:title,logo:attrs["tvg-logo"]||"",country:attrs["tvg-country"]||"",group:attrs["group-title"]||"Разное",id:attrs["tvg-id"]||""};
+      } else if(!line.startsWith("#") && meta) {
+        if(/^https?:\/\//i.test(line)) out.push({...meta,url:line,key:meta.id||line});
+        meta=null;
+      }
+    }
+    return out;
+  }
+  function fillFilters() {
+    const countries=[...new Set(channels.flatMap(c=>(c.country||"").split(";").filter(Boolean)))].sort();
+    const cats=[...new Set(channels.map(c=>c.group).filter(Boolean))].sort();
+    $("countryFilter").innerHTML='<option value="">Все страны</option>'+countries.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+    $("categoryFilter").innerHTML='<option value="">Все категории</option>'+cats.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+  }
+  function channelCard(c) {
+    const saved=favorites.includes(c.key);
+    const logo=c.logo ? `<img class="ch-logo" src="${esc(c.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;ch-logo ch-fallback&quot;>${esc(c.name.slice(0,1).toUpperCase())}</div>'">` : `<div class="ch-logo ch-fallback">${esc(c.name.slice(0,1).toUpperCase())}</div>`;
+    return `<div class="channel" data-key="${esc(c.key)}"><button class="play-card" data-play="${esc(c.key)}" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0;padding:0;border:0;background:transparent;text-align:left">${logo}<span class="ch-info"><span class="ch-name" style="display:block">${esc(c.name)}</span><span class="ch-meta" style="display:block">${esc([c.country,c.group].filter(Boolean).join(" · ")||"Телеканал")}</span></span></button><button class="star ${saved?"saved":""}" data-fav="${esc(c.key)}" aria-label="Избранное">${saved?"★":"☆"}</button></div>`;
+  }
+  function getFiltered() {
+    let list=channels;
+    const q=$("search").value.trim().toLowerCase(), country=$("countryFilter").value, cat=$("categoryFilter").value;
+    if(q) list=list.filter(c=>(c.name+" "+c.country+" "+c.group+" "+c.id).toLowerCase().includes(q));
+    if(country) list=list.filter(c=>(c.country||"").split(";").includes(country));
+    if(cat) list=list.filter(c=>c.group===cat);
+    if(mode==="popular") list=list.filter(c=>/news|general|culture|education|public/i.test(c.group+" "+c.name));
+    if(mode==="favorites") list=list.filter(c=>favorites.includes(c.key));
+    if(mode==="history") { const order=new Map(history.map((k,i)=>[k,i])); list=list.filter(c=>order.has(c.key)).sort((a,b)=>order.get(a.key)-order.get(b.key)); }
+    return list;
+  }
+  function renderChannels(target="channels") {
+    const list=target==="favoritesList" ? channels.filter(c=>favorites.includes(c.key)) : target==="historyList" ? history.map(k=>channels.find(c=>c.key===k)).filter(Boolean) : getFiltered();
+    $(target).innerHTML=list.length?list.slice(0,600).map(channelCard).join(""):`<div class="empty glass" style="grid-column:1/-1">${target==="favoritesList"?"Пока нет избранных каналов. Нажми ☆ рядом с каналом.":target==="historyList"?"История пока пуста.":"Ничего не найдено."}</div>`;
+    if(target==="channels") { $("shownCount").textContent=`${list.length.toLocaleString()} каналов`; $("listTitle").textContent=({all:"Каналы",popular:"Подборка каналов",favorites:"Избранное",history:"Недавно смотрели"})[mode]; }
+  }
+  function refreshAll(){ renderChannels(); renderChannels("favoritesList"); renderChannels("historyList"); $("channelCount").textContent=channels.length?`${channels.length.toLocaleString()} каналов`:"Каталог недоступен"; }
+  function stopPlayer() {
+    const v=$("video"); try{v.pause();}catch{} v.removeAttribute("src"); v.load();
+    if(hls){hls.destroy();hls=null;} currentChannel=null; $("player").classList.remove("show"); $("playerError").classList.remove("show");
+  }
+  function playChannel(c) {
+    if(!c) return;
+    currentChannel=c; $("player").classList.add("show"); $("playingName").textContent=c.name; $("playerError").classList.remove("show");
+    $("player").scrollIntoView({behavior:"smooth",block:"start"});
+    const v=$("video"); if(hls){hls.destroy();hls=null;} v.pause();v.removeAttribute("src");v.load();
+    const isHls=/\.m3u8($|\?)/i.test(c.url)||c.url.includes(".m3u8?");
+    if(v.canPlayType("application/vnd.apple.mpegurl")) { v.src=c.url; v.play().catch(()=>{}); }
+    else if(isHls && window.Hls && Hls.isSupported()) {
+      hls=new Hls({enableWorker:true,lowLatencyMode:true}); hls.loadSource(c.url); hls.attachMedia(v);
+      hls.on(Hls.Events.ERROR,(_,data)=>{if(data.fatal) showPlayerError("Не удалось воспроизвести поток. Возможно, он недоступен, ограничен по региону или блокируется источником.");});
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>v.play().catch(()=>{}));
+    } else { v.src=c.url; v.play().catch(()=>showPlayerError("Браузер не смог запустить этот поток. Попробуйте другой канал или откройте Mini App в другом браузере.")); }
+    history=[c.key,...history.filter(k=>k!==c.key)].slice(0,50); save(); renderChannels("historyList");
+  }
+  function showPlayerError(msg){$("playerError").textContent=msg;$("playerError").classList.add("show");}
+  function toggleFavorite(key){favorites=favorites.includes(key)?favorites.filter(k=>k!==key):[key,...favorites];save();refreshAll();notify(favorites.includes(key)?"Добавлено в избранное":"Удалено из избранного");}
+  document.addEventListener("click",e=>{
+    const play=e.target.closest("[data-play]"); if(play){playChannel(channels.find(c=>c.key===play.dataset.play));return;}
+    const fav=e.target.closest("[data-fav]"); if(fav){toggleFavorite(fav.dataset.fav);return;}
+    const tab=e.target.closest("[data-mode]"); if(tab){mode=tab.dataset.mode;document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b===tab));renderChannels();return;}
+    const nav=e.target.closest("[data-page]"); if(nav){document.querySelectorAll("main").forEach(p=>p.classList.add("hide"));$(nav.dataset.page).classList.remove("hide");document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b===nav));if(nav.dataset.page==="favoritesPage")renderChannels("favoritesList");if(nav.dataset.page==="historyPage")renderChannels("historyList");window.scrollTo({top:0,behavior:"smooth"});}
+  });
+  ["search","countryFilter","categoryFilter"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",()=>renderChannels()));
+  $("closePlayer").addEventListener("click",stopPlayer);
+  $("fullBtn").addEventListener("click",()=>{const v=$("video");if(v.requestFullscreen)v.requestFullscreen().catch(()=>{});else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen();});
+  $("clearHistory").addEventListener("click",()=>{history=[];save();refreshAll();notify("История очищена");});
+  $("clearData").addEventListener("click",()=>{if(confirm("Удалить избранное и историю на этом устройстве?")){favorites=[];history=[];save();refreshAll();notify("Локальные данные сброшены");}});
+  $("exportData").addEventListener("click",()=>{const blob=new Blob([JSON.stringify({favorites,history,exportedAt:new Date().toISOString()},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="wrbtv-data.json";a.click();URL.revokeObjectURL(a.href);});
+  $("languageSelect").addEventListener("change",e=>{notify(e.target.value==="en"?"English interface language selection saved for this session":"Язык выбран");localStorage.setItem("wrbtv:language",e.target.value);});
+  async function loadChannels() {
+    try {
+      const response=await fetch(PLAYLIST_URL,{cache:"no-store"});
+      if(!response.ok) throw new Error("HTTP "+response.status);
+      channels=parseM3U(await response.text());
+      if(!channels.length) throw new Error("Плейлист пуст");
+      fillFilters();refreshAll();
+    } catch(err) {
+      $("channelCount").textContent="Ошибка загрузки";
+      $("channels").innerHTML=`<div class="empty glass" style="grid-column:1/-1">Не удалось загрузить каталог каналов. Проверь подключение к интернету и попробуй обновить страницу.<br><br><button class="primary" id="retryLoad">Повторить загрузку</button><div class="notice">Источник: открытый плейлист iptv-org. Часть потоков может не работать в браузере.</div></div>`;
+      $("channels").querySelector("#retryLoad")?.addEventListener("click",loadChannels);
+    }
+  }
+  const storedLang=localStorage.getItem("wrbtv:language"); if(storedLang) $("languageSelect").value=storedLang; else if(tg?.initDataUnsafe?.user?.language_code?.startsWith("en")) $("languageSelect").value="en";
+  profile(); loadChannels();
+})();
+</script>
+</body>
+</html>
