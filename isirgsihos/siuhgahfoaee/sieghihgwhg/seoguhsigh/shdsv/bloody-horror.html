@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#160000">
+  <title>WE'LL KILL YOU</title>
+  <style>
+    :root {
+      --site-primary: #8f0000;
+      --site-secondary: #350000;
+      --site-background: #100000;
+      --site-on-primary: #ffffff;
+      --site-on-secondary: #ffdada;
+      --site-on-background: #fff0f0;
+      --site-font-body: "Arial Narrow", Impact, sans-serif;
+      --site-font-heading: Impact, "Arial Black", sans-serif;
+      --site-heading-scale: 1;
+      --site-spacing-scale: 1;
+      --site-radius-scale: 1;
+      --site-decoration-opacity: 1;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; margin: 0; }
+    body {
+      background: light-dark(#100000, #100000);
+      color: var(--site-on-background);
+      font-family: var(--site-font-body);
+      overflow: hidden;
+    }
+    .stage {
+      position: relative;
+      isolation: isolate;
+      display: grid;
+      min-height: 100svh;
+      place-items: center;
+      overflow: hidden;
+      padding: calc(30px * var(--site-spacing-scale));
+      background-color: var(--site-background);
+      background-image:
+        radial-gradient(ellipse at 50% 48%, rgba(145, 0, 0, .34), transparent 53%),
+        repeating-linear-gradient(112deg, transparent 0 8px, rgba(255,0,0,.018) 9px 10px);
+    }
+    .vignette, .grain, .splatter {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .vignette {
+      z-index: -1;
+      background: radial-gradient(ellipse, transparent 20%, rgba(0,0,0,.52) 78%, #000 120%);
+    }
+    .grain {
+      z-index: 2;
+      opacity: calc(.13 * var(--site-decoration-opacity));
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+    }
+    .splatter { z-index: -1; opacity: var(--site-decoration-opacity); }
+    .drop {
+      position: absolute;
+      top: -30px;
+      width: 12px;
+      height: 100px;
+      border-radius: 0 0 50% 50%;
+      background: linear-gradient(#a00000, #510000);
+      box-shadow: 0 0 22px rgba(180,0,0,.24);
+      animation: descend 7s ease-in-out infinite alternate;
+    }
+    .drop:nth-child(1) { left: 8%; height: 170px; width: 18px; animation-delay: -2s; }
+    .drop:nth-child(2) { left: 21%; height: 90px; animation-delay: -5s; }
+    .drop:nth-child(3) { left: 76%; height: 150px; width: 15px; animation-delay: -1s; }
+    .drop:nth-child(4) { left: 91%; height: 210px; width: 20px; animation-delay: -4s; }
+    .stain {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 48% 52% 60% 40%;
+      background: radial-gradient(ellipse, rgba(125,0,0,.4), rgba(80,0,0,.13) 58%, transparent 72%);
+      filter: blur(3px);
+    }
+    .stain.one { top: 5%; left: -75px; transform: rotate(28deg); }
+    .stain.two { right: -85px; bottom: 3%; transform: rotate(-30deg) scale(1.3); }
+    .content {
+      position: relative;
+      z-index: 3;
+      width: min(100%, 1000px);
+      text-align: center;
+      animation: appear 1.4s ease both;
+    }
+    .warning {
+      margin: 0 0 28px;
+      color: #a90000;
+      font-size: clamp(10px, 1.5vw, 14px);
+      letter-spacing: .65em;
+      text-transform: uppercase;
+      text-shadow: 0 0 15px rgba(255,0,0,.45);
+    }
+    h1 {
+      position: relative;
+      margin: 0;
+      color: #d00000;
+      font-family: var(--site-font-heading);
+      font-size: clamp(3.2rem, 12.5vw, 10.5rem);
+      line-height: .86;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+      text-shadow: 0 3px 0 #590000, 0 8px 30px rgba(255,0,0,.22), 0 0 70px rgba(160,0,0,.35);
+      animation: pulse 4s ease-in-out infinite;
+    }
+    h1::after {
+      content: "";
+      position: absolute;
+      left: 13%;
+      right: 13%;
+      bottom: -17px;
+      height: 22px;
+      opacity: .9;
+      background: linear-gradient(90deg, transparent, #7d0000 10%, #b00000 50%, #680000 90%, transparent);
+      clip-path: polygon(0 0,100% 0,100% 15%,85% 15%,83% 100%,79% 100%,77% 30%,65% 30%,63% 75%,60% 75%,58% 15%,42% 15%,40% 100%,36% 100%,34% 25%,18% 25%,16% 65%,12% 65%,10% 15%,0 15%);
+      filter: drop-shadow(0 4px 7px rgba(130,0,0,.65));
+    }
+    .subline {
+      margin: 54px 0 0;
+      color: #7e5555;
+      font-size: clamp(10px, 1.4vw, 13px);
+      letter-spacing: .48em;
+      text-transform: uppercase;
+    }
+    .mark {
+      position: absolute;
+      bottom: 25px;
+      left: 0;
+      right: 0;
+      z-index: 3;
+      color: rgba(150,90,90,.35);
+      text-align: center;
+      font-size: 9px;
+      letter-spacing: .35em;
+    }
+    @keyframes pulse {
+      0%, 100% { filter: brightness(.88); transform: scale(1); }
+      50% { filter: brightness(1.18); transform: scale(1.012); }
+    }
+    @keyframes descend {
+      from { transform: translateY(0) scaleY(.8); }
+      to { transform: translateY(25px) scaleY(1.08); }
+    }
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 520px) {
+      .warning { letter-spacing: .35em; }
+      .subline { letter-spacing: .25em; }
+      h1 { font-size: clamp(3rem, 16vw, 5.5rem); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <div class="splatter" aria-hidden="true">
+      <span class="drop"></span><span class="drop"></span><span class="drop"></span><span class="drop"></span>
+      <span class="stain one"></span><span class="stain two"></span>
+    </div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <section class="content" aria-label="Horror message">
+      <p class="warning">You were warned</p>
+      <h1>WE'LL<br>KILL YOU</h1>
+      <p class="subline">There is no way out</p>
+    </section>
+    <div class="mark">DO NOT LOOK BACK</div>
+  </main>
+</body>
+</html>
