@@ -1,0 +1,4 @@
+*init file /bloody-horror.html*
+const crypto_flag{hide_hidden_russia}
+import file index.cl from store{haorik.ru/hhr/index.cl}
+const display SITE_NAME as {creepy_site}
