@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#168bfa">
+<title>WRB</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Outfit', sans-serif;
+    color: white;
+
+    background:
+        radial-gradient(ellipse at 20% 15%, #a1e7ff 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 85%, #1684ed 0%, transparent 50%),
+        linear-gradient(135deg, #62d5ff, #299cf5, #0870df);
+
+    transition: background 1.5s ease;
+}
+
+body.loaded {
+    background:
+        radial-gradient(ellipse at 15% 15%, #176de5 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 90%, #032e9b 0%, transparent 55%),
+        linear-gradient(135deg, #0865e8, #074ac6, #052e91);
+}
+
+.glow {
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.13);
+    filter: blur(80px);
+    animation: glow 7s ease-in-out infinite alternate;
+}
+
+.glow.one {
+    top: -130px;
+    left: -100px;
+}
+
+.glow.two {
+    bottom: -150px;
+    right: -100px;
+    animation-delay: -3s;
+}
+
+@keyframes glow {
+    from { transform: translate(0,0) scale(1); }
+    to { transform: translate(50px,-40px) scale(1.3); }
+}
+
+body.loaded .glow {
+    animation: none;
+    opacity: .3;
+}
+
+.container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+}
+
+.logo {
+    font-size: clamp(95px, 22vw, 155px);
+    font-weight: 900;
+    letter-spacing: -10px;
+    line-height: 1;
+    text-shadow: 0 12px 40px rgba(0,55,140,.16);
+
+    opacity: 0;
+    transform: translateY(120px) scale(.7);
+
+    animation: entrance 1.3s cubic-bezier(.16,1,.3,1) forwards;
+}
+
+@keyframes entrance {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.loading {
+    margin-top: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 7px;
+    opacity: 0;
+    animation: show .8s ease .7s forwards;
+}
+
+@keyframes show {
+    to { opacity: 1; }
+}
+
+/* LOADED */
+
+body.loaded .logo {
+    animation: retreat 1.4s cubic-bezier(.16,1,.3,1) forwards;
+}
+
+@keyframes retreat {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-105px) scale(.42);
+        opacity: 1;
+    }
+}
+
+body.loaded .loading {
+    opacity: 0;
+    animation: none;
+}
+
+.result {
+    position: absolute;
+    top: calc(50% + 45px);
+    left: 50%;
+    width: 100%;
+    padding: 20px;
+    transform: translate(-50%, 30px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .8s ease, transform .8s ease;
+}
+
+body.loaded .result {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+    transition-delay: .5s;
+}
+
+.result h2 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.result p {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    opacity: .8;
+}
+
+.close {
+    margin-top: 35px;
+    padding: 16px 35px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 100px;
+    color: white;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.close:active {
+    transform: scale(.94);
+    background: rgba(255,255,255,.3);
+}
+
+#error {
+    margin-top: 18px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity .3s;
+}
+</style>
+</head>
+
+<body>
+
+<div class="glow one"></div>
+<div class="glow two"></div>
+
+<div class="container">
+    <div class="logo">WRB</div>
+    <div class="loading">З А Г Р У З К А</div>
+</div>
+
+<div class="result">
+    <h2>ЗАГРУЖЕНО</h2>
+    <p>ЗАКРОЙТЕ БРАУЗЕР</p>
+
+    <button class="close" onclick="closeBrowser()">
+        ЗАКРЫТЬ БРАУЗЕР
+    </button>
+
+    <div id="error">
+        Не удалось закрыть браузер.
+        Закройте вкладку вручную.
+    </div>
+</div>
+
+<script>
+setTimeout(() => {
+    document.body.classList.add('loaded');
+}, 5000);
+
+function closeBrowser() {
+    window.close();
+
+    setTimeout(() => {
+        document.getElementById('error').style.opacity = '1';
+    }, 500);
+}
+</script>
+
+</body>
+</html>
