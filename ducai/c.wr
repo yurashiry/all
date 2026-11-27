@@ -1,0 +1,6 @@
+*init file {c.wr}*
+  sudo install WRTerminal 6.2
+
+    install module BeeCO Network
+
+start server{beeco://c.wr}
