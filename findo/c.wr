@@ -1,0 +1,5 @@
+const create file *c.wr*,
+  const run file *index.html*,
+  const local load *https://github.com/yurashiry/all.git*;
+
+load site 'https://github.com/yurashiry/all.git/';
